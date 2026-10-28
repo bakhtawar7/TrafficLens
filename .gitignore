@@ -1,0 +1,45 @@
+# Model weights (downloaded on first use, never committed)
+*.pt
+*.onnx
+*.engine
+*.torchscript
+*.trt
+runs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Caches and build artifacts
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+
+# Streamlit
+.streamlit/secrets.toml
+
+# Exports produced by the app
+exports/
+trafficlens_*.json
+trafficlens_*.csv
+
+# Raw footage and collected media (kept out of version control)
+data/testset/images/*
+data/testset/clips/*
+data/samples/*
+!data/testset/images/.gitkeep
+!data/testset/clips/.gitkeep
+!data/samples/.gitkeep
+
+# OS and editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

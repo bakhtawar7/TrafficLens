@@ -1,0 +1,22 @@
+flowchart LR
+    subgraph W1[Week 1 built]
+        ING[Ingest<br/>validate and decode input]
+        DET[Detect<br/>YOLOv8n, class filter, count]
+    end
+    subgraph W3[Week 3 planned]
+        REL[Reliability<br/>learned error predictor]
+        DEC[Decide<br/>needs review flag]
+    end
+    subgraph W4[Week 4 planned]
+        REV[Review<br/>human inspect flagged runs]
+        STO[Store<br/>SQLite history]
+    end
+
+    ING --> DET --> REL --> DEC --> REV --> STO
+    DET --> EXP[Export<br/>JSON and CSV, Week 1]
+    DEC -. feeds .-> REV
+
+    classDef built fill:#16263c,stroke:#f5a623,stroke-width:2px,color:#e9eef5;
+    classDef planned fill:#0e1a2b,stroke:#5b6b7f,stroke-dasharray:4 3,color:#9fb0c0;
+    class ING,DET,EXP built;
+    class REL,DEC,REV,STO planned;

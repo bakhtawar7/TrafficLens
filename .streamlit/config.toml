@@ -1,0 +1,15 @@
+# TrafficLens Streamlit theme: dark navy base with an amber accent.
+[theme]
+base = "dark"
+primaryColor = "#f5a623"
+backgroundColor = "#0e1a2b"
+secondaryBackgroundColor = "#16263c"
+textColor = "#e9eef5"
+font = "sans serif"
+
+[server]
+headless = true
+fileWatcherType = "none"
+
+[browser]
+gatherUsageStats = false

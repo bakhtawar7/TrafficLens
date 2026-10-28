@@ -1,0 +1,10 @@
+# TrafficLens runtime and test dependencies.
+# Version floors only; pip resolves the newest compatible release.
+ultralytics>=8.2.0
+streamlit>=1.36.0
+opencv-python-headless>=4.9.0.0
+supervision>=0.21.0
+pandas>=2.0.0
+plotly>=5.20.0
+pillow>=10.2.0
+pytest>=8.0.0
