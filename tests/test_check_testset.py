@@ -17,6 +17,37 @@ def _sources(rows):
     return pd.DataFrame(rows, columns=["item_id", "filename", "permission", "condition_tags"])
 
 
+_EXTENDED_COLUMNS = [
+    "item_id", "filename", "type", "dataset", "split", "scene",
+    "source", "licence", "url", "condition_tags", "notes",
+]
+
+
+def _extended_sources(rows):
+    """A SOURCES frame in the new build_testset format with the provenance columns."""
+    return pd.DataFrame(rows, columns=_EXTENDED_COLUMNS)
+
+
+_LABEL_COLUMNS = ["item_id", *check_testset.dataset.LABEL_CATEGORIES, "labeller_pass", "notes"]
+
+
+def _labels(rows):
+    """A LABELS frame with the seven category count columns plus the pass marker."""
+    return pd.DataFrame(rows, columns=_LABEL_COLUMNS)
+
+
+def _clean_row(**overrides):
+    """One well-formed extended SOURCES row; override a single field to force an error."""
+    row = {
+        "item_id": "tl001", "filename": "tl001_a.jpg", "type": "image",
+        "dataset": "dhaka_ai", "split": "train", "scene": "train:blk0000",
+        "source": "archive", "licence": "UNVERIFIED", "url": "",
+        "condition_tags": "day", "notes": "",
+    }
+    row.update(overrides)
+    return [row[c] for c in _EXTENDED_COLUMNS]
+
+
 def test_reported_clean_when_files_and_rows_match():
     sources = _sources([["tl001", "tl001_a.jpg", "own", "day"]])
     labels = pd.DataFrame(columns=["item_id"])
@@ -59,3 +90,99 @@ def test_empty_scaffold_has_no_errors():
     errors, counts = check_testset.check(sources, labels, set())
     assert errors == []
     assert sum(counts) == 0
+
+
+def test_empty_scaffold_with_new_columns_has_no_errors():
+    sources = _extended_sources([])
+    labels = _labels([])
+    errors, counts = check_testset.check(sources, labels, set())
+    assert errors == []
+    assert sum(counts) == 0
+
+
+# ---------------------------------------------------------------------------
+# New SOURCES provenance columns
+# ---------------------------------------------------------------------------
+
+def test_accepts_new_sources_columns():
+    sources = _extended_sources([_clean_row()])
+    errors, _ = check_testset.check(sources, pd.DataFrame(columns=["item_id"]), {"tl001_a.jpg"})
+    assert errors == []
+
+
+def test_allows_empty_url():
+    sources = _extended_sources([_clean_row(url="")])
+    errors, _ = check_testset.check(sources, pd.DataFrame(columns=["item_id"]), {"tl001_a.jpg"})
+    assert errors == []
+
+
+def test_flags_blank_dataset():
+    sources = _extended_sources([_clean_row(dataset="")])
+    errors, _ = check_testset.check(sources, pd.DataFrame(columns=["item_id"]), {"tl001_a.jpg"})
+    assert any("no dataset recorded" in e for e in errors)
+
+
+def test_flags_blank_split():
+    sources = _extended_sources([_clean_row(split="")])
+    errors, _ = check_testset.check(sources, pd.DataFrame(columns=["item_id"]), {"tl001_a.jpg"})
+    assert any("no split recorded" in e for e in errors)
+
+
+def test_flags_blank_licence():
+    sources = _extended_sources([_clean_row(licence="")])
+    errors, _ = check_testset.check(sources, pd.DataFrame(columns=["item_id"]), {"tl001_a.jpg"})
+    assert any("no licence recorded" in e for e in errors)
+
+
+def test_flags_invalid_url():
+    sources = _extended_sources([_clean_row(url="ftp://example.com/a.jpg")])
+    errors, _ = check_testset.check(sources, pd.DataFrame(columns=["item_id"]), {"tl001_a.jpg"})
+    assert any("invalid url" in e for e in errors)
+
+
+# ---------------------------------------------------------------------------
+# LABELS value validation
+# ---------------------------------------------------------------------------
+
+def _label_row(item_id="tl001", **overrides):
+    row = {
+        "item_id": item_id, "car": 0, "bus": 0, "truck": 0, "motorcycle": 0,
+        "rickshaw": 0, "loader_rickshaw": 0, "other": 0, "labeller_pass": 1, "notes": "",
+    }
+    row.update(overrides)
+    return [row[column] for column in _LABEL_COLUMNS]
+
+
+def _labels_only(**overrides):
+    """Check a single LABELS row against a matching SOURCES row, isolating value errors."""
+    sources = _extended_sources([_clean_row()])
+    labels = _labels([_label_row(**overrides)])
+    errors, _ = check_testset.check(sources, labels, {"tl001_a.jpg"})
+    return errors
+
+
+def test_accepts_valid_label_values():
+    assert _labels_only(car=3, bus=0, labeller_pass=2) == []
+
+
+def test_allows_blank_label_values():
+    assert _labels_only(
+        car="", bus="", truck="", motorcycle="", rickshaw="", loader_rickshaw="",
+        other="", labeller_pass="",
+    ) == []
+
+
+def test_flags_negative_label_count():
+    assert any("non-negative integer" in e and "car" in e for e in _labels_only(car=-1))
+
+
+def test_flags_non_integer_label_count():
+    assert any("non-negative integer" in e and "bus" in e for e in _labels_only(bus=2.5))
+
+
+def test_flags_non_numeric_label_count():
+    assert any("non-negative integer" in e and "truck" in e for e in _labels_only(truck="abc"))
+
+
+def test_flags_invalid_labeller_pass():
+    assert any("labeller_pass must be 1 or 2" in e for e in _labels_only(labeller_pass=3))

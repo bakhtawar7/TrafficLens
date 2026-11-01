@@ -1,0 +1,364 @@
+{
+  "development_subset": [
+    "tl0005",
+    "tl0006",
+    "tl0009",
+    "tl0011",
+    "tl0013",
+    "tl0016",
+    "tl0018",
+    "tl0023",
+    "tl0031",
+    "tl0039"
+  ],
+  "items": [
+    {
+      "condition_tags": "dense;distant",
+      "item_id": "tl0001",
+      "rickshaw_or_cng": true,
+      "scene": "train:Final Train Dataset:blk0000",
+      "split": "train"
+    },
+    {
+      "condition_tags": "day;dense",
+      "item_id": "tl0002",
+      "rickshaw_or_cng": true,
+      "scene": "train:Final Train Dataset:blk0000",
+      "split": "train"
+    },
+    {
+      "condition_tags": "night;glare;dense;distant",
+      "item_id": "tl0003",
+      "rickshaw_or_cng": true,
+      "scene": "train:Final Train Dataset:blk0000",
+      "split": "train"
+    },
+    {
+      "condition_tags": "day;dense",
+      "item_id": "tl0004",
+      "rickshaw_or_cng": true,
+      "scene": "train:Final Train Dataset:blk0004",
+      "split": "train"
+    },
+    {
+      "condition_tags": "night;dense",
+      "item_id": "tl0005",
+      "rickshaw_or_cng": true,
+      "scene": "train:Final Train Dataset:blk0004",
+      "split": "train"
+    },
+    {
+      "condition_tags": "night;glare",
+      "item_id": "tl0006",
+      "rickshaw_or_cng": false,
+      "scene": "train:Final Train Dataset:blk0004",
+      "split": "train"
+    },
+    {
+      "condition_tags": "day;dense;distant",
+      "item_id": "tl0007",
+      "rickshaw_or_cng": true,
+      "scene": "train:Final Train Dataset:blk0005",
+      "split": "train"
+    },
+    {
+      "condition_tags": "day;dense",
+      "item_id": "tl0008",
+      "rickshaw_or_cng": true,
+      "scene": "train:Final Train Dataset:blk0005",
+      "split": "train"
+    },
+    {
+      "condition_tags": "day;sparse",
+      "item_id": "tl0009",
+      "rickshaw_or_cng": true,
+      "scene": "train:Final Train Dataset:blk0005",
+      "split": "train"
+    },
+    {
+      "condition_tags": "sparse",
+      "item_id": "tl0010",
+      "rickshaw_or_cng": false,
+      "scene": "train:Final Train Dataset:blk0006",
+      "split": "train"
+    },
+    {
+      "condition_tags": "dense;distant",
+      "item_id": "tl0011",
+      "rickshaw_or_cng": true,
+      "scene": "train:Final Train Dataset:blk0006",
+      "split": "train"
+    },
+    {
+      "condition_tags": "",
+      "item_id": "tl0012",
+      "rickshaw_or_cng": true,
+      "scene": "train:Final Train Dataset:blk0006",
+      "split": "train"
+    },
+    {
+      "condition_tags": "sparse",
+      "item_id": "tl0013",
+      "rickshaw_or_cng": false,
+      "scene": "train:Final Train Dataset:blk0007",
+      "split": "train"
+    },
+    {
+      "condition_tags": "",
+      "item_id": "tl0014",
+      "rickshaw_or_cng": true,
+      "scene": "train:Final Train Dataset:blk0007",
+      "split": "train"
+    },
+    {
+      "condition_tags": "night",
+      "item_id": "tl0015",
+      "rickshaw_or_cng": true,
+      "scene": "train:Final Train Dataset:blk0007",
+      "split": "train"
+    },
+    {
+      "condition_tags": "glare;dense",
+      "item_id": "tl0016",
+      "rickshaw_or_cng": false,
+      "scene": "train:Final Train Dataset:blk0008",
+      "split": "train"
+    },
+    {
+      "condition_tags": "glare;dense",
+      "item_id": "tl0017",
+      "rickshaw_or_cng": true,
+      "scene": "train:Final Train Dataset:blk0008",
+      "split": "train"
+    },
+    {
+      "condition_tags": "night;glare;dense;distant",
+      "item_id": "tl0018",
+      "rickshaw_or_cng": true,
+      "scene": "train:Final Train Dataset:blk0008",
+      "split": "train"
+    },
+    {
+      "condition_tags": "dense",
+      "item_id": "tl0019",
+      "rickshaw_or_cng": true,
+      "scene": "train:Final Train Dataset:blk0009",
+      "split": "train"
+    },
+    {
+      "condition_tags": "day;dense",
+      "item_id": "tl0020",
+      "rickshaw_or_cng": true,
+      "scene": "train:Final Train Dataset:blk0009",
+      "split": "train"
+    },
+    {
+      "condition_tags": "day",
+      "item_id": "tl0021",
+      "rickshaw_or_cng": true,
+      "scene": "train:Final Train Dataset:blk0009",
+      "split": "train"
+    },
+    {
+      "condition_tags": "day;dense",
+      "item_id": "tl0022",
+      "rickshaw_or_cng": true,
+      "scene": "train:Final Train Dataset:blk0001",
+      "split": "train"
+    },
+    {
+      "condition_tags": "sparse",
+      "item_id": "tl0023",
+      "rickshaw_or_cng": true,
+      "scene": "train:Final Train Dataset:blk0001",
+      "split": "train"
+    },
+    {
+      "condition_tags": "night",
+      "item_id": "tl0024",
+      "rickshaw_or_cng": true,
+      "scene": "train:Final Train Dataset:blk0001",
+      "split": "train"
+    },
+    {
+      "condition_tags": "dense",
+      "item_id": "tl0025",
+      "rickshaw_or_cng": false,
+      "scene": "train:Final Train Dataset:blk0002",
+      "split": "train"
+    },
+    {
+      "condition_tags": "day;glare;dense;distant",
+      "item_id": "tl0026",
+      "rickshaw_or_cng": true,
+      "scene": "train:Final Train Dataset:blk0002",
+      "split": "train"
+    },
+    {
+      "condition_tags": "day;dense;distant",
+      "item_id": "tl0027",
+      "rickshaw_or_cng": true,
+      "scene": "train:Final Train Dataset:blk0002",
+      "split": "train"
+    },
+    {
+      "condition_tags": "night;glare;dense;distant",
+      "item_id": "tl0028",
+      "rickshaw_or_cng": true,
+      "scene": "train:Final Train Dataset:blk0003",
+      "split": "train"
+    },
+    {
+      "condition_tags": "day;dense;distant",
+      "item_id": "tl0029",
+      "rickshaw_or_cng": false,
+      "scene": "train:Final Train Dataset:blk0003",
+      "split": "train"
+    },
+    {
+      "condition_tags": "dense",
+      "item_id": "tl0030",
+      "rickshaw_or_cng": true,
+      "scene": "train:Final Train Dataset:blk0003",
+      "split": "train"
+    },
+    {
+      "condition_tags": "dense",
+      "item_id": "tl0031",
+      "rickshaw_or_cng": true,
+      "scene": "train:asraf",
+      "split": "train"
+    },
+    {
+      "condition_tags": "sparse",
+      "item_id": "tl0032",
+      "rickshaw_or_cng": false,
+      "scene": "train:asraf",
+      "split": "train"
+    },
+    {
+      "condition_tags": "",
+      "item_id": "tl0033",
+      "rickshaw_or_cng": false,
+      "scene": "train:asraf",
+      "split": "train"
+    },
+    {
+      "condition_tags": "day;sparse",
+      "item_id": "tl0034",
+      "rickshaw_or_cng": true,
+      "scene": "train:dipto",
+      "split": "train"
+    },
+    {
+      "condition_tags": "day;glare;sparse",
+      "item_id": "tl0035",
+      "rickshaw_or_cng": true,
+      "scene": "train:dipto",
+      "split": "train"
+    },
+    {
+      "condition_tags": "day;sparse",
+      "item_id": "tl0036",
+      "rickshaw_or_cng": true,
+      "scene": "train:dipto",
+      "split": "train"
+    },
+    {
+      "condition_tags": "night;glare;dense;distant",
+      "item_id": "tl0037",
+      "rickshaw_or_cng": true,
+      "scene": "train:navid",
+      "split": "train"
+    },
+    {
+      "condition_tags": "day;sparse",
+      "item_id": "tl0038",
+      "rickshaw_or_cng": true,
+      "scene": "train:navid",
+      "split": "train"
+    },
+    {
+      "condition_tags": "day;sparse",
+      "item_id": "tl0039",
+      "rickshaw_or_cng": true,
+      "scene": "train:navid",
+      "split": "train"
+    },
+    {
+      "condition_tags": "sparse",
+      "item_id": "tl0040",
+      "rickshaw_or_cng": true,
+      "scene": "train:numan",
+      "split": "train"
+    },
+    {
+      "condition_tags": "night;glare;sparse",
+      "item_id": "tl0041",
+      "rickshaw_or_cng": false,
+      "scene": "train:numan",
+      "split": "train"
+    },
+    {
+      "condition_tags": "day;dense",
+      "item_id": "tl0042",
+      "rickshaw_or_cng": true,
+      "scene": "train:numan",
+      "split": "train"
+    },
+    {
+      "condition_tags": "night;glare;dense;distant",
+      "item_id": "tl0043",
+      "rickshaw_or_cng": true,
+      "scene": "train:pias",
+      "split": "train"
+    },
+    {
+      "condition_tags": "night;glare;sparse;distant",
+      "item_id": "tl0044",
+      "rickshaw_or_cng": true,
+      "scene": "train:pias",
+      "split": "train"
+    },
+    {
+      "condition_tags": "night;glare;dense;distant",
+      "item_id": "tl0045",
+      "rickshaw_or_cng": true,
+      "scene": "train:pias",
+      "split": "train"
+    }
+  ],
+  "params": {
+    "dev_subset_size": 10,
+    "max_per_scene": 3,
+    "min_per_tag": 8,
+    "min_rickshaw": 15,
+    "second_pass_fraction": 0.2,
+    "target": 45
+  },
+  "pool_size": 2967,
+  "rickshaw_count": 36,
+  "second_pass": [
+    "tl0007",
+    "tl0008",
+    "tl0022",
+    "tl0029",
+    "tl0035",
+    "tl0036",
+    "tl0038",
+    "tl0043",
+    "tl0044"
+  ],
+  "seed": 20261028,
+  "selected": 45,
+  "tag_coverage": {
+    "day": 17,
+    "dense": 25,
+    "distant": 13,
+    "glare": 13,
+    "night": 12,
+    "sparse": 13
+  },
+  "unmet_rickshaw": 0,
+  "unmet_tags": {}
+}

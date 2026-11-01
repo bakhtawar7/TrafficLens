@@ -1,59 +1,59 @@
 decision,item_id,original_filename,area,condition_tags,total,detectable_total,score,reasons
-selected,tl001,86.JPG,unknown,night;dense,27,21,0.925,
-selected,tl002,Pias (325).jpg,pias,night;glare;dense,15,14,0.895,
-selected,tl003,Pias (180).jpg,pias,night,12,12,0.88,
-selected,tl004,Pias (329).jpg,pias,night;glare,12,11,0.865,
-selected,tl005,Pias (356).jpg,pias,night;glare,12,11,0.865,
-selected,tl006,Pias (326).jpg,pias,night,11,11,0.86,
-selected,tl007,Pias (323).jpg,pias,night;glare;dense,17,12,0.855,
-selected,tl008,Pias (324).jpg,pias,night;glare,13,10,0.845,
-selected,tl009,Pias (340).jpg,pias,night;glare,10,10,0.84,
-selected,tl010,224.jpg,unknown,night;dense,29,19,0.8332,
-selected,tl011,233.jpg,unknown,night;dense,16,16,0.826,
-selected,tl012,08.jpg,unknown,night;glare;dense,45,38,0.7459,
-selected,tl013,Navid_301.jpg,navid,day;sparse,5,5,0.74,
-selected,tl014,03.jpg,unknown,day;glare;sparse,5,4,0.725,
-selected,tl015,200.png,unknown,day;glare;sparse,5,4,0.725,
-selected,tl016,Dipto_21.jpg,dipto,day;glare;sparse,5,4,0.725,
-selected,tl017,Navid_190.jpg,navid,day;sparse,5,4,0.725,
-selected,tl018,Navid_281.jpg,navid,day;sparse,5,4,0.725,
-selected,tl019,Numan_(134).jpg,numan,day;glare;sparse,5,4,0.725,
-selected,tl020,Numan_(454).jpg,numan,day;sparse,5,4,0.725,
-selected,tl021,02.jpg,unknown,day;glare;dense;distant,26,19,0.915,
-selected,tl022,67.jpg,unknown,day;glare;dense;distant,31,25,0.905,
-selected,tl023,Dipto_640.jpg,dipto,day;dense;distant,24,17,0.895,
-selected,tl024,Dipto_642.jpg,dipto,day;dense;distant,21,16,0.895,
-selected,tl025,Dipto_643.jpg,dipto,day;dense;distant,18,15,0.895,
-selected,tl026,Dipto_641.jpg,dipto,day;dense;distant,22,16,0.89,
-selected,tl027,Dipto_644.jpg,dipto,day;dense;distant,18,14,0.8721,
-selected,tl028,Navid_505.jpg,navid,day;distant,12,11,0.7978,
-selected,tl029,Navid_504.jpg,navid,day;distant,12,10,0.7741,
-selected,tl030,Navid_528.jpg,navid,day;distant,10,7,0.7303,
-selected,tl031,Navid_506.jpg,navid,day;distant,11,10,0.7302,
-selected,tl032,Dipto_853.jpg,dipto,day;distant,7,5,0.7162,
-selected,tl033,Numan_(303).JPG,numan,day;glare;dense,17,16,0.915,
-selected,tl034,Numan_(293).JPG,numan,day;dense,21,17,0.91,
-selected,tl035,Numan_(304).JPG,numan,day;dense,16,15,0.905,
-selected,tl036,Numan_(307).JPG,numan,day;glare;dense,18,15,0.895,
-selected,tl037,Numan_(305).JPG,numan,day;glare;dense,16,14,0.89,
-selected,tl038,Numan_(315).jpg,numan,day;dense,19,15,0.89,
-selected,tl039,Dipto_362.jpg,dipto,day;glare;dense,35,22,0.8727,
-selected,tl040,Asraf_07.jpg,asraf,day;glare;dense,23,17,0.8634,
-selected,tl041,Asraf_53.jpg,asraf,day,11,11,0.8579,
-selected,tl042,Asraf_54.jpg,asraf,day,11,11,0.8573,
-selected,tl043,Navid_351.JPG,navid,day;glare;dense,14,11,0.855,
-selected,tl044,Asraf_55.jpg,asraf,day,10,10,0.7978,
-selected,tl045,Asraf_58.jpg,asraf,day,8,8,0.7744,
-selected,tl046,Asraf_57.jpg,asraf,day,9,9,0.7579,
-selected,tl047,Asraf_03.jpg,asraf,day;glare,9,9,0.7557,
-selected,tl048,Asraf_56.jpg,asraf,day,9,9,0.7325,
-selected,tl049,84.jpg,unknown,day;glare;dense,25,23,0.935,
-selected,tl050,10.jpg,unknown,day;glare;dense,27,24,0.925,
-selected,tl051,Pias (179).jpg,pias,day;dense,16,16,0.92,
-selected,tl052,Pias (178).jpg,pias,day;dense,16,15,0.905,
-selected,tl053,09.jpg,unknown,day;dense,23,17,0.9,
-selected,tl054,Pias (149).jpg,pias,day;dense;distant,14,14,0.9,
-selected,tl055,Pias (266).jpg,pias,day;glare;dense,14,14,0.9,
+selected,tl001,84.jpg,unknown,day;glare;dense,25,23,0.935,
+selected,tl002,10.jpg,unknown,day;glare;dense,27,24,0.925,
+selected,tl003,86.JPG,unknown,night;dense,27,21,0.925,
+selected,tl004,Pias (179).jpg,pias,day;dense,16,16,0.92,
+selected,tl005,02.jpg,unknown,day;glare;dense;distant,26,19,0.915,
+selected,tl006,Numan_(303).JPG,numan,day;glare;dense,17,16,0.915,
+selected,tl007,Numan_(293).JPG,numan,day;dense,21,17,0.91,
+selected,tl008,Numan_(304).JPG,numan,day;dense,16,15,0.905,
+selected,tl009,Pias (178).jpg,pias,day;dense,16,15,0.905,
+selected,tl010,67.jpg,unknown,day;glare;dense;distant,31,25,0.905,
+selected,tl011,09.jpg,unknown,day;dense,23,17,0.9,
+selected,tl012,Pias (149).jpg,pias,day;dense;distant,14,14,0.9,
+selected,tl013,Pias (266).jpg,pias,day;glare;dense,14,14,0.9,
+selected,tl014,Pias (298).jpg,pias,day;dense;distant,17,15,0.9,
+selected,tl015,223.jpg,unknown,day;glare;dense,32,24,0.9,
+selected,tl016,Dipto_640.jpg,dipto,day;dense;distant,24,17,0.895,
+selected,tl017,Dipto_642.jpg,dipto,day;dense;distant,21,16,0.895,
+selected,tl018,Dipto_643.jpg,dipto,day;dense;distant,18,15,0.895,
+selected,tl019,Numan_(307).JPG,numan,day;glare;dense,18,15,0.895,
+selected,tl020,Pias (173).jpg,pias,day;dense,15,14,0.895,
+selected,tl021,Pias (325).jpg,pias,night;glare;dense,15,14,0.895,
+selected,tl022,228.jpg,unknown,day;glare;dense;distant,33,22,0.895,
+selected,tl023,Dipto_641.jpg,dipto,day;dense;distant,22,16,0.89,
+selected,tl024,Pias (180).jpg,pias,night,12,12,0.88,
+selected,tl025,Numan_(308).JPG,numan,day;glare,13,11,0.86,
+selected,tl026,Asraf_53.jpg,asraf,day,11,11,0.8579,
+selected,tl027,Asraf_54.jpg,asraf,day,11,11,0.8573,
+selected,tl028,Numan_(314).jpg,numan,day,11,11,0.8512,
+selected,tl029,Numan_(353).jpg,numan,day,12,11,0.844,
+selected,tl030,Dipto_ 115.jpg,dipto,day,10,10,0.84,
+selected,tl031,Numan_(160).jpg,numan,day,13,9,0.83,
+selected,tl032,Navid_352.JPG,navid,day;glare,11,8,0.815,
+selected,tl033,Dipto_482.jpg,dipto,day;glare,10,8,0.8025,
+selected,tl034,Navid_234.jpg,navid,day;glare,12,10,0.7985,
+selected,tl035,Navid_505.jpg,navid,day;distant,12,11,0.7978,
+selected,tl036,Navid_02.jpg,navid,day;glare,13,11,0.7873,
+selected,tl037,Navid_232.jpg,navid,day;glare,11,10,0.7867,
+selected,tl038,Navid_504.jpg,navid,day;distant,12,10,0.7741,
+selected,tl039,Dipto_650.jpg,dipto,night,11,9,0.7453,
+selected,tl040,Navid_301.jpg,navid,day;sparse,5,5,0.74,
+selected,tl041,Navid_528.jpg,navid,day;distant,10,7,0.7303,
+selected,tl042,Dipto_21.jpg,dipto,day;glare;sparse,5,4,0.725,
+selected,tl043,Asraf_01.jpg,asraf,day;glare;sparse,5,3,0.6357,
+selected,tl044,Asraf_45.jpg,asraf,day;glare;sparse,5,5,0.551,
+selected,tl045,Asraf_04.jpg,asraf,day;sparse,3,3,0.3321,
+selected,tl046,Asraf_46.jpg,asraf,day;glare;sparse,3,3,0.3058,
+selected,tl047,Asraf_43.jpg,asraf,day;glare;sparse,2,2,0.2972,
+selected,tl048,Pias (46).jpg,pias,day;dense,15,14,0.895,
+selected,tl049,219.jpg,unknown,day;glare;dense;distant,31,19,0.89,
+selected,tl050,229.jpg,unknown,day;glare;dense,22,16,0.89,
+selected,tl051,Numan_(305).JPG,numan,day;glare;dense,16,14,0.89,
+selected,tl052,Numan_(315).jpg,numan,day;dense,19,15,0.89,
+selected,tl053,05.jpg,unknown,day;glare;dense;distant,34,24,0.89,
+selected,tl054,Pias (135).jpg,pias,day;dense,14,13,0.885,
+selected,tl055,Pias (172).jpg,pias,day;dense,14,13,0.885,
 rejected,,Asraf_50_jpg.rf.7026694f0b9f37a6790982295c7e8663.jpg,unknown,,0,0,0.14,no XML annotation beside the image
 rejected,,Asraf_51_jpg.rf.0e3516baf7509bc2c4a4aa8deea494c2.jpg,unknown,,0,0,0.14,no XML annotation beside the image
 rejected,,Asraf_52_jpg.rf.867869f276e6db3a09a84b99643df316.jpg,unknown,,0,0,0.14,no XML annotation beside the image
@@ -1487,10 +1487,11 @@ rejected,,Pias (526).jpg,pias,day;sparse,1,1,0.3739,fewer than two vehicles to c
 rejected,,Pias (530).jpg,pias,day;sparse,1,1,0.3975,fewer than two vehicles to count
 rejected,,Pias (536).jpg,pias,day;sparse,1,1,0.3974,fewer than two vehicles to count
 rejected,,01.jpg,unknown,day;glare;dense,30,16,0.85,not selected: diversity budget already filled
+rejected,,03.jpg,unknown,day;glare;sparse,5,4,0.725,not selected: diversity budget already filled
 rejected,,04.jpg,unknown,day;glare;dense,15,13,0.88,not selected: diversity budget already filled
-rejected,,05.jpg,unknown,day;glare;dense;distant,34,24,0.89,not selected: diversity budget already filled
 rejected,,06.jpeg,unknown,day,10,9,0.825,not selected: diversity budget already filled
 rejected,,07.jpg,unknown,night;dense,53,37,0.7287,not selected: diversity budget already filled
+rejected,,08.jpg,unknown,night;glare;dense,45,38,0.7459,not selected: diversity budget already filled
 rejected,,100.jpg,unknown,day;glare,7,7,0.5175,not selected: diversity budget already filled
 rejected,,101.jpg,unknown,day;dense;distant,21,11,0.82,not selected: diversity budget already filled
 rejected,,102.jpg,unknown,day;dense,16,9,0.815,not selected: diversity budget already filled
@@ -1576,6 +1577,7 @@ rejected,,195.png,unknown,day;dense,15,10,0.835,not selected: diversity budget a
 rejected,,196.png,unknown,day;dense,14,8,0.81,not selected: diversity budget already filled
 rejected,,197.png,unknown,day;dense,16,8,0.8,not selected: diversity budget already filled
 rejected,,199.png,unknown,day;dense,15,4,0.745,not selected: diversity budget already filled
+rejected,,200.png,unknown,day;glare;sparse,5,4,0.725,not selected: diversity budget already filled
 rejected,,201.png,unknown,day;glare,8,6,0.77,not selected: diversity budget already filled
 rejected,,202.png,unknown,day;glare,11,9,0.7425,not selected: diversity budget already filled
 rejected,,203.png,unknown,day;glare;dense,22,12,0.83,not selected: diversity budget already filled
@@ -1591,18 +1593,16 @@ rejected,,212.jpg,unknown,night;dense,58,58,0.7125,not selected: diversity budge
 rejected,,213.jpg,unknown,day;dense,48,46,0.82,not selected: diversity budget already filled
 rejected,,214.jpg,unknown,day;dense,64,9,0.635,not selected: diversity budget already filled
 rejected,,217.jpg,unknown,day;glare;dense,57,47,0.8,not selected: diversity budget already filled
-rejected,,219.jpg,unknown,day;glare;dense;distant,31,19,0.89,not selected: diversity budget already filled
 rejected,,22.jpg,unknown,day,7,3,0.5021,not selected: diversity budget already filled
 rejected,,221.jpg,unknown,day;dense,58,56,0.8,not selected: diversity budget already filled
 rejected,,222.jpg,unknown,day;glare;dense,64,52,0.8,not selected: diversity budget already filled
-rejected,,223.jpg,unknown,day;glare;dense,32,24,0.9,not selected: diversity budget already filled
+rejected,,224.jpg,unknown,night;dense,29,19,0.8332,not selected: diversity budget already filled
 rejected,,225.jpg,unknown,day;glare,13,8,0.7275,not selected: diversity budget already filled
 rejected,,226.jpg,unknown,day;dense,77,62,0.8,not selected: diversity budget already filled
 rejected,,227.jpg,unknown,day;glare;dense;distant,51,41,0.805,not selected: diversity budget already filled
-rejected,,228.jpg,unknown,day;glare;dense;distant,33,22,0.895,not selected: diversity budget already filled
-rejected,,229.jpg,unknown,day;glare;dense,22,16,0.89,not selected: diversity budget already filled
 rejected,,230.jpg,unknown,day;glare;dense,40,20,0.86,not selected: diversity budget already filled
 rejected,,232.jpg,unknown,day,8,5,0.755,not selected: diversity budget already filled
+rejected,,233.jpg,unknown,night;dense,16,16,0.826,not selected: diversity budget already filled
 rejected,,234.jpg,unknown,day;dense,47,27,0.825,not selected: diversity budget already filled
 rejected,,235.jpg,unknown,day;glare,6,4,0.555,not selected: diversity budget already filled
 rejected,,236.jpg,unknown,day;sparse,5,2,0.6075,not selected: diversity budget already filled
@@ -1663,11 +1663,11 @@ rejected,,95.jpg,unknown,day;glare;dense;distant,40,32,0.86,not selected: divers
 rejected,,96.jpg,unknown,day,11,10,0.845,not selected: diversity budget already filled
 rejected,,98.jpg,unknown,day;glare;dense,18,3,0.6841,not selected: diversity budget already filled
 rejected,,99.jpg,unknown,day;distant,10,5,0.765,not selected: diversity budget already filled
-rejected,,Asraf_01.jpg,asraf,day;glare;sparse,5,3,0.6357,not selected: diversity budget already filled
 rejected,,Asraf_02.jpg,asraf,day;glare;dense,14,10,0.7558,not selected: diversity budget already filled
-rejected,,Asraf_04.jpg,asraf,day;sparse,3,3,0.3321,not selected: diversity budget already filled
+rejected,,Asraf_03.jpg,asraf,day;glare,9,9,0.7557,not selected: diversity budget already filled
 rejected,,Asraf_05.jpg,asraf,day;glare;dense,31,25,0.828,not selected: diversity budget already filled
 rejected,,Asraf_06.jpg,asraf,day;glare;dense,34,27,0.8316,not selected: diversity budget already filled
+rejected,,Asraf_07.jpg,asraf,day;glare;dense,23,17,0.8634,not selected: diversity budget already filled
 rejected,,Asraf_08.jpg,asraf,day;glare,9,9,0.5422,not selected: diversity budget already filled
 rejected,,Asraf_10.jpg,asraf,day;glare;dense,22,11,0.7355,not selected: diversity budget already filled
 rejected,,Asraf_11.jpg,asraf,day;glare;dense,18,8,0.5978,not selected: diversity budget already filled
@@ -1700,13 +1700,14 @@ rejected,,Asraf_39.jpg,asraf,day,7,6,0.5656,not selected: diversity budget alrea
 rejected,,Asraf_40.jpg,asraf,day;glare;dense,14,10,0.728,not selected: diversity budget already filled
 rejected,,Asraf_41.jpg,asraf,day;glare,6,5,0.626,not selected: diversity budget already filled
 rejected,,Asraf_42.jpg,asraf,day;glare,7,4,0.523,not selected: diversity budget already filled
-rejected,,Asraf_43.jpg,asraf,day;glare;sparse,2,2,0.2972,not selected: diversity budget already filled
 rejected,,Asraf_44.jpg,asraf,day;glare,8,8,0.6167,not selected: diversity budget already filled
-rejected,,Asraf_45.jpg,asraf,day;glare;sparse,5,5,0.551,not selected: diversity budget already filled
-rejected,,Asraf_46.jpg,asraf,day;glare;sparse,3,3,0.3058,not selected: diversity budget already filled
 rejected,,Asraf_47.jpg,asraf,day;glare;dense,52,44,0.7552,not selected: diversity budget already filled
 rejected,,Asraf_48.jpg,asraf,day;glare;dense,15,11,0.7749,not selected: diversity budget already filled
 rejected,,Asraf_49.jpg,asraf,day;glare;dense,16,12,0.7899,not selected: diversity budget already filled
+rejected,,Asraf_55.jpg,asraf,day,10,10,0.7978,not selected: diversity budget already filled
+rejected,,Asraf_56.jpg,asraf,day,9,9,0.7325,not selected: diversity budget already filled
+rejected,,Asraf_57.jpg,asraf,day,9,9,0.7579,not selected: diversity budget already filled
+rejected,,Asraf_58.jpg,asraf,day,8,8,0.7744,not selected: diversity budget already filled
 rejected,,Asraf_59.jpg,asraf,day,8,8,0.5828,not selected: diversity budget already filled
 rejected,,Asraf_60.jpg,asraf,day,7,7,0.6304,not selected: diversity budget already filled
 rejected,,Asraf_61.jpg,asraf,day,7,7,0.5474,not selected: diversity budget already filled
@@ -1755,7 +1756,6 @@ rejected,,Dipto_ 111.jpg,dipto,day,7,6,0.59,not selected: diversity budget alrea
 rejected,,Dipto_ 112.jpg,dipto,day;sparse,3,2,0.51,not selected: diversity budget already filled
 rejected,,Dipto_ 113.jpg,dipto,day;sparse,5,5,0.565,not selected: diversity budget already filled
 rejected,,Dipto_ 114.jpg,dipto,day,7,7,0.6925,not selected: diversity budget already filled
-rejected,,Dipto_ 115.jpg,dipto,day,10,10,0.84,not selected: diversity budget already filled
 rejected,,Dipto_ 116.jpg,dipto,day;sparse,5,4,0.6103,not selected: diversity budget already filled
 rejected,,Dipto_ 117.jpg,dipto,day;sparse,3,3,0.525,not selected: diversity budget already filled
 rejected,,Dipto_ 118.jpg,dipto,day;sparse,2,2,0.505,not selected: diversity budget already filled
@@ -1997,6 +1997,7 @@ rejected,,Dipto_359.jpg,dipto,day;dense,23,10,0.795,not selected: diversity budg
 rejected,,Dipto_36.jpg,dipto,day;glare;sparse;distant,2,2,0.505,not selected: diversity budget already filled
 rejected,,Dipto_360.jpg,dipto,day;dense,35,14,0.795,not selected: diversity budget already filled
 rejected,,Dipto_361.jpg,dipto,day;glare;dense,23,10,0.795,not selected: diversity budget already filled
+rejected,,Dipto_362.jpg,dipto,day;glare;dense,35,22,0.8727,not selected: diversity budget already filled
 rejected,,Dipto_363.jpg,dipto,day;dense,48,27,0.82,not selected: diversity budget already filled
 rejected,,Dipto_364.jpg,dipto,day;glare;dense,50,23,0.81,not selected: diversity budget already filled
 rejected,,Dipto_365.jpg,dipto,day;dense,49,20,0.815,not selected: diversity budget already filled
@@ -2098,7 +2099,6 @@ rejected,,Dipto_478.jpg,dipto,day;glare;sparse,3,3,0.4831,not selected: diversit
 rejected,,Dipto_479.jpg,dipto,day;glare;sparse,3,2,0.518,not selected: diversity budget already filled
 rejected,,Dipto_480.jpg,dipto,day;glare,6,6,0.6483,not selected: diversity budget already filled
 rejected,,Dipto_481.jpg,dipto,day;glare;sparse,2,2,0.394,not selected: diversity budget already filled
-rejected,,Dipto_482.jpg,dipto,day;glare,10,8,0.8025,not selected: diversity budget already filled
 rejected,,Dipto_483.jpg,dipto,day;glare;sparse,3,3,0.5933,not selected: diversity budget already filled
 rejected,,Dipto_484.jpg,dipto,day;glare;sparse,4,4,0.5382,not selected: diversity budget already filled
 rejected,,Dipto_486.jpg,dipto,day;glare;sparse,3,3,0.5526,not selected: diversity budget already filled
@@ -2195,12 +2195,12 @@ rejected,,Dipto_631.jpg,dipto,day;glare;sparse,3,3,0.4906,not selected: diversit
 rejected,,Dipto_634.jpg,dipto,day;glare;sparse,2,2,0.4175,not selected: diversity budget already filled
 rejected,,Dipto_636.jpg,dipto,day;glare;sparse,5,5,0.4775,not selected: diversity budget already filled
 rejected,,Dipto_638.jpg,dipto,day;glare;sparse,4,3,0.6175,not selected: diversity budget already filled
+rejected,,Dipto_644.jpg,dipto,day;dense;distant,18,14,0.8721,not selected: diversity budget already filled
 rejected,,Dipto_645.jpg,dipto,day,10,9,0.7344,not selected: diversity budget already filled
 rejected,,Dipto_646.jpg,dipto,day,7,5,0.6603,not selected: diversity budget already filled
 rejected,,Dipto_647.jpg,dipto,day,12,9,0.7552,not selected: diversity budget already filled
 rejected,,Dipto_648.jpg,dipto,day,11,9,0.7421,not selected: diversity budget already filled
 rejected,,Dipto_649.jpg,dipto,day,10,8,0.7153,not selected: diversity budget already filled
-rejected,,Dipto_650.jpg,dipto,night,11,9,0.7453,not selected: diversity budget already filled
 rejected,,Dipto_651.jpg,dipto,day,9,7,0.7028,not selected: diversity budget already filled
 rejected,,Dipto_652.jpg,dipto,day;sparse,5,4,0.6431,not selected: diversity budget already filled
 rejected,,Dipto_653.jpg,dipto,day;sparse,5,4,0.5695,not selected: diversity budget already filled
@@ -2295,13 +2295,13 @@ rejected,,Dipto_849.jpg,dipto,day,9,6,0.7001,not selected: diversity budget alre
 rejected,,Dipto_850.jpg,dipto,day;sparse;distant,5,3,0.5884,not selected: diversity budget already filled
 rejected,,Dipto_851.jpg,dipto,day;distant,6,4,0.6056,not selected: diversity budget already filled
 rejected,,Dipto_852.jpg,dipto,day;distant,6,4,0.667,not selected: diversity budget already filled
+rejected,,Dipto_853.jpg,dipto,day;distant,7,5,0.7162,not selected: diversity budget already filled
 rejected,,Dipto_854.jpg,dipto,day;sparse,5,3,0.5766,not selected: diversity budget already filled
 rejected,,Dipto_855.jpg,dipto,day;sparse,5,3,0.5564,not selected: diversity budget already filled
 rejected,,Dipto_856.jpg,dipto,day;sparse,5,3,0.5758,not selected: diversity budget already filled
 rejected,,Dipto_857.jpg,dipto,day,6,4,0.5465,not selected: diversity budget already filled
 rejected,,Dipto_858.jpg,dipto,day,9,6,0.6988,not selected: diversity budget already filled
 rejected,,Navid_01.jpg,navid,day;glare,12,11,0.6153,not selected: diversity budget already filled
-rejected,,Navid_02.jpg,navid,day;glare,13,11,0.7873,not selected: diversity budget already filled
 rejected,,Navid_03.jpg,navid,day;glare;dense,14,12,0.7805,not selected: diversity budget already filled
 rejected,,Navid_04.jpg,navid,day;glare,13,8,0.5958,not selected: diversity budget already filled
 rejected,,Navid_05.jpg,navid,day;glare,11,9,0.6858,not selected: diversity budget already filled
@@ -2399,6 +2399,7 @@ rejected,,Navid_187.jpg,navid,day;sparse,2,2,0.4175,not selected: diversity budg
 rejected,,Navid_188.jpg,navid,day;sparse,2,2,0.4175,not selected: diversity budget already filled
 rejected,,Navid_189.jpg,navid,day;sparse,2,0,0.3875,not selected: diversity budget already filled
 rejected,,Navid_19.jpg,navid,day;glare,13,11,0.5743,not selected: diversity budget already filled
+rejected,,Navid_190.jpg,navid,day;sparse,5,4,0.725,not selected: diversity budget already filled
 rejected,,Navid_191.jpg,navid,day;sparse,5,5,0.565,not selected: diversity budget already filled
 rejected,,Navid_192.jpg,navid,day;sparse,3,3,0.4375,not selected: diversity budget already filled
 rejected,,Navid_193.jpg,navid,day;sparse,3,3,0.4046,not selected: diversity budget already filled
@@ -2440,9 +2441,7 @@ rejected,,Navid_229.jpg,navid,day,6,6,0.4898,not selected: diversity budget alre
 rejected,,Navid_23.jpg,navid,day,6,2,0.4986,not selected: diversity budget already filled
 rejected,,Navid_230.JPG,navid,day;glare;dense,60,30,0.8,not selected: diversity budget already filled
 rejected,,Navid_231.jpg,navid,day,10,9,0.6377,not selected: diversity budget already filled
-rejected,,Navid_232.jpg,navid,day;glare,11,10,0.7867,not selected: diversity budget already filled
 rejected,,Navid_233.jpg,navid,day;glare,12,8,0.7673,not selected: diversity budget already filled
-rejected,,Navid_234.jpg,navid,day;glare,12,10,0.7985,not selected: diversity budget already filled
 rejected,,Navid_235.jpg,navid,day;glare,8,7,0.638,not selected: diversity budget already filled
 rejected,,Navid_236.jpg,navid,day;glare,8,7,0.6305,not selected: diversity budget already filled
 rejected,,Navid_237.jpg,navid,day,8,7,0.7245,not selected: diversity budget already filled
@@ -2490,6 +2489,7 @@ rejected,,Navid_278.jpg,navid,day;sparse,4,2,0.69,not selected: diversity budget
 rejected,,Navid_279.jpg,navid,day;sparse,4,4,0.545,not selected: diversity budget already filled
 rejected,,Navid_28.jpg,navid,day;glare,7,3,0.4148,not selected: diversity budget already filled
 rejected,,Navid_280.jpg,navid,day;sparse,4,4,0.6325,not selected: diversity budget already filled
+rejected,,Navid_281.jpg,navid,day;sparse,5,4,0.725,not selected: diversity budget already filled
 rejected,,Navid_282.jpg,navid,day;sparse,3,2,0.3974,not selected: diversity budget already filled
 rejected,,Navid_283.jpg,navid,day;sparse,5,3,0.5061,not selected: diversity budget already filled
 rejected,,Navid_284.jpg,navid,day;sparse,4,3,0.5793,not selected: diversity budget already filled
@@ -2565,7 +2565,7 @@ rejected,,Navid_348.jpg,navid,day;glare;sparse,5,3,0.6334,not selected: diversit
 rejected,,Navid_349.jpg,navid,day;glare;sparse,2,1,0.49,not selected: diversity budget already filled
 rejected,,Navid_35.jpg,navid,day;glare;dense,22,14,0.7875,not selected: diversity budget already filled
 rejected,,Navid_350.jpg,navid,day;glare,11,7,0.7125,not selected: diversity budget already filled
-rejected,,Navid_352.JPG,navid,day;glare,11,8,0.815,not selected: diversity budget already filled
+rejected,,Navid_351.JPG,navid,day;glare;dense,14,11,0.855,not selected: diversity budget already filled
 rejected,,Navid_353.JPG,navid,day;dense,14,10,0.84,not selected: diversity budget already filled
 rejected,,Navid_354.JPG,navid,day;glare,12,5,0.7641,not selected: diversity budget already filled
 rejected,,Navid_355.JPG,navid,day,11,8,0.815,not selected: diversity budget already filled
@@ -2705,6 +2705,7 @@ rejected,,Navid_500.jpg,navid,day,9,8,0.6485,not selected: diversity budget alre
 rejected,,Navid_501.jpg,navid,day,8,6,0.6036,not selected: diversity budget already filled
 rejected,,Navid_502.jpg,navid,day;sparse,5,4,0.5593,not selected: diversity budget already filled
 rejected,,Navid_503.jpg,navid,day,7,6,0.5836,not selected: diversity budget already filled
+rejected,,Navid_506.jpg,navid,day;distant,11,10,0.7302,not selected: diversity budget already filled
 rejected,,Navid_507.jpg,navid,day,11,10,0.7891,not selected: diversity budget already filled
 rejected,,Navid_508.jpg,navid,day,9,8,0.7109,not selected: diversity budget already filled
 rejected,,Navid_509.jpg,navid,day;sparse,3,2,0.5242,not selected: diversity budget already filled
@@ -3104,6 +3105,7 @@ rejected,,Numan_(130).jpg,numan,day;glare;dense,19,5,0.74,not selected: diversit
 rejected,,Numan_(131).jpg,numan,day;glare,9,5,0.6725,not selected: diversity budget already filled
 rejected,,Numan_(132).jpg,numan,day;glare,12,6,0.7025,not selected: diversity budget already filled
 rejected,,Numan_(133).jpg,numan,day;glare;dense,14,9,0.825,not selected: diversity budget already filled
+rejected,,Numan_(134).jpg,numan,day;glare;sparse,5,4,0.725,not selected: diversity budget already filled
 rejected,,Numan_(135).jpg,numan,day;glare;sparse,3,1,0.495,not selected: diversity budget already filled
 rejected,,Numan_(136).jpg,numan,day;glare,6,2,0.525,not selected: diversity budget already filled
 rejected,,Numan_(137).jpg,numan,day;glare;sparse,4,1,0.5,not selected: diversity budget already filled
@@ -3129,7 +3131,6 @@ rejected,,Numan_(156).jpg,numan,day;glare,12,7,0.805,not selected: diversity bud
 rejected,,Numan_(157).jpg,numan,day;glare,11,5,0.6825,not selected: diversity budget already filled
 rejected,,Numan_(158).jpg,numan,day;glare;sparse,3,1,0.4037,not selected: diversity budget already filled
 rejected,,Numan_(159).jpg,numan,day;glare,7,5,0.6625,not selected: diversity budget already filled
-rejected,,Numan_(160).jpg,numan,day,13,9,0.83,not selected: diversity budget already filled
 rejected,,Numan_(161).jpg,numan,day;glare;sparse,4,2,0.69,not selected: diversity budget already filled
 rejected,,Numan_(162).jpg,numan,day;glare;sparse,4,2,0.6025,not selected: diversity budget already filled
 rejected,,Numan_(163).jpg,numan,day;glare,6,1,0.51,not selected: diversity budget already filled
@@ -3216,10 +3217,8 @@ rejected,,Numan_(300).JPG,numan,day,12,10,0.8267,not selected: diversity budget 
 rejected,,Numan_(301).JPG,numan,day;glare;dense,16,13,0.875,not selected: diversity budget already filled
 rejected,,Numan_(302).JPG,numan,day,12,10,0.8066,not selected: diversity budget already filled
 rejected,,Numan_(306).JPG,numan,day;dense,14,12,0.7817,not selected: diversity budget already filled
-rejected,,Numan_(308).JPG,numan,day;glare,13,11,0.86,not selected: diversity budget already filled
 rejected,,Numan_(311).JPG,numan,day,13,12,0.7442,not selected: diversity budget already filled
 rejected,,Numan_(313).jpg,numan,day,8,8,0.5973,not selected: diversity budget already filled
-rejected,,Numan_(314).jpg,numan,day,11,11,0.8512,not selected: diversity budget already filled
 rejected,,Numan_(316).jpg,numan,day;dense,15,12,0.8076,not selected: diversity budget already filled
 rejected,,Numan_(317).jpg,numan,day,13,12,0.7971,not selected: diversity budget already filled
 rejected,,Numan_(318).jpg,numan,day;dense,16,15,0.824,not selected: diversity budget already filled
@@ -3257,7 +3256,6 @@ rejected,,Numan_(349).jpg,numan,day;sparse,5,4,0.6232,not selected: diversity bu
 rejected,,Numan_(350).jpg,numan,day,7,6,0.6719,not selected: diversity budget already filled
 rejected,,Numan_(351).jpg,numan,day,8,7,0.6685,not selected: diversity budget already filled
 rejected,,Numan_(352).jpg,numan,day,11,9,0.7479,not selected: diversity budget already filled
-rejected,,Numan_(353).jpg,numan,day,12,11,0.844,not selected: diversity budget already filled
 rejected,,Numan_(354).jpg,numan,day,10,9,0.7945,not selected: diversity budget already filled
 rejected,,Numan_(355).jpg,numan,day,11,10,0.7469,not selected: diversity budget already filled
 rejected,,Numan_(356).jpg,numan,day,9,9,0.6342,not selected: diversity budget already filled
@@ -3361,6 +3359,7 @@ rejected,,Numan_(450).jpg,numan,day;glare;sparse,5,4,0.5777,not selected: divers
 rejected,,Numan_(451).jpg,numan,day,6,5,0.5913,not selected: diversity budget already filled
 rejected,,Numan_(452).jpg,numan,day,6,5,0.6923,not selected: diversity budget already filled
 rejected,,Numan_(453).jpg,numan,day;sparse,4,3,0.5416,not selected: diversity budget already filled
+rejected,,Numan_(454).jpg,numan,day;sparse,5,4,0.725,not selected: diversity budget already filled
 rejected,,Numan_(455).jpg,numan,day;sparse,5,5,0.5712,not selected: diversity budget already filled
 rejected,,Numan_(456).jpg,numan,day;glare,7,4,0.5933,not selected: diversity budget already filled
 rejected,,Numan_(457).jpg,numan,day;glare;sparse,3,1,0.4338,not selected: diversity budget already filled
@@ -3499,7 +3498,6 @@ rejected,,Pias (131).jpg,pias,day;dense,15,14,0.8075,not selected: diversity bud
 rejected,,Pias (132).jpg,pias,day,9,8,0.805,not selected: diversity budget already filled
 rejected,,Pias (133).jpg,pias,day,13,12,0.875,not selected: diversity budget already filled
 rejected,,Pias (134).jpg,pias,day,12,9,0.7475,not selected: diversity budget already filled
-rejected,,Pias (135).jpg,pias,day;dense,14,13,0.885,not selected: diversity budget already filled
 rejected,,Pias (136).jpg,pias,day;dense,14,10,0.84,not selected: diversity budget already filled
 rejected,,Pias (137).jpg,pias,day,11,10,0.845,not selected: diversity budget already filled
 rejected,,Pias (138).jpg,pias,day,9,9,0.6325,not selected: diversity budget already filled
@@ -3539,8 +3537,6 @@ rejected,,Pias (169).jpg,pias,day,12,10,0.7625,not selected: diversity budget al
 rejected,,Pias (17).jpg,pias,day,9,8,0.805,not selected: diversity budget already filled
 rejected,,Pias (170).jpg,pias,day,10,10,0.5775,not selected: diversity budget already filled
 rejected,,Pias (171).jpg,pias,day;dense,15,15,0.8225,not selected: diversity budget already filled
-rejected,,Pias (172).jpg,pias,day;dense,14,13,0.885,not selected: diversity budget already filled
-rejected,,Pias (173).jpg,pias,day;dense,15,14,0.895,not selected: diversity budget already filled
 rejected,,Pias (174).jpg,pias,day,12,12,0.7925,not selected: diversity budget already filled
 rejected,,Pias (175).jpg,pias,day,12,12,0.7925,not selected: diversity budget already filled
 rejected,,Pias (176).jpg,pias,day;dense,14,13,0.885,not selected: diversity budget already filled
@@ -3673,7 +3669,6 @@ rejected,,Pias (294).jpg,pias,day;glare;dense,14,8,0.81,not selected: diversity 
 rejected,,Pias (295).jpg,pias,day;glare;dense,21,8,0.775,not selected: diversity budget already filled
 rejected,,Pias (296).jpg,pias,day;glare,13,5,0.6825,not selected: diversity budget already filled
 rejected,,Pias (297).jpg,pias,day;dense,20,11,0.825,not selected: diversity budget already filled
-rejected,,Pias (298).jpg,pias,day;dense;distant,17,15,0.9,not selected: diversity budget already filled
 rejected,,Pias (299).jpg,pias,day,12,11,0.865,not selected: diversity budget already filled
 rejected,,Pias (3).jpg,pias,day;sparse,4,3,0.705,not selected: diversity budget already filled
 rejected,,Pias (30).jpg,pias,day,6,6,0.6725,not selected: diversity budget already filled
@@ -3702,8 +3697,12 @@ rejected,,Pias (32).jpg,pias,night,6,5,0.57,not selected: diversity budget alrea
 rejected,,Pias (320).jpg,pias,day,7,7,0.605,not selected: diversity budget already filled
 rejected,,Pias (321).jpg,pias,day,10,9,0.7375,not selected: diversity budget already filled
 rejected,,Pias (322).jpg,pias,day;dense,16,12,0.86,not selected: diversity budget already filled
+rejected,,Pias (323).jpg,pias,night;glare;dense,17,12,0.855,not selected: diversity budget already filled
+rejected,,Pias (324).jpg,pias,night;glare,13,10,0.845,not selected: diversity budget already filled
+rejected,,Pias (326).jpg,pias,night,11,11,0.86,not selected: diversity budget already filled
 rejected,,Pias (327).jpg,pias,night,9,9,0.7325,not selected: diversity budget already filled
 rejected,,Pias (328).jpg,pias,night;glare,9,8,0.805,not selected: diversity budget already filled
+rejected,,Pias (329).jpg,pias,night;glare,12,11,0.865,not selected: diversity budget already filled
 rejected,,Pias (33).jpg,pias,night;sparse,5,4,0.725,not selected: diversity budget already filled
 rejected,,Pias (330).jpg,pias,night;glare,10,9,0.825,not selected: diversity budget already filled
 rejected,,Pias (331).jpg,pias,night;glare,10,8,0.81,not selected: diversity budget already filled
@@ -3716,6 +3715,7 @@ rejected,,Pias (337).jpg,pias,night;sparse;distant,4,4,0.72,not selected: divers
 rejected,,Pias (338).jpg,pias,night;sparse;distant,5,5,0.74,not selected: diversity budget already filled
 rejected,,Pias (339).jpg,pias,night;distant,8,8,0.796,not selected: diversity budget already filled
 rejected,,Pias (34).jpg,pias,day,6,5,0.6575,not selected: diversity budget already filled
+rejected,,Pias (340).jpg,pias,night;glare,10,10,0.84,not selected: diversity budget already filled
 rejected,,Pias (341).jpg,pias,night;glare,8,8,0.6864,not selected: diversity budget already filled
 rejected,,Pias (342).jpg,pias,night,7,7,0.78,not selected: diversity budget already filled
 rejected,,Pias (343).jpg,pias,night,7,6,0.765,not selected: diversity budget already filled
@@ -3732,6 +3732,7 @@ rejected,,Pias (352).jpg,pias,night,10,9,0.825,not selected: diversity budget al
 rejected,,Pias (353).jpg,pias,night;glare,9,8,0.805,not selected: diversity budget already filled
 rejected,,Pias (354).jpg,pias,night;glare,6,5,0.745,not selected: diversity budget already filled
 rejected,,Pias (355).jpg,pias,night,11,9,0.83,not selected: diversity budget already filled
+rejected,,Pias (356).jpg,pias,night;glare,12,11,0.865,not selected: diversity budget already filled
 rejected,,Pias (357).jpg,pias,night;glare,7,5,0.75,not selected: diversity budget already filled
 rejected,,Pias (358).jpg,pias,night;sparse,5,2,0.6075,not selected: diversity budget already filled
 rejected,,Pias (359).PNG,pias,day;glare;dense,14,5,0.6322,not selected: diversity budget already filled
@@ -3827,7 +3828,6 @@ rejected,,Pias (456).jpg,pias,day;sparse;distant,2,2,0.4618,not selected: divers
 rejected,,Pias (457).jpg,pias,day;sparse,2,2,0.3684,not selected: diversity budget already filled
 rejected,,Pias (458).jpg,pias,day;sparse,3,2,0.4865,not selected: diversity budget already filled
 rejected,,Pias (459).jpg,pias,day;sparse,2,2,0.4175,not selected: diversity budget already filled
-rejected,,Pias (46).jpg,pias,day;dense,15,14,0.895,not selected: diversity budget already filled
 rejected,,Pias (460).jpg,pias,day;sparse,2,2,0.3885,not selected: diversity budget already filled
 rejected,,Pias (461).jpg,pias,day;sparse,3,3,0.4772,not selected: diversity budget already filled
 rejected,,Pias (462).jpg,pias,day;sparse,3,3,0.3666,not selected: diversity budget already filled

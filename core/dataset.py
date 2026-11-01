@@ -138,6 +138,10 @@ MIN_EDGE_PIXELS: int = 360
 #: Hamming distance under which two perceptual hashes are treated as the same frame.
 DUPLICATE_HASH_DISTANCE: int = 8
 
+#: HSV saturation (0 to 255) at or above which a pixel counts as strongly coloured, used
+#: to measure the share of saturated pixels in a frame.
+SATURATION_MIN: int = 128
+
 # ---------------------------------------------------------------------------
 # Annotation parsing
 # ---------------------------------------------------------------------------

@@ -1,0 +1,39 @@
+{
+  "_note": "Quartile cut-offs computed on the cleaned pool and fixed before any sampling. Tags are proposed from ground truth and pixels only, never from model detections.",
+  "cutoffs": {
+    "brightness": {
+      "median": 117.09854890046296,
+      "q1": 99.22960865162037,
+      "q3": 131.95911078559027
+    },
+    "median_box_fraction": {
+      "median": 0.007717134034986544,
+      "q1": 0.0027787121431327158,
+      "q3": 0.023516808712121213
+    },
+    "saturation": {
+      "median": 0.0532036624452783,
+      "q1": 0.01653410797529796,
+      "q3": 0.1509921396785469
+    },
+    "vehicle_count": {
+      "median": 6.0,
+      "q1": 3.0,
+      "q3": 9.0
+    }
+  },
+  "images_used": 2967,
+  "quantiles": {
+    "q1": 25.0,
+    "q3": 75.0
+  },
+  "source": "C:\\Users\\bakht\\Downloads\\archive",
+  "tag_rules": {
+    "day": "brightness >= cutoffs.brightness.q3",
+    "dense": "vehicle_count >= cutoffs.vehicle_count.q3",
+    "distant": "median_box_fraction <= cutoffs.median_box_fraction.q1",
+    "glare": "saturation >= cutoffs.saturation.q3",
+    "night": "brightness <= cutoffs.brightness.q1",
+    "sparse": "vehicle_count <= cutoffs.vehicle_count.q1"
+  }
+}

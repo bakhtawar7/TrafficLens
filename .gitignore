@@ -30,6 +30,9 @@ exports/
 trafficlens_*.json
 trafficlens_*.csv
 
+# Generated curation outputs
+results/
+
 # Raw footage and collected media (kept out of version control)
 data/testset/images/*
 data/testset/clips/*
