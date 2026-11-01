@@ -44,7 +44,7 @@ def _render_table(result: CountResult) -> None:
         }
         for d in result.detections
     ]
-    st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+    st.dataframe(pd.DataFrame(rows), width="stretch", hide_index=True)
 
 
 def _render_downloads(result: CountResult, input_filename: str) -> None:
@@ -56,14 +56,14 @@ def _render_downloads(result: CountResult, input_filename: str) -> None:
         data=export.to_json_bytes(payload),
         file_name=export.make_json_filename(input_filename, payload["timestamp_utc"]),
         mime="application/json",
-        use_container_width=True,
+        width="stretch",
     )
     columns[1].download_button(
         "Download CSV",
         data=export.to_csv_bytes(payload),
         file_name=export.make_csv_filename(input_filename, payload["timestamp_utc"]),
         mime="text/csv",
-        use_container_width=True,
+        width="stretch",
     )
 
 
@@ -110,10 +110,10 @@ def render(uploaded_file, selected_classes, confidence_threshold, get_detector) 
     left, right = st.columns(2)
     with left:
         st.markdown("**Original image**")
-        st.image(_to_rgb(image_bgr), use_container_width=True)
+        st.image(_to_rgb(image_bgr), width="stretch")
     with right:
         st.markdown("**Annotated image**")
-        st.image(_to_rgb(annotate.annotate(image_bgr, result.detections)), use_container_width=True)
+        st.image(_to_rgb(annotate.annotate(image_bgr, result.detections)), width="stretch")
 
     _render_metrics(result)
     st.markdown("**Detections**")

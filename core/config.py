@@ -19,7 +19,12 @@ TESTSET_CLIPS_DIR: Path = TESTSET_DIR / "clips"
 SAMPLES_DIR: Path = DATA_DIR / "samples"
 SOURCES_CSV: Path = TESTSET_DIR / "SOURCES.csv"
 LABELS_CSV: Path = TESTSET_DIR / "LABELS.csv"
-WEIGHTS_DIR: Path = PROJECT_ROOT / "weights"
+
+# Artifacts produced by the test set construction scripts.
+TESTSET_INVENTORY_CSV: Path = TESTSET_DIR / "inventory.csv"
+TESTSET_SELECTION_CSV: Path = TESTSET_DIR / "selection_log.csv"
+TESTSET_REVIEW_DIR: Path = TESTSET_DIR / "review"
+TESTSET_REVIEW_CHECKLIST_CSV: Path = TESTSET_REVIEW_DIR / "REVIEW.csv"
 
 # ---------------------------------------------------------------------------
 # Target classes (COCO ids). Rickshaws have no COCO class and are never claimed.

@@ -27,6 +27,7 @@ labelled placeholder panel rather than fake data.
 | Annotated image output | Built |
 | JSON and CSV export | Built |
 | Input validation with clear errors | Built |
+| Archive indexing, screening, and review sheets | Built |
 | Dashboard shell with custom theme | Built |
 | Second and third detectors (YOLOv8s, RT-DETR-L) | Planned for Week 2 |
 | Threshold sweep and detector comparison | Planned for Week 2 |
@@ -71,10 +72,10 @@ trafficlens/
   app/            Streamlit entry point and per tab renderers
     main.py       Application entry point
     ui/           Tab renderers (image, video, reliability, evaluation, history)
-  core/           Detector, counting, annotation, export, validation, config
-  data/           Test set scaffold, sample media placeholder
+  core/           Detector, counting, annotation, export, validation, dataset, config
+  data/           Test set media, inventory and logs, sample media placeholder
   docs/           Problem statement, hypotheses, protocol, architecture, wireframe
-  scripts/        Maintenance scripts such as check_testset.py
+  scripts/        Archive indexing, test set selection, review sheets, test set checks
   tests/          pytest suite
   .streamlit/     Theme configuration
   requirements.txt
@@ -83,12 +84,30 @@ trafficlens/
 
 ## Test set
 
-`data/testset/` holds the scaffold for a local road scene benchmark that you collect
-yourself. No footage is fabricated or downloaded by the project. `SOURCES.csv` records
-provenance and permission for each item, and `LABELS.csv` records the ground truth
-counts. See `docs/test_set_guide.md` for collection rules and
-`docs/labelling_protocol.md` for how to label. Run `python scripts/check_testset.py` to
-validate the CSV files against the images on disk.
+`data/testset/` holds the local road scene benchmark. TrafficLens never fabricates or
+downloads footage; the media comes from an archive you have the right to use.
+`docs/test_set_guide.md` states the collection rules, `docs/labelling_protocol.md` states the
+counting rules, and `docs/testset_workflow.md` states the mechanics.
+
+When an annotated archive is available, the scripts do the filtering and you do the
+verifying:
+
+```powershell
+python scripts/index_dataset.py --source "C:/path/to/archive"  # measure and screen every image
+python scripts/select_testset.py                               # preview a diverse 55 item plan
+python scripts/select_testset.py --apply --clean               # copy picks, draft SOURCES and LABELS
+python scripts/make_review_sheet.py                            # contact sheets and REVIEW.csv
+python scripts/apply_review.py                                 # record the verified counts as pass 2
+python scripts/check_testset.py                                # validate the folder
+```
+
+Rare conditions are reserved rather than hoped for: add `--min-tag night=12` to the
+selection command to guarantee a floor of that condition in the set.
+
+`SOURCES.csv` records provenance and permission for each item and `LABELS.csv` records the
+ground truth counts, draft pass 1 rows first and authoritative pass 2 rows after review. An
+archive without annotations can still be used: select the items by hand, then label them
+following the protocol.
 
 ## Limitations
 

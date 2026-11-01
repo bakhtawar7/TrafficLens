@@ -34,10 +34,13 @@ def get_detector() -> YoloDetector:
 def _render_sidebar():
     """Draw the sidebar controls and return the current selections."""
     st.sidebar.header("Input")
+    accepted = ", ".join(extension.lstrip(".").upper() for extension in config.ALLOWED_EXTENSIONS)
+    limit_mb = config.MAX_UPLOAD_BYTES // (1024 * 1024)
     uploaded_file = st.sidebar.file_uploader(
         "Upload an image",
-        type=["jpg", "jpeg", "png", "webp"],
-        help="JPG, JPEG, PNG, or WEBP up to 15 MB.",
+        type=list(config.ALLOWED_EXTENSIONS),
+        max_upload_size=limit_mb,
+        help=f"{accepted} up to {limit_mb} MB.",
     )
     selected_classes = st.sidebar.multiselect(
         "Classes to count",

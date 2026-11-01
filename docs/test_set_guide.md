@@ -73,3 +73,10 @@ python scripts/check_testset.py
 It reports files missing from `SOURCES.csv`, rows with no matching file, blank permission
 fields, and invalid condition tags, then prints a count per condition. It exits non zero
 when problems are found, so a clean run means the scaffold is consistent.
+
+## Working from an annotated archive
+
+When the media arrives as an annotated archive rather than as individually chosen frames,
+`docs/testset_workflow.md` describes the scripts that index it, screen it, select a diverse
+set, and build the contact sheets used for verification. The rules in this guide still
+govern what ends up in the set; the scripts only change who does the first pass.

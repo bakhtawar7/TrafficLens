@@ -57,9 +57,16 @@ core/
   counting.py     class filtering, per class counts, CountResult
   annotate.py     boxes and readable labels via supervision
   export.py       JSON payload, CSV row, export file names
+  dataset.py      archive parsing, ground truth mapping, tagging, test set selection
 app/
   main.py         sidebar, tabs, cached detector, limitations note
   ui/             one renderer per tab
+scripts/
+  index_dataset.py     measure and screen every archive image into inventory.csv
+  select_testset.py    choose a diverse set, draft SOURCES.csv and LABELS.csv
+  make_review_sheet.py annotated contact sheets and the REVIEW.csv answer sheet
+  apply_review.py      fold verified answers back in as authoritative pass 2 rows
+  check_testset.py     validate the folder before the set is used
 ```
 
 ## Design rules for Week 2 extension
