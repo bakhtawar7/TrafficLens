@@ -34,18 +34,19 @@ app shows a clearly labelled placeholder panel rather than fake data.
 | Quartile condition tagging with cut offs pinned before sampling | Built |
 | Seeded stratified test set build with audit overlays and sampling plan | Built |
 | Dashboard shell with custom theme | Built |
-| Model registry, three pretrained detectors (YOLOv8n, YOLOv8s, RT-DETR-L) | Built (script/library) |
+| Model registry, three pretrained detectors (YOLOv8n, YOLOv8s, RT-DETR-L) | Built |
+| Sliced (tiled) inference with class-aware merge | Built |
+| H2 agreement measures (count disagreement, class-aware box agreement) | Built |
+| Reliability tab: per model counts, count range, both agreement scores, sliced toggle | Built |
+| Evaluation tab: scored table, error by condition chart, labelling pass agreement | Built (needs benchmark results) |
 | Warmup separated from load and inference timing | Built (script/library) |
 | Threshold sweep derived from one low-threshold run | Built (script/library) |
-| Detector comparison report | Built (script/library) |
-| Sliced (tiled) inference with class-aware merge | Built (script/library) |
-| H2 agreement measures (count disagreement, class-aware box agreement) | Built (script/library) |
+| Detector comparison report (run_detectors) | Built (script/library) |
 | Local road scene benchmark runner with detection cache | Built (script/library) |
-| Evaluation against covered and all-vehicle ground truth | Built (script/library) |
+| Metrics reference with every formula (`docs/metrics.md`) | Built |
 | ByteTrack video counting | Planned for Week 3 |
 | Learned error predictor and reliability score | Planned for Week 3 |
 | Needs review flag and SQLite history | Planned for Week 4 |
-| Dashboard reliability and evaluation tabs | Planned for Week 3 / Week 4 |
 
 ## Installation
 
@@ -146,9 +147,9 @@ the current `SOURCES.csv` and `LABELS.csv`.
 
 ## Detector comparison and benchmark
 
-Week 2 capabilities run from the command line and are exercised by the pytest suite; they
-are not yet wired into the dashboard (the Reliability and Evaluation tabs remain labelled
-placeholders). The pieces are:
+Week 2 added a model registry, sliced inference, the reliability agreement measures, and the
+ground-truth evaluation. Each is a `core/` module with its own tests, each runs from a command
+line script, and each now surfaces in the dashboard. The pieces are:
 
 * `core.detector.build_detector(key)` returns any registry model behind one `Detector`
   protocol, with weights load time and warmup reported separately from inference time.
@@ -159,6 +160,15 @@ placeholders). The pieces are:
   count disagreement and class-aware box agreement at IoU 0.5).
 * `core.evaluation` joins `LABELS.csv`, `SOURCES.csv`, and the detection cache to score
   covered and all-vehicle ground truth, excluding the development subset.
+* `docs/metrics.md` defines every reported formula (the three ranges, both agreement scores,
+  mean absolute error, and the bootstrap interval) so each number is reproducible.
+
+On the dashboard, the Reliability tab shows per model counts, the count range, and both
+agreement values for the uploaded image, with a sidebar toggle to switch the models between
+full-frame and sliced inference; every figure is labelled as measured from the models, with no
+verdict about trust. The Evaluation tab shows the scored table, error by condition as a chart,
+and the labelling pass agreement when `results/evaluation_table.csv` exists, and keeps its
+placeholder otherwise.
 
 ```powershell
 python scripts/run_detectors.py                     # per-image counts and timings, all three detectors
@@ -191,11 +201,13 @@ and only cached detections can be scored.
   documentation, test set scaffold.
 * **Week 2 (delivered):** model registry with three pretrained detectors, warmup and load
   timing, threshold sweep, detector comparison, and sliced inference, all behind one
-  `Detector` protocol and covered by the test suite.
-* **Week 3 (in progress):** H2 agreement measures (count disagreement and class-aware box
-  agreement) delivered as a library; video counting with ByteTrack and the learned error
-  predictor are still to come.
+  `Detector` protocol and covered by the test suite; plus the Reliability tab showing per
+  model counts, the count range, and the two H2 agreement measures (count disagreement and
+  class-aware box agreement) with a sidebar sliced toggle.
+* **Week 3 (planned):** video counting with ByteTrack and the learned error predictor that
+  would turn model agreement into a trust score. Neither is built; the Reliability tab
+  reports agreement only and draws no trust verdict.
 * **Week 4 (in progress):** stratified test set build with audit artefacts, the local road
-  scene benchmark runner, and the ground-truth evaluation module are delivered; the needs
-  review flag, SQLite history, and the dashboard reliability and evaluation tabs are still
-  to come.
+  scene benchmark runner, the ground-truth evaluation module, and the Evaluation tab (scored
+  table, error by condition, labelling pass agreement) are delivered; the needs review flag
+  and SQLite history are still to come.

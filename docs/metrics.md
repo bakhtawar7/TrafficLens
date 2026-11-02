@@ -1,0 +1,169 @@
+# Metrics
+
+Every number TrafficLens reports is defined here so it can be reproduced from the raw
+detections without reading the source. Each entry names the exact code that computes it,
+the inputs it needs, and the edge cases. Constants come from `core/config.py` and are
+listed at the bottom. Where a value is rounded for display, the rounding is stated; the
+unrounded value is what downstream formulas use.
+
+Notation. An *item* is one test set image. A *model* is a registry entry. `a_c` and `b_c`
+are the counts of class `c` from two models; `n_a` and `n_b` are total detection counts of
+two models after class filtering. The selected vehicle classes are `C = {car, motorcycle,
+bus, truck}`. Boxes are `(x_min, y_min, x_max, y_max)` in pixels.
+
+## Counting (`core/counting.py`)
+
+* A detection is kept when `confidence >= threshold` (lower bound, inclusive). This is the
+  ultralytics semantic and is what both the dashboard and the sweep rely on.
+* `counts_by_class[c]` is the number of kept detections whose `class_name == c`, for every
+  `c` in the selected classes; a class with no matches is recorded as `0`.
+* `total_count` is the number of kept detections after dropping any class not selected.
+  Detections of classes outside `C` (for example `person`) never enter a count.
+
+## Threshold sweep (`core/reliability.py`)
+
+The sweep runs a model once at the lowest threshold `t_min = min(thresholds)` and derives
+every higher threshold `t` by filtering that single run: keep detections with
+`confidence >= t`, then count as above.
+
+* Exactness: `conf` is a `>=` bound and ultralytics greedy NMS emits boxes in descending
+  score order, so the survivors above any `t >= t_min` are precisely the `t_min` survivors
+  whose confidence passes `t`. A derived count equals a direct run at that threshold.
+* Documented deviation: ultralytics returns at most `max_det` boxes (300 default), highest
+  scores first. A dense frame whose `t_min` run exceeds the cap loses low-confidence boxes
+  before derivation, so a derived higher threshold can undercount versus a direct run. On
+  such frames the direct run is the reference.
+
+### Ranges
+
+Three different ranges are reported; they are not interchangeable.
+
+* Model `threshold_range` = `(min, max)` of one model's `total_count` across the sweep
+  thresholds. Computed in `sweep_detector`.
+* Report `full_range` = `(min, max)` of `total_count` across every model and every threshold
+  together. Computed in `sweep_all`.
+* Benchmark / Evaluation `Count Range` = `min`-`max` of the three standard model totals at a
+  single confidence, and the same spread on the Reliability tab (metrics "Lowest / Highest
+  model total" and "Count range"). Computed in `core/evaluation.build_rows` and
+  `app/ui/reliability_tab._render_counts`.
+
+## Agreement measures for H2 (`core/reliability.py`)
+
+Both compare two models on one image, after dropping classes outside the selected set.
+
+### Count disagreement
+
+Per class `c` in `C`:
+
+```
+d_c = |a_c - b_c| / (a_c + b_c)     when a_c + b_c > 0
+d_c = 0                             when a_c = b_c = 0
+```
+
+`d_c` lies in `[0, 1]`: `0` means the two models counted class `c` identically, `1` means
+every counted vehicle of that class was claimed by only one of them. The headline
+`count_disagreement` is the unweighted mean of `d_c` over `C`. `docs/hypotheses.md` H2 names
+this "the normalised difference in per class counts" but gives no closed form; the formula
+above is the chosen normalisation and is part of the metric's definition.
+
+### Box agreement
+
+Intersection over union of two boxes:
+
+```
+intersection = max(0, min(ax1, bx1) - max(ax0, bx0)) * max(0, min(ay1, by1) - max(ay0, by0))
+union        = area(a) + area(b) - intersection
+IoU(a, b)    = intersection / union            (0 when union <= 0)
+```
+
+Matching is greedy, class-aware, and one-to-one at `iou_threshold = config.BOX_IOU_THRESHOLD`
+(0.5):
+
+1. Build every same-class pair with `IoU >= iou_threshold`.
+2. Sort pairs by `(-IoU, index_a, index_b)` so the result is deterministic under ties.
+3. Walk the sorted list, claiming a pair only when neither box is already matched.
+
+```
+box_agreement = 2 * matches / (n_a + n_b)
+```
+
+This symmetric F1 form lies in `[0, 1]`: identical sets score `1`, disjoint sets of the same
+size score `0`. Two empty sets are defined as `1`; one empty and one non-empty set are `0`.
+The Reliability tab reports the mean of `box_agreement` over the three model pairs as its
+agreement column.
+
+### Family aggregation
+
+Pairs are labelled `within` when the two models share a registry family (`yolo` or `detr`)
+and `cross` otherwise.
+
+* `within_family` = mean of each measure over all within-family pairs. `None` when no such
+  pair exists.
+* `best_yolo` = the YOLO model with the highest capacity suffix rank
+  (`n < s < m < l < x`, from the last character of the display name). With the current
+  registry this is YOLOv8s.
+* `cross_family` = mean of each measure over the cross-family pairs that contain `best_yolo`.
+  `None` when there is no YOLO model or no other-family model.
+
+## Ground truth targets (`core/evaluation.py`)
+
+Read from `data/testset/LABELS.csv`, first labelling pass, counts normalised to ints:
+
+* `covered_total` = car + bus + truck + motorcycle, the classes a COCO model can honestly
+  claim.
+* `all_vehicles_total` = covered_total + rickshaw + loader_rickshaw. No model detects the
+  last two, so this target bakes in the rickshaw gap and bounds the honest error floor before
+  any model fault. The `other` column is excluded from both.
+
+The development subset in `configs/testset_plan.json` is removed before every statistic and
+from the written table, so no reported error is tuned on data used to build the pipeline.
+
+## Mean absolute error (`core/evaluation.py`)
+
+Over a set of items `I` (per model, per target, or per condition):
+
+```
+MAE = (1 / |I|) * sum over i in I of |count_i - ground_truth_i|
+```
+
+`count_i` is a model's total for item `i`; `ground_truth_i` is the covered or all-vehicles
+total for that item. Reported to 4 decimals. Per-condition MAE groups items by each tag in
+their `condition_tags` (an item with several tags contributes to each tag's bucket).
+
+## Bootstrap confidence interval (`core/evaluation.bootstrap_ci`)
+
+A deterministic percentile bootstrap of the mean of a list of per-item absolute errors:
+
+1. Seed a `random.Random(config.SEED)` generator.
+2. Draw `B = 2000` resamples, each of size `n` (the input length) with replacement.
+3. Compute the mean of each resample, sort the `B` means ascending.
+4. Lower = the element at index `int(0.025 * B)`; upper = the element at index
+   `min(int(0.975 * B), B - 1)`. Each is rounded to 4 decimals.
+
+An empty input yields `(None, None)`. Because the seed is fixed and the sample order is
+stable, the interval reproduces exactly across runs.
+
+## Labeller pass agreement (`core/evaluation.summarise`)
+
+Over items labelled in both the first and second pass and outside the development subset:
+
+* `items_both_passes` = number of such items.
+* `covered_mean_abs_difference` = mean of `|covered_total(pass1) - covered_total(pass2)|`,
+  the same MAE formula with the two human passes standing in for model and ground truth.
+  Bootstrapped with the routine above for `covered_ci95`.
+* `all_vehicles_mean_abs_difference` = same statistic on `all_vehicles_total`.
+* `identical_fraction` = fraction of items whose covered difference is exactly `0`.
+
+## Constants (`core/config.py`)
+
+| Name | Value | Role |
+| --- | --- | --- |
+| `DEFAULT_CONFIDENCE` | 0.25 | dashboard and agreement default threshold |
+| `MIN_CONFIDENCE` / `MAX_CONFIDENCE` | 0.05 / 0.95 | allowed threshold range |
+| `THRESHOLD_SWEEP` | (0.15, 0.25, 0.35, 0.50) | sweep values; lowest is the run threshold |
+| `BOX_IOU_THRESHOLD` | 0.5 | IoU at which same-class boxes count as one vehicle |
+| `TARGET_CLASS_MAP` | 2 car, 3 motorcycle, 5 bus, 7 truck | counted classes |
+| `SLICE_TILE_SIZE` | 640 | sliced inference tile edge |
+| `SLICE_OVERLAP_RATIO` | 0.2 | tile overlap as a fraction of one edge |
+| `SLICE_IOU_THRESHOLD` | 0.5 | sliced merge non-max suppression IoU |
+| `SEED` | 20261028 | master seed, drives the bootstrap intervals |

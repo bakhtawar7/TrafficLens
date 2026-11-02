@@ -19,7 +19,7 @@ if str(ROOT) not in sys.path:
 import streamlit as st
 
 from app.ui import evaluation_tab, history_tab, image_tab, reliability_tab, video_tab
-from core import config
+from core import config, detector
 from core.detector import YoloDetector
 
 st.set_page_config(page_title="TrafficLens", page_icon="TL", layout="wide")
@@ -29,6 +29,12 @@ st.set_page_config(page_title="TrafficLens", page_icon="TL", layout="wide")
 def get_detector() -> YoloDetector:
     """Return a process wide cached detector. Loads weights once on first call."""
     return YoloDetector()
+
+
+@st.cache_resource(show_spinner="Loading the comparison models on first use")
+def get_reliability_detectors() -> list:
+    """Return one cached detector per registered model for the Reliability tab."""
+    return [detector.build_detector(key) for key in config.MODEL_REGISTRY]
 
 
 def _render_sidebar():
@@ -56,7 +62,15 @@ def _render_sidebar():
         help="Detections below this score are discarded. Range 0.05 to 0.95.",
     )
     st.sidebar.markdown("**Model:** YOLOv8n (pretrained)")
-    return uploaded_file, selected_classes, confidence_threshold
+    sliced = st.sidebar.toggle(
+        "Sliced inference (Reliability tab)",
+        value=False,
+        help=(
+            "On the Reliability tab, run each model on overlapping tiles and merge "
+            "the duplicates instead of one full-frame pass."
+        ),
+    )
+    return uploaded_file, selected_classes, confidence_threshold, sliced
 
 
 def _render_limitations() -> None:
@@ -82,7 +96,7 @@ def main() -> None:
     st.title("TrafficLens")
     st.caption("Vehicle counting from a single image, with honest limits.")
 
-    uploaded_file, selected_classes, confidence_threshold = _render_sidebar()
+    uploaded_file, selected_classes, confidence_threshold, sliced = _render_sidebar()
     _render_limitations()
 
     tab_image, tab_video, tab_reliability, tab_evaluation, tab_history = st.tabs(
@@ -93,7 +107,10 @@ def main() -> None:
     with tab_video:
         video_tab.render()
     with tab_reliability:
-        reliability_tab.render()
+        reliability_tab.render(
+            uploaded_file, selected_classes, confidence_threshold, sliced,
+            get_reliability_detectors,
+        )
     with tab_evaluation:
         evaluation_tab.render()
     with tab_history:
