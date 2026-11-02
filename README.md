@@ -16,13 +16,14 @@ limitations and later weeks add reliability scoring on top of the raw count.
 ## Features
 
 Status legend: **Built** means available and tested in the current codebase.
-**Planned for Week N**
-means the interface exists but the behaviour does not yet, and the app shows a clearly
-labelled placeholder panel rather than fake data.
+**Built (script/library)** means the capability runs from a command line script or a
+`core/` module with its own tests, but is not yet surfaced in a dashboard tab.
+**Planned for Week N** means the interface exists but the behaviour does not yet, and the
+app shows a clearly labelled placeholder panel rather than fake data.
 
 | Feature | Status |
 | --- | --- |
-| Image vehicle counting with YOLOv8n | Built |
+| Image vehicle counting (default YOLOv8n) | Built |
 | Per class counts (car, motorcycle, bus, truck) | Built |
 | Confidence threshold control (0.05 to 0.95) | Built |
 | Annotated image output | Built |
@@ -33,13 +34,18 @@ labelled placeholder panel rather than fake data.
 | Quartile condition tagging with cut offs pinned before sampling | Built |
 | Seeded stratified test set build with audit overlays and sampling plan | Built |
 | Dashboard shell with custom theme | Built |
-| Second and third detectors (YOLOv8s, RT-DETR-L) | Planned for Week 2 |
-| Threshold sweep and detector comparison | Planned for Week 2 |
-| Sliced inference for distant vehicles | Planned for Week 2 |
+| Model registry, three pretrained detectors (YOLOv8n, YOLOv8s, RT-DETR-L) | Built (script/library) |
+| Warmup separated from load and inference timing | Built (script/library) |
+| Threshold sweep derived from one low-threshold run | Built (script/library) |
+| Detector comparison report | Built (script/library) |
+| Sliced (tiled) inference with class-aware merge | Built (script/library) |
+| H2 agreement measures (count disagreement, class-aware box agreement) | Built (script/library) |
+| Local road scene benchmark runner with detection cache | Built (script/library) |
+| Evaluation against covered and all-vehicle ground truth | Built (script/library) |
 | ByteTrack video counting | Planned for Week 3 |
 | Learned error predictor and reliability score | Planned for Week 3 |
 | Needs review flag and SQLite history | Planned for Week 4 |
-| Local road scene benchmark and evaluation | Planned for Week 4 |
+| Dashboard reliability and evaluation tabs | Planned for Week 3 / Week 4 |
 
 ## Installation
 
@@ -54,8 +60,10 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-The YOLOv8n weights download automatically on first use and are cached in the project
-directory. They are excluded from version control by `.gitignore`.
+The pretrained weights download automatically on first use and are cached in the project
+directory: `yolov8n.pt` and `yolov8s.pt` for the YOLO detectors and `rtdetr-l.pt` for
+RT-DETR-L. They are excluded from version control by `.gitignore`. The dashboard uses
+YOLOv8n; the comparison and benchmark scripts exercise all three.
 
 ## Running the app
 
@@ -76,12 +84,15 @@ trafficlens/
   app/            Streamlit entry point and per tab renderers
     main.py       Application entry point
     ui/           Tab renderers (image, video, reliability, evaluation, history)
-  core/           Detector, counting, annotation, export, validation, dataset, curation, config
+  core/           Detector registry, counting, annotation, export, validation, dataset,
+                  curation, reliability (sweep and agreement), evaluation, config
   configs/        Reviewed class mapping, quartile tag cut offs, sampling plan (seed, subsets)
   data/           Test set media (the 45 curated images are versioned), inventory and logs
   docs/           Problem statement, hypotheses, protocol, architecture, wireframe
-  results/        Generated audit artefacts (curation log, overlays, audit sheet); untracked
-  scripts/        Indexing, cleaning, tagging, test set build and checks, review sheets
+  results/        Generated artefacts (curation log, overlays, audit sheet, raw detection
+                  cache, evaluation table, summary); untracked
+  scripts/        Indexing, cleaning, tagging, test set build and checks, review sheets,
+                  detector comparison (run_detectors), benchmark runner (run_benchmark)
   tests/          pytest suite
   .streamlit/     Theme configuration
   requirements.txt
@@ -133,6 +144,34 @@ The older manual workflow (`select_testset.py`, `make_review_sheet.py`, `apply_r
 remains available for hand picking a different archive, but rerunning it would overwrite
 the current `SOURCES.csv` and `LABELS.csv`.
 
+## Detector comparison and benchmark
+
+Week 2 capabilities run from the command line and are exercised by the pytest suite; they
+are not yet wired into the dashboard (the Reliability and Evaluation tabs remain labelled
+placeholders). The pieces are:
+
+* `core.detector.build_detector(key)` returns any registry model behind one `Detector`
+  protocol, with weights load time and warmup reported separately from inference time.
+  `SlicedDetector` wraps any detector in overlapping-tile inference merged with
+  class-aware non-max suppression.
+* `core.reliability` sweeps one low-threshold run to derive higher thresholds by
+  confidence filtering, and computes the H2 agreement measures (normalised per class
+  count disagreement and class-aware box agreement at IoU 0.5).
+* `core.evaluation` joins `LABELS.csv`, `SOURCES.csv`, and the detection cache to score
+  covered and all-vehicle ground truth, excluding the development subset.
+
+```powershell
+python scripts/run_detectors.py                     # per-image counts and timings, all three detectors
+python scripts/run_benchmark.py --dev               # cache raw detections for the development subset
+python scripts/run_benchmark.py                     # full test set, standard and sliced modes
+```
+
+The benchmark writes one line per (image, model, mode) to `results/raw_detections.jsonl`
+and skips entries already cached, so reruns only do the missing work. Evaluation over that
+cache produces `results/evaluation_table.csv` and `results/summary.json`; run the full
+benchmark first, because the development subset is excluded from every reported statistic
+and only cached detections can be scored.
+
 ## Limitations
 
 * Occlusion and overlap between vehicles cause undercounting.
@@ -140,8 +179,9 @@ the current `SOURCES.csv` and `LABELS.csv`.
 * Small and distant vehicles are frequently missed.
 * Rickshaws and other local vehicle types have no COCO class and may be missed or
   mislabelled. TrafficLens never claims to detect rickshaws.
-* All results come from pretrained models without verification against ground truth in
-  Week 1.
+* Dashboard counts come from pretrained models and are not yet checked against ground
+  truth in the app; `core.evaluation` computes that comparison offline, but its numbers
+  are only as good as the human labelling pass they depend on.
 * The test set counts derived from archive annotations still require a human labelling
   pass, and the licence of the supplied archive is unverified.
 
@@ -149,9 +189,13 @@ the current `SOURCES.csv` and `LABELS.csv`.
 
 * **Week 1 (delivered):** image counter, exports, validation, dashboard shell,
   documentation, test set scaffold.
-* **Week 2:** additional detectors, threshold sweep, detector comparison, sliced
-  inference.
-* **Week 3:** video counting with ByteTrack, learned error predictor, reliability
-  scoring.
-* **Week 4 (in progress):** stratified test set build with audit artefacts delivered;
-  needs review flag, SQLite history, and local benchmark evaluation still to come.
+* **Week 2 (delivered):** model registry with three pretrained detectors, warmup and load
+  timing, threshold sweep, detector comparison, and sliced inference, all behind one
+  `Detector` protocol and covered by the test suite.
+* **Week 3 (in progress):** H2 agreement measures (count disagreement and class-aware box
+  agreement) delivered as a library; video counting with ByteTrack and the learned error
+  predictor are still to come.
+* **Week 4 (in progress):** stratified test set build with audit artefacts, the local road
+  scene benchmark runner, and the ground-truth evaluation module are delivered; the needs
+  review flag, SQLite history, and the dashboard reliability and evaluation tabs are still
+  to come.
