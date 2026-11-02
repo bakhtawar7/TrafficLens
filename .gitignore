@@ -5,6 +5,8 @@
 *.torchscript
 *.trt
 runs/
+# Partial downloads written while a weights file is still transferring
+*.part
 
 # Virtual environments
 .venv/

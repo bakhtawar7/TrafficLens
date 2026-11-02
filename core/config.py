@@ -6,6 +6,7 @@ adjust behaviour from a single place.
 """
 from __future__ import annotations
 
+from dataclasses import dataclass
 from pathlib import Path
 
 # ---------------------------------------------------------------------------
@@ -87,6 +88,30 @@ MIN_CONFIDENCE: float = 0.05
 MAX_CONFIDENCE: float = 0.95
 DEFAULT_MODEL_NAME: str = "yolov8n"
 DEFAULT_WEIGHTS_FILE: str = "yolov8n.pt"
+
+# ---------------------------------------------------------------------------
+# Model registry. Every entry names a pretrained ultralytics weights file that
+# ultralytics downloads on first use. TrafficLens never trains or fine tunes.
+# The stable key identifies the model; display_name is for reports and the UI;
+# family selects the wrapper class (yolo: YOLO, detr: RTDETR).
+# ---------------------------------------------------------------------------
+MODEL_FAMILIES: tuple[str, ...] = ("yolo", "detr")
+
+
+@dataclass(frozen=True)
+class ModelSpec:
+    """One registered pretrained model."""
+
+    display_name: str
+    family: str
+    weights_file: str
+
+
+MODEL_REGISTRY: dict[str, ModelSpec] = {
+    "yolov8n": ModelSpec("YOLOv8n", "yolo", "yolov8n.pt"),
+    "yolov8s": ModelSpec("YOLOv8s", "yolo", "yolov8s.pt"),
+    "rtdetr-l": ModelSpec("RT-DETR-L", "detr", "rtdetr-l.pt"),
+}
 
 # ---------------------------------------------------------------------------
 # Input validation

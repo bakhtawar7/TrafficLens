@@ -1,11 +1,15 @@
 """Detector abstraction for TrafficLens.
 
 A detector turns an image into a list of :class:`Detection` objects above a confidence
-threshold. Week 2 adds YOLOv8s and RT-DETR-L behind the same :class:`Detector` protocol,
-so all downstream code depends only on the protocol and the ``Detection`` shape.
+threshold. Every model listed in ``config.MODEL_REGISTRY`` (YOLOv8n, YOLOv8s, and
+RT-DETR-L) sits behind the same :class:`Detector` protocol, so all downstream code
+depends only on the protocol and the ``Detection`` shape. Weights load lazily and the
+load is timed into ``load_seconds``; :meth:`Detector.warmup` pays for that load and the
+first-run overhead up front so measured inference excludes them.
 """
 from __future__ import annotations
 
+import time
 from dataclasses import dataclass
 from typing import Protocol, runtime_checkable
 
@@ -49,27 +53,50 @@ class Detector(Protocol):
         """
         ...  # pragma: no cover - protocol definition
 
+    def warmup(self) -> None:
+        """Load weights and prime the model so timed inference excludes the load.
 
-class YoloDetector:
-    """Ultralytics YOLO wrapper implementing the :class:`Detector` protocol.
+        The model load is recorded separately (``load_seconds``) and a tiny dummy
+        frame pays for first-call setup; after warmup, timing a ``detect`` call
+        measures prediction work only.
+        """
+        ...  # pragma: no cover - protocol definition
 
-    The default ``yolov8n`` weights download on first use and are cached on disk by
-    ultralytics. The model instance is loaded lazily so import and cache wiring stay
-    cheap until the first real inference.
+
+#: Edge length in pixels of the dummy frame used by :meth:`Detector.warmup`.
+WARMUP_EDGE: int = 64
+
+
+class _UltralyticsDetector:
+    """Shared ultralytics plumbing: lazy timed load, warmup, and detection shape.
+
+    Subclasses fix which ultralytics wrapper class loads the pretrained weights
+    (``YOLO`` for the yolo family, ``RTDETR`` for the detr family).
     """
 
-    def __init__(self, weights: str = config.DEFAULT_WEIGHTS_FILE) -> None:
+    def __init__(self, weights: str, name: str, family: str, class_name: str) -> None:
         self.weights = weights
-        self.name = config.DEFAULT_MODEL_NAME
+        self.name = name
+        self.family = family
+        self._class_name = class_name
         self._model = None
+        self.load_seconds: float | None = None
 
-    def _ensure_model(self):  # noqa: ANN202 - ultralytics returns a YOLO instance
-        """Load and cache the underlying ultralytics model on first use."""
+    def _ensure_model(self):  # noqa: ANN202 - ultralytics returns the wrapper instance
+        """Load and cache the underlying model once, timing only the load."""
         if self._model is None:
-            from ultralytics import YOLO
+            import ultralytics
 
-            self._model = YOLO(self.weights)
+            started = time.perf_counter()
+            self._model = getattr(ultralytics, self._class_name)(self.weights)
+            self.load_seconds = time.perf_counter() - started
         return self._model
+
+    def warmup(self) -> None:
+        """Load the weights (recorded in ``load_seconds``) and run one dummy frame."""
+        model = self._ensure_model()
+        dummy = np.zeros((WARMUP_EDGE, WARMUP_EDGE, 3), dtype=np.uint8)
+        model.predict(dummy, verbose=False)
 
     def detect(self, image: np.ndarray, confidence_threshold: float) -> list[Detection]:
         """Run inference and convert ultralytics results into ``Detection`` objects."""
@@ -95,3 +122,47 @@ class YoloDetector:
                     )
                 )
         return detections
+
+
+class YoloDetector(_UltralyticsDetector):
+    """Ultralytics YOLO wrapper implementing the :class:`Detector` protocol.
+
+    The default ``yolov8n`` weights download on first use and are cached on disk by
+    ultralytics. The model instance is loaded lazily so import and cache wiring stay
+    cheap until the first real inference.
+    """
+
+    def __init__(
+        self,
+        weights: str = config.DEFAULT_WEIGHTS_FILE,
+        name: str = config.DEFAULT_MODEL_NAME,
+    ) -> None:
+        super().__init__(weights=weights, name=name, family="yolo", class_name="YOLO")
+
+
+class RtdetrDetector(_UltralyticsDetector):
+    """Ultralytics RT-DETR wrapper implementing the :class:`Detector` protocol."""
+
+    def __init__(
+        self,
+        weights: str = config.MODEL_REGISTRY["rtdetr-l"].weights_file,
+        name: str = config.MODEL_REGISTRY["rtdetr-l"].display_name,
+    ) -> None:
+        super().__init__(weights=weights, name=name, family="detr", class_name="RTDETR")
+
+
+_FAMILY_TO_CLASS: dict[str, type[_UltralyticsDetector]] = {
+    "yolo": YoloDetector,
+    "detr": RtdetrDetector,
+}
+
+
+def build_detector(model_key: str) -> Detector:
+    """Construct the detector registered under ``model_key`` in ``config.MODEL_REGISTRY``.
+
+    Raises:
+        KeyError: when the key is not present in the registry.
+    """
+    spec = config.MODEL_REGISTRY[model_key]
+    detector_class = _FAMILY_TO_CLASS[spec.family]
+    return detector_class(weights=spec.weights_file, name=spec.display_name)
