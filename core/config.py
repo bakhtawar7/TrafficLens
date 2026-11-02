@@ -89,6 +89,10 @@ MAX_CONFIDENCE: float = 0.95
 DEFAULT_MODEL_NAME: str = "yolov8n"
 DEFAULT_WEIGHTS_FILE: str = "yolov8n.pt"
 
+# Default sweep for core.reliability: the detector runs once at the lowest
+# value and the higher thresholds are derived by confidence filtering.
+THRESHOLD_SWEEP: tuple[float, ...] = (0.15, 0.25, 0.35, 0.50)
+
 # ---------------------------------------------------------------------------
 # Model registry. Every entry names a pretrained ultralytics weights file that
 # ultralytics downloads on first use. TrafficLens never trains or fine tunes.
@@ -112,6 +116,18 @@ MODEL_REGISTRY: dict[str, ModelSpec] = {
     "yolov8s": ModelSpec("YOLOv8s", "yolo", "yolov8s.pt"),
     "rtdetr-l": ModelSpec("RT-DETR-L", "detr", "rtdetr-l.pt"),
 }
+
+# ---------------------------------------------------------------------------
+# Sliced (tiled) inference defaults. SlicedDetector cuts an image into
+# overlapping tiles and merges the duplicate detections with class-aware
+# non-max suppression; the values below are its constructor defaults.
+# ---------------------------------------------------------------------------
+#: Edge length in pixels of each square tile.
+SLICE_TILE_SIZE: int = 640
+#: Fraction of a tile edge shared with the neighbouring tiles, in [0, 1).
+SLICE_OVERLAP_RATIO: float = 0.2
+#: IoU above which two same-class boxes are treated as one object.
+SLICE_IOU_THRESHOLD: float = 0.5
 
 # ---------------------------------------------------------------------------
 # Input validation

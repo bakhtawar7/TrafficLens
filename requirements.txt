@@ -5,7 +5,9 @@ ultralytics>=8.2.0
 # use_container_width argument is deprecated and past its removal date.
 streamlit>=1.52.0
 opencv-python-headless>=4.9.0.0
-supervision>=0.21.0
+# Floor set by the InferenceSlicer slice_wh/overlap_wh API used by
+# core.detector.SlicedDetector; earlier releases had a different signature.
+supervision>=0.31.0
 pandas>=2.0.0
 plotly>=5.20.0
 pillow>=10.2.0
