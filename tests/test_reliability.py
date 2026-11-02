@@ -5,7 +5,9 @@ The offline tests use a fake detector that applies the ultralytics semantics
 class filtering, and range maths are proven without weights or network. The
 real-model equivalence test needs cached weights and is skipped unless
 ``TRAFFICLENS_RUN_WEIGHTS=1``; it is the only test that can check the sweep
-against genuine ultralytics NMS behaviour.
+against genuine ultralytics NMS behaviour. The agreement tests for the H2
+measures (count disagreement and class-aware box agreement) are fully
+synthetic and run offline.
 """
 from __future__ import annotations
 
@@ -180,3 +182,187 @@ def test_real_sweep_matches_direct_runs(model_key: str) -> None:
         direct = counting.count_vehicles(image, detector, confidence_threshold=row.threshold)
         assert row.total == direct.total_count, (model_key, row.threshold)
         assert row.counts_by_class == direct.counts_by_class, (model_key, row.threshold)
+
+
+# ---------------------------------------------------------------------------
+# H2 agreement measures: synthetic detections, offline
+# ---------------------------------------------------------------------------
+
+_CLASS_IDS = {name: class_id for class_id, name in config.TARGET_CLASS_MAP.items()}
+
+
+def _box_det(class_name: str, xyxy: tuple[float, float, float, float], confidence: float = 0.9) -> Detection:
+    return Detection(_CLASS_IDS[class_name], class_name, confidence, xyxy)
+
+
+class FixedDetector:
+    """Returns a canned detection list and counts how often it was called."""
+
+    def __init__(self, name: str, family: str, detections: list[Detection]) -> None:
+        self.name = name
+        self.family = family
+        self.detections = detections
+        self.calls = 0
+        self.thresholds: list[float] = []
+
+    def warmup(self) -> None:
+        pass
+
+    def detect(self, image: np.ndarray, confidence_threshold: float) -> list[Detection]:
+        self.calls += 1
+        self.thresholds.append(confidence_threshold)
+        return list(self.detections)
+
+
+def test_identical_detections_agree_perfectly() -> None:
+    shared = [_box_det("car", (0, 0, 10, 10)), _box_det("bus", (50, 50, 60, 60))]
+    agreement = reliability.agreement_between(shared, list(shared))
+
+    assert agreement.count_disagreement == 0.0
+    assert all(value == 0.0 for value in agreement.count_disagreement_by_class.values())
+    assert agreement.box_agreement == 1.0
+
+
+def test_same_counts_in_different_places_disagree_on_boxes_only() -> None:
+    left = [_box_det("car", (0, 0, 10, 10)), _box_det("car", (20, 20, 30, 30))]
+    right = [_box_det("car", (200, 200, 210, 210)), _box_det("car", (220, 220, 230, 230))]
+    agreement = reliability.agreement_between(left, right)
+
+    assert agreement.count_disagreement == 0.0  # both counted two cars
+    assert agreement.box_agreement == 0.0  # but no box is within IoU 0.5 of its twin
+
+
+def test_one_sided_counts_are_maximal_disagreement() -> None:
+    left = [_box_det("car", (0, 0, 10, 10)), _box_det("car", (20, 20, 30, 30))]
+    agreement = reliability.agreement_between(left, [])
+
+    assert agreement.count_disagreement_by_class["car"] == 1.0
+    assert agreement.count_disagreement == 0.25  # one of four classes in disagreement
+    assert agreement.box_agreement == 0.0
+    assert reliability.box_agreement([], []) == 1.0  # two empty sets agree by definition
+
+
+def test_partial_box_overlap_scores_the_f1_form() -> None:
+    left = [_box_det("car", (0, 0, 10, 10)), _box_det("car", (100, 100, 110, 110))]
+    right = [_box_det("car", (0, 0, 10, 10)), _box_det("car", (200, 200, 210, 210))]
+    agreement = reliability.agreement_between(left, right)
+
+    assert agreement.box_agreement == 0.5  # 2 * 1 match / (2 + 2)
+
+
+def test_matching_is_class_aware() -> None:
+    car = [_box_det("car", (0, 0, 10, 10))]
+    bus = [_box_det("bus", (0, 0, 10, 10))]  # same geometry, different class
+    agreement = reliability.agreement_between(car, bus)
+
+    assert agreement.box_agreement == 0.0
+    assert agreement.count_disagreement_by_class["car"] == 1.0
+    assert agreement.count_disagreement_by_class["bus"] == 1.0
+    assert agreement.count_disagreement == 0.5
+
+
+def test_iou_exactly_at_threshold_counts_as_a_match() -> None:
+    # Boxes (0,0,6,1) and (2,0,8,1): intersection 4, union 8, IoU exactly 0.5.
+    agreement = reliability.box_agreement(
+        [_box_det("car", (0.0, 0.0, 6.0, 1.0))],
+        [_box_det("car", (2.0, 0.0, 8.0, 1.0))],
+    )
+    assert agreement == 1.0
+
+
+def test_greedy_matching_is_one_to_one() -> None:
+    left = [_box_det("car", (0, 0, 10, 10))]
+    right = [_box_det("car", (0, 0, 10, 10)), _box_det("car", (1, 0, 11, 10))]
+    # Both right boxes clear IoU 0.5 against the single left box, but the
+    # greedy pass may match it only once: 2 * 1 / (1 + 2).
+    assert reliability.box_agreement(left, right) == pytest.approx(2.0 / 3.0)
+
+
+def test_non_vehicle_classes_join_neither_measure() -> None:
+    person = Detection(0, "person", 0.95, (0, 0, 10, 10))
+    car = _box_det("car", (0, 0, 10, 10))
+    agreement = reliability.agreement_between([car, person], [car])
+
+    assert agreement.count_disagreement == 0.0
+    assert agreement.box_agreement == 1.0
+
+
+def test_report_pairs_every_model_and_aggregates_within_and_cross() -> None:
+    shared_car = _box_det("car", (0, 0, 10, 10))
+    far_truck = _box_det("truck", (100, 100, 120, 120))
+    detections = {
+        "YOLOv8n": [shared_car],
+        "YOLOv8s": [shared_car],
+        "RT-DETR-L": [shared_car, far_truck],
+    }
+    families = {"YOLOv8n": "yolo", "YOLOv8s": "yolo", "RT-DETR-L": "detr"}
+    report = reliability.build_reliability_report(detections, families, threshold=0.25)
+
+    assert len(report.pairs) == 3
+    assert report.best_yolo == "YOLOv8s"
+    relations = {pair.models: pair.family_relation for pair in report.pairs}
+    assert relations[("YOLOv8n", "YOLOv8s")] == "within"
+    assert relations[("YOLOv8n", "RT-DETR-L")] == "cross"
+    assert relations[("YOLOv8s", "RT-DETR-L")] == "cross"
+
+    assert report.within_family.count_disagreement == 0.0
+    assert report.within_family.box_agreement == 1.0
+    # Cross aggregate is best YOLO versus the detr model only.
+    assert report.cross_family.count_disagreement_by_class == {
+        "car": 0.0, "motorcycle": 0.0, "bus": 0.0, "truck": 1.0,
+    }
+    assert report.cross_family.count_disagreement == 0.25
+    assert report.cross_family.box_agreement == pytest.approx(2.0 / 3.0)
+
+
+def test_cross_aggregate_averages_over_several_other_family_models() -> None:
+    car = _box_det("car", (0, 0, 10, 10))
+    truck = _box_det("truck", (100, 100, 120, 120))
+    detections = {"n": [car], "s": [car], "d1": [truck], "d2": []}
+    families = {"n": "yolo", "s": "yolo", "d1": "detr", "d2": "detr"}
+    report = reliability.build_reliability_report(detections, families, threshold=0.25)
+
+    # Cross pairs are (s, d1) with mean 0.5 and (s, d2) with mean 0.25; the
+    # best YOLO (suffix s outranks n) never pairs with (n, *) within-family rows.
+    assert report.best_yolo == "s"
+    assert report.cross_family.count_disagreement == pytest.approx((0.5 + 0.25) / 2)
+    assert report.cross_family.box_agreement == 0.0
+
+
+def test_agreement_report_runs_each_detector_once() -> None:
+    shared_car = _box_det("car", (0, 0, 10, 10))
+    detectors = [
+        FixedDetector("YOLOv8n", "yolo", [shared_car]),
+        FixedDetector("YOLOv8s", "yolo", [shared_car]),
+        FixedDetector("RT-DETR-L", "detr", [shared_car]),
+    ]
+    report = reliability.agreement_report(detectors, IMAGE, threshold=0.25)
+
+    assert all(detector.calls == 1 for detector in detectors)
+    assert all(detector.thresholds == [0.25] for detector in detectors)
+    assert len(report.pairs) == 3
+    assert report.within_family.box_agreement == 1.0
+    assert report.cross_family.box_agreement == 1.0
+
+
+def test_agreement_report_rejects_bad_detector_sets() -> None:
+    with pytest.raises(ValueError):
+        reliability.agreement_report([], IMAGE)
+    duplicate = FixedDetector("x", "yolo", [])
+    with pytest.raises(ValueError):
+        reliability.agreement_report([duplicate, duplicate], IMAGE)
+
+
+def test_format_agreement_lists_pairs_and_aggregates() -> None:
+    car = _box_det("car", (0, 0, 10, 10))
+    detectors = [
+        FixedDetector("YOLOv8n", "yolo", [car]),
+        FixedDetector("RT-DETR-L", "detr", [car]),
+    ]
+    text = reliability.format_agreement(reliability.agreement_report(detectors, IMAGE, threshold=0.25))
+
+    assert "YOLOv8n vs RT-DETR-L (cross-family)" in text
+    assert "count disagreement" in text
+    assert "box agreement" in text
+    assert "best yolo for the cross-family aggregate: YOLOv8n" in text
+    assert "within family aggregate: not applicable" in text

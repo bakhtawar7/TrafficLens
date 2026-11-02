@@ -37,6 +37,10 @@ RESULTS_DIR: Path = PROJECT_ROOT / "results"
 CURATION_LOG_CSV: Path = RESULTS_DIR / "curation_log.csv"
 AUDIT_OVERLAYS_DIR: Path = RESULTS_DIR / "audit_overlays"
 AUDIT_SHEET_CSV: Path = RESULTS_DIR / "audit_sheet.csv"
+# Benchmark and evaluation artefacts.
+RAW_DETECTIONS_JSONL: Path = RESULTS_DIR / "raw_detections.jsonl"
+EVALUATION_TABLE_CSV: Path = RESULTS_DIR / "evaluation_table.csv"
+EVALUATION_SUMMARY_JSON: Path = RESULTS_DIR / "summary.json"
 
 # ---------------------------------------------------------------------------
 # Dataset provenance and stratified test set sampling
@@ -77,6 +81,11 @@ TARGET_CLASS_MAP: dict[int, str] = {
     7: "truck",
 }
 
+#: Count columns of data/testset/LABELS.csv, in file order.
+LABEL_CLASS_NAMES: tuple[str, ...] = (
+    "car", "bus", "truck", "motorcycle", "rickshaw", "loader_rickshaw", "other",
+)
+
 #: The class names offered in the UI, in display order.
 TARGET_CLASS_NAMES: tuple[str, ...] = tuple(TARGET_CLASS_MAP.values())
 
@@ -92,6 +101,10 @@ DEFAULT_WEIGHTS_FILE: str = "yolov8n.pt"
 # Default sweep for core.reliability: the detector runs once at the lowest
 # value and the higher thresholds are derived by confidence filtering.
 THRESHOLD_SWEEP: tuple[float, ...] = (0.15, 0.25, 0.35, 0.50)
+
+# IoU at which two same-class boxes count as the same vehicle for the
+# agreement measures in core.reliability.
+BOX_IOU_THRESHOLD: float = 0.5
 
 # ---------------------------------------------------------------------------
 # Model registry. Every entry names a pretrained ultralytics weights file that
