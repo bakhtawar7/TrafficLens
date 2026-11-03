@@ -60,6 +60,18 @@ For each item, fill one `LABELS.csv` row with `item_id`, the seven category coun
 `labeller_pass` value, and optional `notes`. Set `labeller_pass` to `1` for the first pass
 and `2` for the review pass described below.
 
+`LABELS.csv` is currently a header only scaffold. The counts that the curation scripts
+derived from the archive annotations are kept for reference in the untracked
+`results/draft_auto_labels.csv` and are not ground truth: they describe a different,
+earlier selection, so they must be re counted against the images on disk rather than
+copied over.
+
+The evaluator refuses to score any row whose `notes` still contain `auto derived` or
+`requires labeller verification`, which is the wording those draft rows carry. A row is
+therefore only usable once a labeller has counted the image and written the number them
+self, and `notes` should then record what was decided rather than that the count was
+machine generated.
+
 ## Second pass procedure
 
 1. Finish a full first pass over all items.

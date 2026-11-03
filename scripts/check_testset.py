@@ -1,13 +1,15 @@
 """Validate the test set CSV files against the images and clips on disk.
 
 Reports files present on disk but missing from SOURCES.csv, SOURCES rows that point at
-a missing file, missing permission or provenance fields (dataset, split, licence, and a
-malformed url), and invalid condition tags. It also validates LABELS.csv values: every
-category count must be a non-negative integer and labeller_pass must be 1 or 2. Blank
-cells in those files are treated as "not recorded yet" and skipped, so a partially
-labelled sheet or an empty scaffold still validates cleanly. A summary count per
-condition tag is printed. Exits non zero when any error is found so it can gate a data
-collection session.
+a missing file, missing permission or provenance fields (dataset, split, licence, a
+missing condition tag, and a malformed url), and invalid condition tags. It also
+validates LABELS.csv values: every category count must be a non-negative integer and
+labeller_pass must be 1 or 2. Blank cells in LABELS.csv are treated as "not recorded
+yet" and skipped, so a partially labelled sheet or an empty scaffold still validates
+cleanly. A summary count per condition tag is printed. Item ids must use the canonical
+four digit form written by ``scripts/build_testset.py``; a legacy ``tl001`` is reported
+together with the spelling it should have and is never corrected silently. Exits non zero
+when any error is found so it can gate a data collection session.
 
 Run from the project root with: ``python scripts/check_testset.py``.
 """
@@ -82,6 +84,58 @@ def _labeller_pass_is_valid(value: object) -> bool:
     return str(value).strip() in {"1", "2", "1.0", "2.0"}
 
 
+def _check_id_column(frame: pd.DataFrame, table: str, column: str = "item_id") -> list[str]:
+    """Flag every item id that is not written in the canonical four digit form.
+
+    An id that cannot be read at all and an id in the legacy ``tl001`` shape are reported
+    separately: the first is a data error, the second is a formatting error that
+    ``scripts/normalise_ids.py`` can repair. The message always names the spelling the row
+    should have, so nothing is quietly accepted and nothing is quietly rewritten either.
+    """
+    found: list[str] = []
+    if column not in frame.columns:
+        return found
+    for index, value in frame[column].items():
+        if _is_blank(value):
+            continue
+        text = str(value).strip()
+        if dataset.is_item_id_canonical(text):
+            continue
+        line = index + 2 if isinstance(index, int) else index
+        number = dataset.parse_item_number(text)
+        if number is None:
+            found.append(f"{table} row {line} item id '{text}' is not a TrafficLens item id.")
+        else:
+            found.append(
+                f"{table} row {line} item id '{text}' must use the four digit form "
+                f"'{dataset.format_item_id(number)}'."
+            )
+    return found
+
+
+def _check_label_ids_match_sources(sources: pd.DataFrame, labels: pd.DataFrame) -> list[str]:
+    """Report LABELS rows whose item number has no SOURCES row, compared by number.
+
+    Comparing the parsed number rather than the raw string means a spelling difference can
+    never hide a real join failure, and a genuine orphan row is still reported even though
+    both files now use the same id convention.
+    """
+    if "item_id" not in sources.columns or "item_id" not in labels.columns:
+        return []
+    source_numbers = {
+        number for number in (dataset.parse_item_number(value) for value in sources["item_id"].dropna())
+        if number is not None
+    }
+    errors: list[str] = []
+    for value in sorted(set(labels["item_id"].dropna().astype(str))):
+        number = dataset.parse_item_number(value)
+        if number is None:
+            continue  # unreadable ids are already reported by _check_id_column
+        if number not in source_numbers:
+            errors.append(f"LABELS.csv item '{value}' has no matching row in SOURCES.csv.")
+    return errors
+
+
 def check(sources: pd.DataFrame, labels: pd.DataFrame, media: set[str]) -> tuple[list[str], list[int]]:
     """Run every validation and return error messages plus a condition histogram.
 
@@ -127,6 +181,11 @@ def check(sources: pd.DataFrame, labels: pd.DataFrame, media: set[str]) -> tuple
     if "condition_tags" in sources.columns:
         for index, row in sources.iterrows():
             tags = _split_tags(row["condition_tags"])
+            if not tags:
+                # A tagless item can never appear in a per-condition table, so it would
+                # silently drop out of the analysis instead of being reported.
+                item = row.get("item_id", f"row {index}")
+                errors.append(f"SOURCES.csv item '{item}' has no condition tags recorded.")
             for tag in tags:
                 if tag in condition_counts:
                     condition_counts[tag] += 1
@@ -136,10 +195,9 @@ def check(sources: pd.DataFrame, labels: pd.DataFrame, media: set[str]) -> tuple
                         f"SOURCES.csv item '{item}' has invalid condition tag '{tag}'."
                     )
 
-    if "item_id" in sources.columns and "item_id" in labels.columns:
-        source_ids = set(sources["item_id"].dropna().astype(str))
-        for item in sorted(set(labels["item_id"].dropna().astype(str)) - source_ids):
-            errors.append(f"LABELS.csv item '{item}' has no matching row in SOURCES.csv.")
+    errors.extend(_check_id_column(sources, "SOURCES.csv"))
+    errors.extend(_check_id_column(labels, "LABELS.csv"))
+    errors.extend(_check_label_ids_match_sources(sources, labels))
 
     # LABELS value validation: category counts must be non-negative integers and the
     # labeller pass must be 1 or 2. Blank cells are skipped so a partially labelled sheet
@@ -196,6 +254,12 @@ def main() -> int:
         print(f"\nFound {len(errors)} problem(s):")
         for message in errors:
             print(f"  - {message}")
+        if any("four digit form" in message for message in errors):
+            print(
+                "\nTo rewrite the flagged ids in place, run:\n"
+                "  python scripts/normalise_ids.py            # preview, writes nothing\n"
+                "  python scripts/normalise_ids.py --apply    # rewrites, printing each id"
+            )
         return 1
 
     print("\nNo problems found.")

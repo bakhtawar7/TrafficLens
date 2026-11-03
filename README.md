@@ -137,9 +137,12 @@ What the pipeline guarantees, and where each result lives:
 * `results/audit_overlays/` and `results/audit_sheet.csv`: every chosen image with its
   annotation boxes drawn, and a counting sheet whose `my_` columns are blank for the
   labeller. Both are generated outputs and stay untracked.
-* `LABELS.csv` is human ground truth and the build never writes it. It still holds the
-  earlier reviewed draft whose ids predate the current selection, so `check_testset.py`
-  reports the mismatch until a labeller pass reconciles the two files.
+* `LABELS.csv` is human ground truth and the build never writes it. The auto derived draft
+  that once filled it described a different, earlier selection, so it now sits in the
+  untracked `results/draft_auto_labels.csv` and `LABELS.csv` is a header only scaffold
+  waiting for the first labelling pass. The evaluator refuses any row whose notes still
+  record the counts as auto derived, so no error statistic can be built from unverified
+  numbers.
 
 The older manual workflow (`select_testset.py`, `make_review_sheet.py`, `apply_review.py`)
 remains available for hand picking a different archive, but rerunning it would overwrite

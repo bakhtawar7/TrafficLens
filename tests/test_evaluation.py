@@ -15,7 +15,7 @@ from pathlib import Path
 
 import pytest
 
-from core import config, evaluation as ev
+from core import config, dataset, evaluation as ev
 from core.detector import Detection
 
 CAR = (2, "car")
@@ -272,3 +272,89 @@ def test_evaluate_rejects_unknown_sliced_model(workspace):
         ev.evaluate(labels_csv=workspace["labels"], sources_csv=workspace["sources"],
                     plan_json=workspace["plan"], detections_jsonl=workspace["dets"],
                     sliced_model_key="not-a-model", write=False)
+
+
+# ---------------------------------------------------------------------------
+# Refusal of unverified draft rows
+# ---------------------------------------------------------------------------
+
+DRAFT_NOTE = dataset.UNVERIFIED_DRAFT_NOTE
+
+
+def _draft(row: dict) -> dict:
+    """Mark a label row as the unverified machine draft."""
+    row["notes"] = DRAFT_NOTE
+    return row
+
+
+def test_the_canonical_draft_note_stays_inside_the_refusal_net():
+    """The sentence both producers write must keep being refused by the evaluator.
+
+    ``core.dataset.UNVERIFIED_DRAFT_NOTE`` is the only place that wording is spelled out, so
+    this is the seam that breaks loudly if someone rewords the note, or rewords the markers,
+    and would otherwise let an unverified draft count be scored in silence.
+    """
+    assert ev.is_unverified_note(dataset.UNVERIFIED_DRAFT_NOTE)
+    lowered = dataset.UNVERIFIED_DRAFT_NOTE.lower()
+    assert all(marker in lowered for marker in ev.UNVERIFIED_NOTE_MARKERS)
+
+
+def test_is_unverified_note_matches_both_markers_case_insensitively():
+    assert ev.is_unverified_note(DRAFT_NOTE)
+    assert ev.is_unverified_note("Counts were AUTO DERIVED from the archive")
+    assert ev.is_unverified_note("requires Labeller Verification")
+    assert not ev.is_unverified_note("counted by hand, second pass")
+    assert not ev.is_unverified_note("")
+    assert not ev.is_unverified_note(None)
+
+
+def test_load_labels_refuses_rows_marked_unverified(tmp_path):
+    path = tmp_path / "LABELS.csv"
+    _write_labels(path, [_row("tl001", {"car": 4}), _draft(_row("tl002", {"car": 3}))])
+    assert set(ev.load_labels(path)) == {1}
+    assert set(ev.load_labels(path, refuse_unverified=False)) == {1, 2}
+
+
+def test_unverified_label_rows_reports_canonical_ids(tmp_path):
+    path = tmp_path / "LABELS.csv"
+    _write_labels(path, [_draft(_row("tl001", {"car": 4})), _row("tl002", {"car": 3})])
+    assert ev.unverified_label_rows(path) == ["tl0001"]
+
+
+def test_evaluate_refuses_to_score_draft_only_labels(workspace):
+    """When every row is an unverified draft, nothing is scored and the refusal is stated."""
+    _write_labels(workspace["labels"], [
+        _draft(_row("tl002", {"car": 4, "rickshaw": 3})),
+        _draft(_row("tl003", {"car": 2, "rickshaw": 1})),
+    ])
+    summary = ev.evaluate(
+        labels_csv=workspace["labels"], sources_csv=workspace["sources"],
+        plan_json=workspace["plan"], detections_jsonl=workspace["dets"],
+        table_out=workspace["table"], summary_out=workspace["summary"],
+        write=True,
+    )
+    refused = summary["refusals"]["unverified_label_rows"]
+    assert refused["count"] == 2
+    assert refused["items"] == ["tl0002", "tl0003"]
+    assert summary["items"]["evaluated"] == 0
+    assert "no error statistic computed" in summary["warning"]
+    assert summary["model_mae"]["YOLOv8n"]["covered"]["mae"] is None
+    with workspace["table"].open(encoding="utf-8", newline="") as handle:
+        assert handle.readline().strip() == ",".join(ev.TABLE_COLUMNS)
+
+
+def test_mixed_labels_score_only_the_verified_rows(workspace):
+    """A verified row is still scored while its unverified neighbour is refused."""
+    _write_labels(workspace["labels"], [
+        _row("tl002", {"car": 4, "rickshaw": 3}),
+        _draft(_row("tl003", {"car": 2, "rickshaw": 1})),
+    ])
+    summary = ev.evaluate(
+        labels_csv=workspace["labels"], sources_csv=workspace["sources"],
+        plan_json=workspace["plan"], detections_jsonl=workspace["dets"],
+        table_out=workspace["table"], summary_out=workspace["summary"],
+        write=False,
+    )
+    assert summary["refusals"]["unverified_label_rows"]["count"] == 1
+    assert summary["items"]["evaluated"] == 1
+    assert summary["items"]["present_in_table"] == ["tl0002"]

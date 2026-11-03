@@ -354,3 +354,44 @@ def test_parse_tag_quota_accepts_valid_expressions(text, expected):
 def test_parse_tag_quota_rejects_bad_expressions(text):
     with pytest.raises(ValueError):
         dataset.parse_tag_quota(text)
+
+
+# ---------------------------------------------------------------------------
+# Canonical item identifiers
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [("tl0001", 1), ("tl001", 1), ("TL1", 1), ("  tl0042 ", 42), ("tl0000", 0),
+     ("tl12345", 12345)],
+)
+def test_parse_item_number_accepts_every_known_spelling(value, expected):
+    assert dataset.parse_item_number(value) == expected
+
+
+@pytest.mark.parametrize("value", ["", "  ", None, "t1", "tl", "tlabc", "x0001", "tl001x"])
+def test_parse_item_number_returns_none_for_values_that_are_not_ids(value):
+    assert dataset.parse_item_number(value) is None
+
+
+@pytest.mark.parametrize(("number", "text"), [(1, "tl0001"), (42, "tl0042"), (0, "tl0000")])
+def test_format_item_id_pads_to_four_digits(number, text):
+    assert dataset.format_item_id(number) == text
+
+
+def test_normalise_item_id_rewrites_a_legacy_id_to_the_canonical_form():
+    assert dataset.normalise_item_id("tl001") == "tl0001"
+    assert dataset.normalise_item_id("tl0001") == "tl0001"
+    assert dataset.normalise_item_id("tl046") == "tl0046"
+    assert dataset.normalise_item_id("not-an-id") is None
+
+
+@pytest.mark.parametrize(("value", "expected"), [("tl0001", True), ("tl001", False),
+                                                 ("TL0001", False), ("tl1", False)])
+def test_is_item_id_canonical_only_passes_the_four_digit_form(value, expected):
+    assert dataset.is_item_id_canonical(value) is expected
+
+
+def test_format_and_parse_round_trip():
+    for number in (0, 1, 45, 999, 12345):
+        assert dataset.parse_item_number(dataset.format_item_id(number)) == number

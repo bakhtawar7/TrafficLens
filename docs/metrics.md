@@ -118,6 +118,12 @@ Read from `data/testset/LABELS.csv`, first labelling pass, counts normalised to 
 The development subset in `configs/testset_plan.json` is removed before every statistic and
 from the written table, so no reported error is tuned on data used to build the pipeline.
 
+A `LABELS.csv` row whose `notes` still carry the draft wording described in
+`labelling_protocol.md` is refused when the labels are loaded, before any target above is
+built. Counts the pipeline derived from the archive annotation therefore contribute no
+statistic at all. How many rows were refused, which items, and why are recorded in
+`summary.json` under `refusals`, and the same statement is printed when the evaluation runs.
+
 ## Mean absolute error (`core/evaluation.py`)
 
 Over a set of items `I` (per model, per target, or per condition):

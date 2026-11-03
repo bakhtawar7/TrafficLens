@@ -4,8 +4,15 @@ The evaluator joins three artefacts: ``LABELS.csv`` (manual counts per class,
 first and second labelling passes), ``SOURCES.csv`` (condition tags per item),
 and ``results/raw_detections.jsonl`` (cached raw detections at the lowest sweep
 threshold, from which any higher threshold is derived by confidence filtering).
-Item ids are normalised by their numeric part, so the scaffold's ``tl001`` and
-the test set's ``tl0001`` are the same item number 1.
+Item ids are read through :func:`core.dataset.parse_item_number`, which accepts the
+legacy zero padded spellings and returns the item number, so ``tl001`` and ``tl0001``
+both refer to item 1. Written output always uses the canonical four digit form
+defined by ``core.dataset.ITEM_ID_PATTERN``.
+
+Rows whose ``notes`` cell still carries the auto derived draft wording
+(:data:`UNVERIFIED_NOTE_MARKERS`) are refused: they never enter a label load, so no
+error statistic, agreement figure, or labeller comparison can be computed from counts
+that no labeller has verified. The refusal is reported in the summary and printed.
 
 Ground truth has two targets, always reported separately:
 
@@ -35,12 +42,11 @@ from __future__ import annotations
 import csv
 import json
 import random
-import re
 import statistics
 from pathlib import Path
 from typing import Any
 
-from . import config
+from . import config, dataset
 from .detector import Detection
 from .reliability import box_agreement
 
@@ -48,6 +54,13 @@ from .reliability import box_agreement
 COVERED_CLASSES: tuple[str, ...] = tuple(config.TARGET_CLASS_NAMES)
 #: Additional vehicle classes only the labeller can count (no COCO class).
 LOCAL_VEHICLE_CLASSES: tuple[str, ...] = ("rickshaw", "loader_rickshaw")
+
+#: Note wording that marks a LABELS.csv row as an unverified machine draft rather than a
+#: labeller's count. Matched case insensitively as a substring: both producers write this
+#: sentence from ``core.dataset.UNVERIFIED_DRAFT_NOTE``, and a test asserts that wording is
+#: refused here, so rewording the note without rewording these markers fails the suite
+#: instead of quietly allowing an unverified count to be scored.
+UNVERIFIED_NOTE_MARKERS: tuple[str, ...] = ("auto derived", "requires labeller verification")
 
 #: Exact column order of results/evaluation_table.csv.
 TABLE_COLUMNS: tuple[str, ...] = (
@@ -59,9 +72,18 @@ _MODEL_DISPLAY: dict[str, str] = {key: spec.display_name for key, spec in config
 
 
 def normalise_item_id(value: str) -> int | None:
-    """Extract the item number from ids like ``tl001`` or ``tl0001``; None if unlike."""
-    match = re.fullmatch(r"tl0*(\d+)", str(value).strip().lower())
-    return int(match.group(1)) if match else None
+    """Extract the item number from ids like ``tl001`` or ``tl0001``; None if unlike.
+
+    Thin alias for :func:`core.dataset.parse_item_number`, kept so the join used by every
+    loader in this module has one name.
+    """
+    return dataset.parse_item_number(value)
+
+
+def is_unverified_note(notes: object) -> bool:
+    """True when a notes cell says the counts were auto derived or still need checking."""
+    text = str(notes or "").lower()
+    return any(marker in text for marker in UNVERIFIED_NOTE_MARKERS)
 
 
 def _int_or_none(value: Any) -> int | None:
@@ -83,18 +105,24 @@ def all_vehicles_total(counts: dict[str, int]) -> int:
     return covered_total(counts) + sum(counts.get(name, 0) for name in LOCAL_VEHICLE_CLASSES)
 
 
-def load_labels(path: Path) -> dict[int, dict[str, dict[str, int] | None]]:
+def load_labels(
+    path: Path, refuse_unverified: bool = True
+) -> dict[int, dict[str, dict[str, int] | None]]:
     """Read LABELS.csv into per-item first and second pass class counts.
 
-    Rows without any count values are ignored. A blank labeller pass is treated
-    as the first pass. Later rows for the same item and pass overwrite earlier
-    ones.
+    Rows without any count values are ignored. When ``refuse_unverified`` is true, a row
+    whose notes still say the counts were auto derived is ignored as well, because an
+    unverified draft is not ground truth and must not feed any statistic. A blank
+    labeller pass is treated as the first pass. Later rows for the same item and pass
+    overwrite earlier ones.
     """
     items: dict[int, dict[str, dict[str, int] | None]] = {}
     with path.open("r", encoding="utf-8", newline="") as handle:
         for row in csv.DictReader(handle):
             item = normalise_item_id(row.get("item_id", ""))
             if item is None:
+                continue
+            if refuse_unverified and is_unverified_note(row.get("notes", "")):
                 continue
             counts = {name: _int_or_none(row.get(name)) for name in config.LABEL_CLASS_NAMES}
             if all(value is None for value in counts.values()):
@@ -104,6 +132,23 @@ def load_labels(path: Path) -> dict[int, dict[str, dict[str, int] | None]]:
             slot = "pass2" if passes == 2 else "pass1"
             items.setdefault(item, {"pass1": None, "pass2": None})[slot] = clean
     return items
+
+
+def unverified_label_rows(path: Path) -> list[str]:
+    """Return the canonical ids of LABELS.csv rows whose notes mark them unverified.
+
+    These are the rows :func:`load_labels` refuses. The list is reported so the refusal is
+    visible in the output instead of looking like an empty test set.
+    """
+    if not Path(path).exists():
+        return []
+    found: list[str] = []
+    with Path(path).open("r", encoding="utf-8", newline="") as handle:
+        for row in csv.DictReader(handle):
+            number = normalise_item_id(row.get("item_id", ""))
+            if number is not None and is_unverified_note(row.get("notes", "")):
+                found.append(dataset.format_item_id(number))
+    return sorted(set(found))
 
 
 def load_conditions(path: Path) -> dict[int, str]:
@@ -214,7 +259,7 @@ def build_rows(
         agreement = round(statistics.fmean(pairwise), 4) if pairwise else None
         actual_error = abs(gt_covered - round(statistics.median(values)))
         rows.append({
-            "Item": f"tl{item:04d}",
+            "Item": dataset.format_item_id(item),
             "Condition": conditions.get(item, ""),
             "Ground Truth": gt_covered,
             **{_MODEL_DISPLAY[key]: counts[key] for key in model_keys},
@@ -235,8 +280,15 @@ def summarise(
     confidence: float,
     sliced_model_key: str,
     bootstrap_samples: int,
+    refused_unverified: list[str] | None = None,
 ) -> dict[str, Any]:
-    """Compute every statistic that goes into ``results/summary.json``."""
+    """Compute every statistic that goes into ``results/summary.json``.
+
+    ``refused_unverified`` is the list of canonical ids whose label rows were rejected for
+    carrying unverified draft notes. It is recorded so the artefact states, without the
+    reader having to infer it, which rows were deliberately not scored.
+    """
+    refused = sorted(set(refused_unverified or []))
     evaluated = {row["Item"]: row for row in rows}
     labelled_non_dev = [
         item for item, data in labels.items()
@@ -298,7 +350,12 @@ def summarise(
     }
 
     warning = None
-    if len(labelled_non_dev) < 30:
+    if refused and not rows:
+        warning = (
+            f"no error statistic computed: all {len(refused)} labelled row(s) were refused "
+            "because their notes record the counts as auto derived and unverified"
+        )
+    elif len(labelled_non_dev) < 30:
         warning = (
             f"only {len(labelled_non_dev)} labelled items outside the development subset "
             "(fewer than 30): every statistic is provisional"
@@ -316,10 +373,21 @@ def summarise(
             "development_excluded": len(excluded),
             "labelled_outside_development": len(labelled_non_dev),
             "evaluated": len(rows),
-            "missing_detections": [f"tl{i:04d}" for i in missing],
+            "missing_detections": [dataset.format_item_id(i) for i in missing],
             "present_in_table": sorted(evaluated),
         },
         "warning": warning,
+        "refusals": {
+            "unverified_label_rows": {
+                "count": len(refused),
+                "items": refused,
+                "note_markers": list(UNVERIFIED_NOTE_MARKERS),
+                "statement": (
+                    "error statistics were not computed from these rows because their notes "
+                    "record the counts as auto derived and awaiting labeller verification"
+                ),
+            },
+        },
         "model_mae": model_mae,
         "condition_mae": condition_summary,
         "labeller_passes": labeller,
@@ -340,18 +408,28 @@ def evaluate(
 ) -> dict[str, Any]:
     """Run the full evaluation and return (and by default write) the summary.
 
-    The development subset is excluded everywhere. Raises ValueError when
-    ``sliced_model_key`` is not a registry key.
+    The development subset is excluded everywhere. Rows whose notes still describe the
+    counts as an unverified auto derived draft are refused before any statistic runs, and
+    the refusal is printed. Raises ValueError when ``sliced_model_key`` is not a registry
+    key.
     """
     if sliced_model_key not in config.MODEL_REGISTRY:
         raise ValueError(f"unknown sliced model key: {sliced_model_key}")
-    labels = load_labels(Path(labels_csv))
+    labels_path = Path(labels_csv)
+    refused = unverified_label_rows(labels_path)
+    labels = load_labels(labels_path)
     conditions = load_conditions(Path(sources_csv))
     excluded = load_development_ids(Path(plan_json))
     cache = load_detection_cache(Path(detections_jsonl), confidence)
     rows, missing = build_rows(labels, conditions, cache, excluded, sliced_model_key)
     summary = summarise(labels, conditions, rows, missing, excluded, confidence,
-                        sliced_model_key, bootstrap_samples)
+                        sliced_model_key, bootstrap_samples, refused_unverified=refused)
+    if refused:
+        print(
+            f"REFUSED {len(refused)} LABELS row(s) whose notes record the counts as auto "
+            f"derived and requiring labeller verification: {', '.join(refused)}"
+        )
+        print(f"         {len(rows)} row(s) were scored.")
     if write:
         table_path = Path(table_out)
         table_path.parent.mkdir(parents=True, exist_ok=True)

@@ -31,10 +31,7 @@ if str(ROOT) not in sys.path:
 
 from core import config, dataset  # noqa: E402
 
-REVIEW_NOTE = (
-    "counts and condition tags auto derived from the archive annotation; "
-    "requires labeller verification pass"
-)
+REVIEW_NOTE = dataset.UNVERIFIED_DRAFT_NOTE
 
 SOURCES_COLUMNS: tuple[str, ...] = (
     "item_id",
@@ -145,7 +142,7 @@ def write_log(path: Path, accepted: list[dataset.Candidate], rejected: list[data
         rows.append(
             {
                 "decision": "selected",
-                "item_id": f"tl{index:03d}",
+                "item_id": dataset.format_item_id(index),
                 "original_filename": candidate.original_filename,
                 "area": candidate.area,
                 "condition_tags": dataset.merge_tags(candidate.tags),
@@ -287,7 +284,7 @@ def main(argv: list[str] | None = None) -> int:
     labels_rows: list[dict[str, object]] = []
     copied = 0
     for index, candidate in enumerate(accepted, start=1):
-        item_id = f"tl{index:03d}"
+        item_id = dataset.format_item_id(index)
         filename = dataset.make_item_filename(item_id, candidate.area, candidate.tags, Path(candidate.image_path).suffix.lower())
         destination = config.TESTSET_IMAGES_DIR / filename
         shutil.copy2(candidate.image_path, destination)

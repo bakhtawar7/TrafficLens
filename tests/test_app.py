@@ -289,3 +289,40 @@ def test_evaluation_tab_renders_table_chart_and_agreement(tmp_path, monkeypatch)
     labels = metrics_of(at)
     assert labels["Items labelled twice"] == "4"
     assert len(at.dataframe) >= 1, "the evaluation table should render"
+
+
+def test_evaluation_tab_shows_the_refusal_when_every_row_was_rejected(tmp_path, monkeypatch) -> None:
+    """A header only table plus a refusal warning must inform, not crash.
+
+    This is the state the evaluator produces when every LABELS row still carries the
+    unverified auto derived note, so the dashboard must say so rather than show numbers.
+    """
+    import csv as _csv
+    import json
+
+    from streamlit.testing.v1 import AppTest
+
+    from core import evaluation as ev
+
+    table = tmp_path / "evaluation_table.csv"
+    with table.open("w", encoding="utf-8", newline="") as handle:
+        _csv.DictWriter(handle, fieldnames=list(ev.TABLE_COLUMNS)).writeheader()
+    summary = tmp_path / "summary.json"
+    summary.write_text(json.dumps({
+        "warning": "no error statistic computed: all 55 labelled row(s) were refused",
+        "condition_mae": {},
+        "labeller_passes": {"items_both_passes": 0, "covered_mean_abs_difference": None,
+                            "covered_ci95": [None, None], "all_vehicles_mean_abs_difference": None,
+                            "identical_fraction": None},
+        "model_mae": {"YOLOv8n": {"covered": {"mae": None, "ci95": [None, None], "n": 0}}},
+    }), encoding="utf-8")
+
+    monkeypatch.setattr("core.config.EVALUATION_TABLE_CSV", table)
+    monkeypatch.setattr("core.config.EVALUATION_SUMMARY_JSON", summary)
+    at = AppTest.from_file(APP_ENTRY, default_timeout=120)
+    at.run()
+    assert not at.exception
+    assert any("no rows yet" in note.value for note in at.info)
+    assert any("refused" in warning.value for warning in at.warning)
+    for frame in at.dataframe:
+        assert frame.value.empty, "nothing should be tabulated when nothing was scored"

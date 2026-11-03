@@ -87,6 +87,67 @@ LABEL_TO_CATEGORY: dict[str, str] = {
 }
 
 # ---------------------------------------------------------------------------
+# Item identifiers
+# ---------------------------------------------------------------------------
+
+#: The one spelling of an item id that the test set artefacts are allowed to carry:
+#: the project prefix followed by exactly four digits, as minted by
+#: ``scripts/build_testset.py``. Anything else is a legacy or hand written form.
+ITEM_ID_PATTERN: re.Pattern[str] = re.compile(r"^tl(\d{4})$")
+
+#: Tolerant reader for the older zero padded forms (``tl001``, ``TL1``). Group 1 is the
+#: item number with its leading zeros removed, so the number survives even when the
+#: spelling does not.
+_ITEM_NUMBER: re.Pattern[str] = re.compile(r"^tl0*(\d{1,})$", re.IGNORECASE)
+
+
+def parse_item_number(value: object) -> int | None:
+    """Return the item number carried by an id in any known spelling, or ``None``.
+
+    ``tl0001``, ``tl001``, ``TL1`` and ``tl0042`` all parse; a blank cell, an id from
+    another project, or a filename are rejected by returning ``None`` rather than by
+    raising, because callers use this to join tables that may hold junk rows.
+    """
+    if value is None:
+        return None
+    match = _ITEM_NUMBER.match(str(value).strip())
+    return int(match.group(1)) if match else None
+
+
+def format_item_id(number: int) -> str:
+    """Render an item number in the canonical four digit form."""
+    return f"tl{int(number):04d}"
+
+
+def normalise_item_id(value: object) -> str | None:
+    """Return the canonical four digit spelling of an id, or ``None`` if it has no number.
+
+    Used when rewriting an artefact so that every file refers to the same item by the
+    same string. A ``None`` result means the cell is not a TrafficLens id at all and
+    must be reported rather than rewritten.
+    """
+    number = parse_item_number(value)
+    return None if number is None else format_item_id(number)
+
+
+def is_item_id_canonical(value: object) -> bool:
+    """True when a cell is already written in the four digit form."""
+    if value is None:
+        return False
+    return bool(ITEM_ID_PATTERN.match(str(value).strip()))
+
+
+#: Wording every script writes into a ``notes`` cell for counts and tags that were derived
+#: from the archive annotation rather than counted by a person. It is the single source of
+#: that sentence so a producer cannot reword itself out of the evaluator's refusal rule:
+#: ``core.evaluation`` rejects any row whose notes contain one of its markers.
+UNVERIFIED_DRAFT_NOTE: str = (
+    "counts and condition tags auto derived from the archive annotation; "
+    "requires labeller verification pass"
+)
+
+
+# ---------------------------------------------------------------------------
 # Quality and tagging thresholds
 # ---------------------------------------------------------------------------
 

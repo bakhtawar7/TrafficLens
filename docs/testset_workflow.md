@@ -7,6 +7,15 @@ person doing the verification.
 
 The archive is never modified. Every step reads it and writes into the project.
 
+Two build paths exist. The one that produced the committed set is the three stage pipeline in
+the README (`clean_dataset.py`, `tag_dataset.py`, `build_testset.py`): a seeded stratified
+draw that copies the images and writes `SOURCES.csv`, `annotation_counts.csv`, and the audit
+sheet, and that deliberately never writes `LABELS.csv`. The steps below describe the older
+manual path (`select_testset.py`, `make_review_sheet.py`, `apply_review.py`), which is still
+the way to hand pick a different archive. Both paths stamp the same draft note on everything
+they derive from the archive annotation, and `core/evaluation.py` refuses to score a row
+carrying that note, so an unverified count cannot reach a statistic however it was built.
+
 ## Who does what
 
 | Step | Performed by | Output |

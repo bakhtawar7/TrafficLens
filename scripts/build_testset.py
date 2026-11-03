@@ -42,7 +42,7 @@ SOURCES_COLUMNS: tuple[str, ...] = (
     "item_id", "filename", "type", "dataset", "split", "scene",
     "source", "licence", "url", "condition_tags", "notes",
 )
-ANNOTATION_NOTE = "counts auto derived from archive annotation; requires labeller verification"
+ANNOTATION_NOTE = dataset.UNVERIFIED_DRAFT_NOTE
 
 
 def _frame_number(stem: str) -> int:
