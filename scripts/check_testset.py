@@ -8,7 +8,10 @@ labeller_pass must be 1 or 2. Blank cells in LABELS.csv are treated as "not reco
 yet" and skipped, so a partially labelled sheet or an empty scaffold still validates
 cleanly. A summary count per condition tag is printed. Item ids must use the canonical
 four digit form written by ``scripts/build_testset.py``; a legacy ``tl001`` is reported
-together with the spelling it should have and is never corrected silently. Exits non zero
+together with the spelling it should have and is never corrected silently. A row whose
+``tag_source`` is ``auto_proposed`` (written by ``scripts/tag_proposal.py`` from the frozen
+cut-offs but not yet human confirmed) is accepted even when its tag cell is blank; the
+count of such unconfirmed rows is printed as a warning, never as an error. Exits non zero
 when any error is found so it can gate a data collection session.
 
 Run from the project root with: ``python scripts/check_testset.py``.
@@ -30,6 +33,39 @@ from core import config, dataset  # noqa: E402  (path setup must run first)
 VALID_CONDITION_TAGS: set[str] = {"day", "night", "glare", "dense", "sparse", "distant"}
 _IMAGE_SUFFIXES: set[str] = {".jpg", ".jpeg", ".png", ".webp"}
 _CLIP_SUFFIXES: set[str] = {".mp4", ".mov", ".avi", ".mkv"}
+
+#: ``tag_source`` value for rows whose condition tags were proposed from the frozen
+#: cut-offs but not yet confirmed by a human. Such a row may legitimately carry a blank
+#: tag cell, so it is reported as a warning rather than an error.
+AUTO_PROPOSED_TAG_SOURCE = "auto_proposed"
+
+
+def _normalise(value: object) -> str:
+    """Lower case and strip a cell, mapping a missing or blank value to the empty string."""
+    if value is None or (isinstance(value, float) and pd.isna(value)):
+        return ""
+    return str(value).strip().lower()
+
+
+def _row_tag_source(row: pd.Series) -> str:
+    """Return the normalised ``tag_source`` of a row, or the empty string when absent."""
+    return _normalise(row.get("tag_source"))
+
+
+def count_unconfirmed_tags(sources: pd.DataFrame) -> int:
+    """Count rows whose condition tags are auto proposed and still unconfirmed.
+
+    Only ``tag_source == "auto_proposed"`` rows with a blank ``tag_confirmed`` cell are
+    counted, because those are the proposals awaiting a human pass. Rows tagged by the
+    cut-off rule at build time, and rows from a legacy sheet with no ``tag_source`` column,
+    are never counted here.
+    """
+    if "condition_tags" not in sources.columns:
+        return 0
+    return sum(
+        1 for _, row in sources.iterrows()
+        if _row_tag_source(row) == AUTO_PROPOSED_TAG_SOURCE and _is_blank(row.get("tag_confirmed"))
+    )
 
 
 def _on_disk_media() -> set[str]:
@@ -181,9 +217,10 @@ def check(sources: pd.DataFrame, labels: pd.DataFrame, media: set[str]) -> tuple
     if "condition_tags" in sources.columns:
         for index, row in sources.iterrows():
             tags = _split_tags(row["condition_tags"])
-            if not tags:
-                # A tagless item can never appear in a per-condition table, so it would
-                # silently drop out of the analysis instead of being reported.
+            if not tags and _row_tag_source(row) != AUTO_PROPOSED_TAG_SOURCE:
+                # A tagless item that was meant to come from the cut-off rule belongs to no
+                # condition stratum and would silently drop from the analysis, so it is an
+                # error. An auto proposed row may legally be blank: it is pending review.
                 item = row.get("item_id", f"row {index}")
                 errors.append(f"SOURCES.csv item '{item}' has no condition tags recorded.")
             for tag in tags:
@@ -249,6 +286,14 @@ def main() -> int:
     print("  Condition summary:")
     for tag, count in zip(tags, counts):
         print(f"    {tag:<8}: {count}")
+
+    unconfirmed = count_unconfirmed_tags(sources)
+    if unconfirmed:
+        print(
+            f"\nWARNING: {unconfirmed} SOURCES row(s) carry auto proposed condition tags that "
+            "are not yet confirmed (tag_confirmed blank). They are accepted, but review "
+            "results/tag_review/ and set tag_confirmed before treating them as ground truth."
+        )
 
     if errors:
         print(f"\nFound {len(errors)} problem(s):")
