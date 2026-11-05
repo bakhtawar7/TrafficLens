@@ -326,18 +326,228 @@
       "rickshaw_or_cng": true,
       "scene": "train:pias",
       "split": "train"
+    },
+    {
+      "condition_tags": "dense;distant",
+      "item_id": "tl0046",
+      "rickshaw_or_cng": true,
+      "scene": "train:Final Train Dataset:blk0004",
+      "split": "train"
+    },
+    {
+      "condition_tags": "glare;dense",
+      "item_id": "tl0047",
+      "rickshaw_or_cng": true,
+      "scene": "train:Final Train Dataset:blk0004",
+      "split": "train"
+    },
+    {
+      "condition_tags": "day;sparse",
+      "item_id": "tl0048",
+      "rickshaw_or_cng": false,
+      "scene": "train:Final Train Dataset:blk0005",
+      "split": "train"
+    },
+    {
+      "condition_tags": "day",
+      "item_id": "tl0049",
+      "rickshaw_or_cng": true,
+      "scene": "train:Final Train Dataset:blk0005",
+      "split": "train"
+    },
+    {
+      "condition_tags": "",
+      "item_id": "tl0050",
+      "rickshaw_or_cng": true,
+      "scene": "train:Final Train Dataset:blk0000",
+      "split": "train"
+    },
+    {
+      "condition_tags": "dense;distant",
+      "item_id": "tl0051",
+      "rickshaw_or_cng": true,
+      "scene": "train:Final Train Dataset:blk0006",
+      "split": "train"
+    },
+    {
+      "condition_tags": "dense;distant",
+      "item_id": "tl0052",
+      "rickshaw_or_cng": true,
+      "scene": "train:Final Train Dataset:blk0006",
+      "split": "train"
+    },
+    {
+      "condition_tags": "",
+      "item_id": "tl0053",
+      "rickshaw_or_cng": true,
+      "scene": "train:Final Train Dataset:blk0000",
+      "split": "train"
+    },
+    {
+      "condition_tags": "night;glare",
+      "item_id": "tl0054",
+      "rickshaw_or_cng": true,
+      "scene": "train:Final Train Dataset:blk0007",
+      "split": "train"
+    },
+    {
+      "condition_tags": "day;dense;distant",
+      "item_id": "tl0055",
+      "rickshaw_or_cng": true,
+      "scene": "train:Final Train Dataset:blk0007",
+      "split": "train"
+    },
+    {
+      "condition_tags": "day;dense",
+      "item_id": "tl0056",
+      "rickshaw_or_cng": true,
+      "scene": "train:Final Train Dataset:blk0008",
+      "split": "train"
+    },
+    {
+      "condition_tags": "night;glare;dense",
+      "item_id": "tl0057",
+      "rickshaw_or_cng": true,
+      "scene": "train:Final Train Dataset:blk0008",
+      "split": "train"
+    },
+    {
+      "condition_tags": "night;glare;sparse",
+      "item_id": "tl0058",
+      "rickshaw_or_cng": false,
+      "scene": "train:Final Train Dataset:blk0009",
+      "split": "train"
+    },
+    {
+      "condition_tags": "night;glare;sparse",
+      "item_id": "tl0059",
+      "rickshaw_or_cng": false,
+      "scene": "train:Final Train Dataset:blk0009",
+      "split": "train"
+    },
+    {
+      "condition_tags": "",
+      "item_id": "tl0060",
+      "rickshaw_or_cng": false,
+      "scene": "train:Final Train Dataset:blk0001",
+      "split": "train"
+    },
+    {
+      "condition_tags": "night;sparse",
+      "item_id": "tl0061",
+      "rickshaw_or_cng": false,
+      "scene": "train:Final Train Dataset:blk0001",
+      "split": "train"
+    },
+    {
+      "condition_tags": "day;sparse",
+      "item_id": "tl0062",
+      "rickshaw_or_cng": true,
+      "scene": "train:Final Train Dataset:blk0002",
+      "split": "train"
+    },
+    {
+      "condition_tags": "day;dense;distant",
+      "item_id": "tl0063",
+      "rickshaw_or_cng": true,
+      "scene": "train:Final Train Dataset:blk0002",
+      "split": "train"
+    },
+    {
+      "condition_tags": "dense",
+      "item_id": "tl0064",
+      "rickshaw_or_cng": true,
+      "scene": "train:Final Train Dataset:blk0003",
+      "split": "train"
+    },
+    {
+      "condition_tags": "",
+      "item_id": "tl0065",
+      "rickshaw_or_cng": true,
+      "scene": "train:Final Train Dataset:blk0003",
+      "split": "train"
+    },
+    {
+      "condition_tags": "dense",
+      "item_id": "tl0066",
+      "rickshaw_or_cng": true,
+      "scene": "train:asraf",
+      "split": "train"
+    },
+    {
+      "condition_tags": "dense",
+      "item_id": "tl0067",
+      "rickshaw_or_cng": true,
+      "scene": "train:asraf",
+      "split": "train"
+    },
+    {
+      "condition_tags": "day",
+      "item_id": "tl0068",
+      "rickshaw_or_cng": true,
+      "scene": "train:dipto",
+      "split": "train"
+    },
+    {
+      "condition_tags": "night;glare",
+      "item_id": "tl0069",
+      "rickshaw_or_cng": true,
+      "scene": "train:dipto",
+      "split": "train"
+    },
+    {
+      "condition_tags": "night;glare;distant",
+      "item_id": "tl0070",
+      "rickshaw_or_cng": true,
+      "scene": "train:navid",
+      "split": "train"
+    },
+    {
+      "condition_tags": "night;sparse;distant",
+      "item_id": "tl0071",
+      "rickshaw_or_cng": true,
+      "scene": "train:navid",
+      "split": "train"
+    },
+    {
+      "condition_tags": "dense;distant",
+      "item_id": "tl0072",
+      "rickshaw_or_cng": true,
+      "scene": "train:numan",
+      "split": "train"
+    },
+    {
+      "condition_tags": "distant",
+      "item_id": "tl0073",
+      "rickshaw_or_cng": true,
+      "scene": "train:numan",
+      "split": "train"
+    },
+    {
+      "condition_tags": "night;glare",
+      "item_id": "tl0074",
+      "rickshaw_or_cng": true,
+      "scene": "train:pias",
+      "split": "train"
+    },
+    {
+      "condition_tags": "night;glare;sparse;distant",
+      "item_id": "tl0075",
+      "rickshaw_or_cng": false,
+      "scene": "train:pias",
+      "split": "train"
     }
   ],
   "params": {
     "dev_subset_size": 10,
-    "max_per_scene": 3,
+    "max_per_scene": 5,
     "min_per_tag": 8,
     "min_rickshaw": 15,
     "second_pass_fraction": 0.2,
     "target": 45
   },
   "pool_size": 2967,
-  "rickshaw_count": 36,
+  "rickshaw_count": 60,
   "second_pass": [
     "tl0007",
     "tl0008",
@@ -347,17 +557,21 @@
     "tl0036",
     "tl0038",
     "tl0043",
-    "tl0044"
+    "tl0044",
+    "tl0046",
+    "tl0049",
+    "tl0070",
+    "tl0075"
   ],
   "seed": 20261028,
-  "selected": 45,
+  "selected": 75,
   "tag_coverage": {
-    "day": 17,
-    "dense": 25,
-    "distant": 13,
-    "glare": 13,
-    "night": 12,
-    "sparse": 13
+    "day": 24,
+    "dense": 37,
+    "distant": 23,
+    "glare": 22,
+    "night": 22,
+    "sparse": 20
   },
   "unmet_rickshaw": 0,
   "unmet_tags": {}
