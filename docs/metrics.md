@@ -136,18 +136,109 @@ MAE = (1 / |I|) * sum over i in I of |count_i - ground_truth_i|
 total for that item. Reported to 4 decimals. Per-condition MAE groups items by each tag in
 their `condition_tags` (an item with several tags contributes to each tag's bucket).
 
-## Bootstrap confidence interval (`core/evaluation.bootstrap_ci`)
+## Signed error (`core/evaluation.error_stats`)
 
-A deterministic percentile bootstrap of the mean of a list of per-item absolute errors:
+MAE discards direction, so it cannot say whether a model runs consistently low or high.
+The signed error keeps the sign. For one item and one target (covered or all-vehicles),
+with `p` the model count and `t` the audited ground-truth total:
 
-1. Seed a `random.Random(config.SEED)` generator.
-2. Draw `B = 2000` resamples, each of size `n` (the input length) with replacement.
-3. Compute the mean of each resample, sort the `B` means ascending.
-4. Lower = the element at index `int(0.025 * B)`; upper = the element at index
+```
+signed_error = p - t        (negative = undercounting, positive = overcounting)
+```
+
+The per-item signed error is written to `results/evaluation_table.csv` as one column per
+model for each of the two targets (for example `YOLOv8n Covered Signed Error` and
+`YOLOv8n All Vehicles Signed Error`). It is also the raw material for every aggregate below.
+
+### Bias (mean signed error)
+
+```
+bias = (1 / n) * sum over i of (p_i - t_i)
+```
+
+A negative bias means the model undercounts on average; `+0.4` means it trends high.
+`bias` sits next to `mae` in each `model_mae[...]["covered"]`, `model_mae[...]["all_vehicles"]`
+and `condition_mae[tag][model]` block in `summary.json`.
+
+### Undercounted, overcounted, exact
+
+```
+undercounted = |{ i : p_i - t_i < 0 }|
+overcounted  = |{ i : p_i - t_i > 0 }|
+exact        = |{ i : p_i - t_i = 0 }|
+undercounted + overcounted + exact = n
+```
+
+These three counts are recorded per model, per target, overall and per condition.
+
+### Mean relative error (`core/evaluation.error_stats`)
+
+```
+relative_error_i = |p_i - t_i| / t_i      when t_i > 0
+```
+
+`mean_relative_error` is the mean of `relative_error_i` over the items with `t_i > 0`.
+
+Rule for a zero true count: `t_i = 0` makes the ratio undefined (division by zero), so
+zero-truth images are **excluded from the relative mean** and reported separately as
+`zero_true_items`. Excluding them does not hide anything, because those same images still
+count toward `bias`, `mae`, and the under/over/exact totals - an empty scene a model
+hallucinates vehicles into is flagged as overcounted there. `relative_error_items` records
+how many images the relative mean actually used; when that is `0` (every true count was
+zero), `mean_relative_error` is `None`.
+
+Worked example. For `(p, t)` pairs `(3,5)`, `(7,5)`, `(4,4)`, `(0,0)`, `(2,0)`:
+signed errors are `-2, +2, 0, 0, +2`, so `undercounted = 1`, `overcounted = 2`,
+`exact = 2`, `bias = 2/5 = 0.4`, and `mae = (2+2+0+0+2)/5 = 1.2`. Relative error uses the
+three `t > 0` items - `0.4, 0.4, 0.0` - giving `mean_relative_error = 0.2667`,
+`relative_error_items = 3`, and `zero_true_items = 2`.
+
+## Exploratory conditions (`core/evaluation.annotate_exploratory`)
+
+A condition tag carried by fewer than `EXPLORATORY_MIN_IMAGES` (15) evaluation images is
+statistically thin, so it is flagged **exploratory** wherever it is reported, and every
+condition is labelled with the number of distinct scenes behind it:
+
+* In the table, each row's `Exploratory Conditions` cell lists which of that row's own tags
+  are exploratory (blank when none are).
+* In `summary.json`, `condition_detail[tag]` records `n_images` (evaluation images carrying
+  the tag), `scenes` (distinct scene labels among them), and `exploratory` (true when
+  `n_images < 15`).
+
+The scene count matters because 15 images drawn from 2 scenes carry far less information
+than 15 drawn from 8, and the cluster bootstrap reflects exactly that.
+
+## Bootstrap confidence interval (`core/evaluation.cluster_bootstrap_ci`)
+
+Every confidence interval the evaluator writes is a **scene-level (cluster) percentile
+bootstrap** of the mean of a list of per-item absolute errors. Images copied from one
+scene (a burst of near-identical frames, recorded in the `scene` column of `SOURCES.csv`)
+are not independent observations, so resampling them as if they were would understate the
+uncertainty. Resampling whole scenes keeps that dependence and widens the interval to an
+honest width.
+
+1. Group the values by their scene label into clusters `G = {g_1, ..., g_K}`.
+2. Seed a `random.Random(config.SEED)` generator.
+3. Draw `B = 2000` resamples. Each resample picks `K` clusters with replacement, then takes
+   the mean of every value in the drawn clusters (a cluster picked twice contributes its
+   values twice).
+4. Sort the `B` means ascending. Lower = index `int(0.025 * B)`; upper = index
    `min(int(0.975 * B), B - 1)`. Each is rounded to 4 decimals.
 
-An empty input yields `(None, None)`. Because the seed is fixed and the sample order is
-stable, the interval reproduces exactly across runs.
+An empty input yields `(None, None)`. The seed and resample count are the same as the old
+image-level bootstrap; only the resampling unit changed. Because the seed is fixed and
+clusters are grouped in first-appearance order over the item-sorted rows, the interval
+reproduces exactly across runs.
+
+`core/evaluation.bootstrap_ci` is kept as the plain image-level routine (resample
+individual items). It is no longer used by the pipeline but is retained so the cluster
+interval can be compared against the image-level interval it replaced.
+
+Worked example. Ten scenes of three items each, where the three items in a scene share one
+value and scene values alternate between 0 and 10. All 30 items average 5.0. The
+image-level bootstrap of the 30 items returns about `[3.333, 6.667]` (width 3.33), while the
+scene-level cluster bootstrap returns `[2.0, 8.0]` (width 6.0) - the whole-scene draws can
+pick mostly-0 or mostly-10 scenes, so the interval is at least as wide, which is the point.
 
 ## Labeller pass agreement (`core/evaluation.summarise`)
 
@@ -173,3 +264,4 @@ Over items labelled in both the first and second pass and outside the developmen
 | `SLICE_OVERLAP_RATIO` | 0.2 | tile overlap as a fraction of one edge |
 | `SLICE_IOU_THRESHOLD` | 0.5 | sliced merge non-max suppression IoU |
 | `SEED` | 20261028 | master seed, drives the bootstrap intervals |
+| `EXPLORATORY_MIN_IMAGES` | 15 | a condition tag with fewer evaluation images is marked exploratory |

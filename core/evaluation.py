@@ -24,8 +24,11 @@ Ground truth has two targets, always reported separately:
 
 Errors compare model counts to ground truth per item. The development subset
 recorded in ``configs/testset_plan.json`` is excluded from every statistic and
-from the written table. Confidence intervals are percentile bootstraps over
-items (``config.SEED``, 2000 resamples by default), deterministic across runs.
+from the written table. Confidence intervals are scene-level (cluster) percentile
+bootstraps: whole scenes from the ``scene`` column of SOURCES.csv are resampled
+with replacement, because images drawn from one scene are not independent. The
+seed (``config.SEED``) and resample count (2000 by default) are unchanged, so the
+intervals stay deterministic across runs.
 
 Definitions fixed by this module (docs/hypotheses.md does not spell them out):
 
@@ -62,11 +65,22 @@ LOCAL_VEHICLE_CLASSES: tuple[str, ...] = ("rickshaw", "loader_rickshaw")
 #: instead of quietly allowing an unverified count to be scored.
 UNVERIFIED_NOTE_MARKERS: tuple[str, ...] = ("auto derived", "requires labeller verification")
 
-#: Exact column order of results/evaluation_table.csv.
+#: Exact column order of results/evaluation_table.csv. The first ten are the
+#: original Week 4 columns; the rest are the count-audit additions (scene, the
+#: all-vehicles ground truth, one signed error per model per target, and the
+#: exploratory-condition flag). Existing columns keep their names and positions.
 TABLE_COLUMNS: tuple[str, ...] = (
     "Item", "Condition", "Ground Truth", "YOLOv8n", "YOLOv8s", "RT-DETR-L",
     "Sliced Count", "Count Range", "Agreement", "Actual Error",
+    "Scene", "All Vehicles Ground Truth",
+    "YOLOv8n Covered Signed Error", "YOLOv8s Covered Signed Error", "RT-DETR-L Covered Signed Error",
+    "YOLOv8n All Vehicles Signed Error", "YOLOv8s All Vehicles Signed Error", "RT-DETR-L All Vehicles Signed Error",
+    "Exploratory Conditions",
 )
+
+#: A condition tag carried by fewer than this many evaluation images is reported as
+#: exploratory: the sample is too small for the figure to carry inferential weight.
+EXPLORATORY_MIN_IMAGES: int = 15
 
 _MODEL_DISPLAY: dict[str, str] = {key: spec.display_name for key, spec in config.MODEL_REGISTRY.items()}
 
@@ -162,6 +176,26 @@ def load_conditions(path: Path) -> dict[int, str]:
     return conditions
 
 
+def load_scenes(path: Path) -> dict[int, str]:
+    """Read the scene group of every item from the ``scene`` column of SOURCES.csv.
+
+    The scene is the cluster unit for the scene-level bootstrap: images copied from one
+    burst share a scene label and are not statistically independent. Items whose row has
+    no scene (or a SOURCES file written before the column existed) simply stay out of the
+    mapping and are later treated as their own single-image cluster.
+    """
+    scenes: dict[int, str] = {}
+    if not Path(path).exists():
+        return scenes
+    with Path(path).open("r", encoding="utf-8", newline="") as handle:
+        for row in csv.DictReader(handle):
+            item = normalise_item_id(row.get("item_id", ""))
+            scene = (row.get("scene") or "").strip()
+            if item is not None and scene:
+                scenes[item] = scene
+    return scenes
+
+
 def load_development_ids(path: Path) -> set[int]:
     """Item numbers in the seeded development subset, excluded from all outputs."""
     if not path.exists():
@@ -216,9 +250,131 @@ def bootstrap_ci(values: list[float], samples: int = 2000, seed: int = config.SE
     return (round(lower, 4), round(upper, 4))
 
 
+def cluster_bootstrap_ci(
+    values: list[float], clusters: list[str], samples: int = 2000, seed: int = config.SEED
+) -> tuple[float | None, float | None]:
+    """Scene-level (cluster) percentile bootstrap 95% CI of the mean of ``values``.
+
+    ``values[i]`` belongs to the cluster named by ``clusters[i]`` (the item's scene). A
+    resample draws whole clusters with replacement -- exactly as many clusters as the input
+    contains -- and the resampled mean is taken over every value in the drawn clusters,
+    counting a cluster's contribution once per time it is picked. Images from one scene are
+    correlated, so resampling scenes rather than single pixels keeps that dependence in the
+    interval and stops the CI from being falsely tight. With no scenes to group by, every
+    item is its own cluster and the result matches :func:`bootstrap_ci` up to RNG order.
+    Empty input yields ``(None, None)``.
+    """
+    if not values:
+        return (None, None)
+    groups: dict[str, list[float]] = {}
+    for value, cluster in zip(values, clusters):
+        groups.setdefault(cluster, []).append(float(value))
+    keys = list(groups)  # first-appearance order, so the draw is deterministic
+    count = len(keys)
+    rng = random.Random(seed)
+    means = sorted(
+        statistics.fmean([v for key in (keys[rng.randrange(count)] for _ in keys) for v in groups[key]])
+        for _ in range(samples)
+    )
+    lower = means[int(0.025 * samples)]
+    upper = means[min(int(0.975 * samples), samples - 1)]
+    return (round(lower, 4), round(upper, 4))
+
+
+def error_stats(
+    pairs: list[tuple[int, int]],
+    clusters: list[str],
+    samples: int = 2000,
+    seed: int = config.SEED,
+) -> dict[str, Any]:
+    """Full signed-error profile for one (prediction, ground-truth) pairing.
+
+    Signed error is ``prediction - ground_truth``, so a negative value is an undercount and
+    a positive value an overcount. The returned mapping keeps the historic ``mae``, ``ci95``
+    and ``n`` keys (the interval is now the scene-level cluster bootstrap of the absolute
+    error) and adds the count-audit measures:
+
+    * ``bias``: mean signed error (systematic under- or over-counting);
+    * ``undercounted`` / ``overcounted`` / ``exact``: how many images fall on each side;
+    * ``mean_relative_error``: mean of ``|prediction - ground_truth| / ground_truth`` over
+      images whose ground truth is positive. Images with a ground truth of zero are not
+      divided by zero: they are excluded from this mean and reported separately as
+      ``zero_true_items`` (a zero-truth image is still scored under/over/exact above, so the
+      absolute bias is not lost). ``relative_error_items`` is the count the mean used.
+
+    An empty input returns a zero-count profile with the point estimates set to ``None``.
+    """
+    n = len(pairs)
+    if n == 0:
+        return {
+            "mae": None, "ci95": (None, None), "n": 0, "bias": None,
+            "undercounted": 0, "overcounted": 0, "exact": 0,
+            "mean_relative_error": None, "relative_error_items": 0, "zero_true_items": 0,
+        }
+    signed = [prediction - truth for prediction, truth in pairs]
+    absolute = [abs(s) for s in signed]
+    relative = [abs(p - g) / g for p, g in pairs if g > 0]
+    return {
+        "mae": round(statistics.fmean(absolute), 4),
+        "ci95": cluster_bootstrap_ci(absolute, clusters, samples, seed),
+        "n": n,
+        "bias": round(statistics.fmean(signed), 4),
+        "undercounted": sum(1 for s in signed if s < 0),
+        "overcounted": sum(1 for s in signed if s > 0),
+        "exact": sum(1 for s in signed if s == 0),
+        "mean_relative_error": round(statistics.fmean(relative), 4) if relative else None,
+        "relative_error_items": len(relative),
+        "zero_true_items": sum(1 for _, g in pairs if g == 0),
+    }
+
+
 def _mean_abs_error(pairs: list[tuple[int, int]]) -> float:
     """Mean absolute error over (prediction, ground truth) pairs."""
     return round(statistics.fmean(abs(p - g) for p, g in pairs), 4)
+
+
+def _row_tags(row: dict[str, Any]) -> list[str]:
+    """The cleaned condition tags of one table row."""
+    return [tag.strip() for tag in str(row.get("Condition", "")).split(";") if tag.strip()]
+
+
+def condition_image_counts(rows: list[dict[str, Any]]) -> dict[str, int]:
+    """How many evaluation images carry each condition tag (an item joins every tag it has)."""
+    counts: dict[str, int] = {}
+    for row in rows:
+        for tag in _row_tags(row):
+            counts[tag] = counts.get(tag, 0) + 1
+    return counts
+
+
+def condition_scene_counts(rows: list[dict[str, Any]]) -> dict[str, int]:
+    """How many distinct scenes each condition tag's evaluation images come from."""
+    scenes: dict[str, set[str]] = {}
+    for row in rows:
+        scene = str(row.get("Scene", "")).strip() or f"#{row.get('Item', '')}"
+        for tag in _row_tags(row):
+            scenes.setdefault(tag, set()).add(scene)
+    return {tag: len(members) for tag, members in scenes.items()}
+
+
+def exploratory_tags(counts: dict[str, int], threshold: int = EXPLORATORY_MIN_IMAGES) -> set[str]:
+    """Condition tags backed by fewer than ``threshold`` evaluation images."""
+    return {tag for tag, count in counts.items() if count < threshold}
+
+
+def annotate_exploratory(
+    rows: list[dict[str, Any]], threshold: int = EXPLORATORY_MIN_IMAGES
+) -> dict[str, int]:
+    """Fill each row's ``Exploratory Conditions`` cell and return the per-tag image counts.
+
+    A row lists the subset of its own tags that are exploratory, so the per-item table shows
+    at a glance which conditions a given figure sits inside of.
+    """
+    counts = condition_image_counts(rows)
+    exploratory = exploratory_tags(counts, threshold)
+    for row in rows:
+        row["Exploratory Conditions"] = ";".join(tag for tag in _row_tags(row) if tag in exploratory)
+    return counts
 
 
 def build_rows(
@@ -227,13 +383,21 @@ def build_rows(
     cache: dict[tuple[int, str, str], list[Detection]],
     excluded: set[int],
     sliced_model_key: str = config.DEFAULT_MODEL_NAME,
+    scenes: dict[int, str] | None = None,
 ) -> tuple[list[dict[str, Any]], list[int]]:
     """Assemble one table row per evaluable item plus the ids with missing data.
 
     An item is evaluable when it has first-pass counts, is not in ``excluded``,
     and the cache holds standard entries for every registry model plus a sliced
     entry for ``sliced_model_key``.
+
+    ``scenes`` maps an item number to its scene label; it feeds the ``Scene`` column and
+    the scene-level bootstrap. Every model's signed error is written on both the covered
+    and the all-vehicles target (``prediction - ground truth``), and the ``Exploratory
+    Conditions`` cell is left blank here for :func:`annotate_exploratory` to fill once all
+    rows exist.
     """
+    scenes = scenes or {}
     model_keys = list(config.MODEL_REGISTRY)
     rows: list[dict[str, Any]] = []
     missing: list[int] = []
@@ -250,6 +414,7 @@ def build_rows(
         counts = {key: len(standard[key]) for key in model_keys}
         sliced_count = len(cache[(item, sliced_model_key, "sliced")])
         gt_covered = covered_total(first)
+        gt_all = all_vehicles_total(first)
         values = [counts[key] for key in model_keys]
         pairwise = [
             box_agreement(standard[a], standard[b])
@@ -258,7 +423,7 @@ def build_rows(
         ]
         agreement = round(statistics.fmean(pairwise), 4) if pairwise else None
         actual_error = abs(gt_covered - round(statistics.median(values)))
-        rows.append({
+        row: dict[str, Any] = {
             "Item": dataset.format_item_id(item),
             "Condition": conditions.get(item, ""),
             "Ground Truth": gt_covered,
@@ -267,7 +432,18 @@ def build_rows(
             "Count Range": f"{min(values)}-{max(values)}",
             "Agreement": agreement,
             "Actual Error": actual_error,
-        })
+            "Scene": scenes.get(item, ""),
+            "All Vehicles Ground Truth": gt_all,
+            "Exploratory Conditions": "",
+        }
+        # Signed error per model on each target: prediction minus ground truth.
+        for key in model_keys:
+            display = _MODEL_DISPLAY[key]
+            row[f"{display} Covered Signed Error"] = counts[key] - gt_covered
+        for key in model_keys:
+            display = _MODEL_DISPLAY[key]
+            row[f"{display} All Vehicles Signed Error"] = counts[key] - gt_all
+        rows.append({column: row[column] for column in TABLE_COLUMNS})
     return rows, missing
 
 
@@ -281,55 +457,77 @@ def summarise(
     sliced_model_key: str,
     bootstrap_samples: int,
     refused_unverified: list[str] | None = None,
+    scenes: dict[int, str] | None = None,
 ) -> dict[str, Any]:
     """Compute every statistic that goes into ``results/summary.json``.
 
     ``refused_unverified`` is the list of canonical ids whose label rows were rejected for
     carrying unverified draft notes. It is recorded so the artefact states, without the
     reader having to infer it, which rows were deliberately not scored.
+
+    ``scenes`` maps an item number to its scene label and, together with the ``Scene``
+    column already on each row, supplies the cluster unit for the scene-level bootstrap.
+    Every error interval produced here is a cluster bootstrap, so ``scenes`` (or the row
+    scene) is what keeps correlated images from narrowing an interval unfairly.
     """
+    scenes = scenes or {}
     refused = sorted(set(refused_unverified or []))
     evaluated = {row["Item"]: row for row in rows}
     labelled_non_dev = [
         item for item, data in labels.items()
         if data.get("pass1") is not None and item not in excluded
     ]
+    scene_by_item = {
+        normalise_item_id(row["Item"]): str(row.get("Scene", "")).strip() or f"#{row['Item']}"
+        for row in rows
+    }
+
+    def cluster_of(number: int, canonical: str) -> str:
+        """The scene (cluster) label for an item, falling back to a unique per-item token."""
+        return scene_by_item.get(number) or scenes.get(number) or f"#{canonical}"
 
     model_mae: dict[str, Any] = {}
     for key, spec in config.MODEL_REGISTRY.items():
-        covered_pairs, all_pairs = [], []
+        display = _MODEL_DISPLAY[key]
+        covered_pairs, all_pairs, clusters = [], [], []
         for row in rows:
-            first = labels[normalise_item_id(row["Item"])]["pass1"]
-            covered_pairs.append((row[_MODEL_DISPLAY[key]], covered_total(first)))
-            all_pairs.append((row[_MODEL_DISPLAY[key]], all_vehicles_total(first)))
-        covered_errors = [abs(p - g) for p, g in covered_pairs]
-        all_errors = [abs(p - g) for p, g in all_pairs]
+            number = normalise_item_id(row["Item"])
+            first = labels[number]["pass1"]
+            prediction = row[display]
+            covered_pairs.append((prediction, covered_total(first)))
+            all_pairs.append((prediction, all_vehicles_total(first)))
+            clusters.append(cluster_of(number, row["Item"]))
         model_mae[spec.display_name] = {
-            "covered": {"mae": round(statistics.fmean(covered_errors), 4) if covered_errors else None,
-                        "ci95": bootstrap_ci(covered_errors, bootstrap_samples), "n": len(covered_errors)},
-            "all_vehicles": {"mae": round(statistics.fmean(all_errors), 4) if all_errors else None,
-                             "ci95": bootstrap_ci(all_errors, bootstrap_samples), "n": len(all_errors)},
+            "covered": error_stats(covered_pairs, clusters, bootstrap_samples),
+            "all_vehicles": error_stats(all_pairs, clusters, bootstrap_samples),
         }
 
-    condition_mae: dict[str, Any] = {}
+    tag_rows: dict[str, list[dict[str, Any]]] = {}
     for row in rows:
-        for tag in (row["Condition"].split(";") if row["Condition"] else []):
-            tag = tag.strip()
-            if not tag:
-                continue
-            first = labels[normalise_item_id(row["Item"])]["pass1"]
-            gt = covered_total(first)
-            bucket = condition_mae.setdefault(tag, {})
-            for key, spec in config.MODEL_REGISTRY.items():
-                bucket.setdefault(spec.display_name, []).append(abs(row[_MODEL_DISPLAY[key]] - gt))
-    condition_summary = {
-        tag: {
-            name: {"mae": round(statistics.fmean(errors), 4),
-                   "ci95": bootstrap_ci(errors, bootstrap_samples), "n": len(errors)}
-            for name, errors in models.items()
+        for tag in _row_tags(row):
+            tag_rows.setdefault(tag, []).append(row)
+    image_counts = condition_image_counts(rows)
+    scene_counts = condition_scene_counts(rows)
+    condition_mae: dict[str, Any] = {}
+    condition_detail: dict[str, Any] = {}
+    for tag, trows in sorted(tag_rows.items()):
+        per_model: dict[str, Any] = {}
+        for key, spec in config.MODEL_REGISTRY.items():
+            display = _MODEL_DISPLAY[key]
+            pairs, clusters = [], []
+            for row in trows:
+                number = normalise_item_id(row["Item"])
+                first = labels[number]["pass1"]
+                pairs.append((row[display], covered_total(first)))
+                clusters.append(cluster_of(number, row["Item"]))
+            per_model[spec.display_name] = error_stats(pairs, clusters, bootstrap_samples)
+        condition_mae[tag] = per_model
+        n_images = image_counts.get(tag, 0)
+        condition_detail[tag] = {
+            "n_images": n_images,
+            "scenes": scene_counts.get(tag, 0),
+            "exploratory": n_images < EXPLORATORY_MIN_IMAGES,
         }
-        for tag, models in sorted(condition_mae.items())
-    }
 
     both = [
         (item, data) for item, data in labels.items()
@@ -341,10 +539,11 @@ def summarise(
     all_differences = [
         abs(all_vehicles_total(d["pass1"]) - all_vehicles_total(d["pass2"])) for _, d in both
     ]
+    labeller_clusters = [cluster_of(item, dataset.format_item_id(item)) for item, _ in both]
     labeller = {
         "items_both_passes": len(both),
         "covered_mean_abs_difference": round(statistics.fmean(covered_differences), 4) if covered_differences else None,
-        "covered_ci95": bootstrap_ci(covered_differences, bootstrap_samples),
+        "covered_ci95": cluster_bootstrap_ci(covered_differences, labeller_clusters, bootstrap_samples),
         "all_vehicles_mean_abs_difference": round(statistics.fmean(all_differences), 4) if all_differences else None,
         "identical_fraction": round(sum(1 for d in covered_differences if d == 0) / len(covered_differences), 4) if covered_differences else None,
     }
@@ -367,6 +566,8 @@ def summarise(
             "sliced_model": sliced_model_key,
             "bootstrap_samples": bootstrap_samples,
             "bootstrap_seed": config.SEED,
+            "bootstrap_method": "scene-level cluster",
+            "exploratory_min_images": EXPLORATORY_MIN_IMAGES,
         },
         "items": {
             "labelled_first_pass_total": sum(1 for d in labels.values() if d.get("pass1") is not None),
@@ -389,7 +590,8 @@ def summarise(
             },
         },
         "model_mae": model_mae,
-        "condition_mae": condition_summary,
+        "condition_mae": condition_mae,
+        "condition_detail": condition_detail,
         "labeller_passes": labeller,
     }
 
@@ -419,11 +621,15 @@ def evaluate(
     refused = unverified_label_rows(labels_path)
     labels = load_labels(labels_path)
     conditions = load_conditions(Path(sources_csv))
+    scenes = load_scenes(Path(sources_csv))
     excluded = load_development_ids(Path(plan_json))
     cache = load_detection_cache(Path(detections_jsonl), confidence)
-    rows, missing = build_rows(labels, conditions, cache, excluded, sliced_model_key)
+    rows, missing = build_rows(labels, conditions, cache, excluded, sliced_model_key, scenes)
+    # Flag exploratory conditions on the rows before anything is written or summarised.
+    annotate_exploratory(rows)
     summary = summarise(labels, conditions, rows, missing, excluded, confidence,
-                        sliced_model_key, bootstrap_samples, refused_unverified=refused)
+                        sliced_model_key, bootstrap_samples, refused_unverified=refused,
+                        scenes=scenes)
     if refused:
         print(
             f"REFUSED {len(refused)} LABELS row(s) whose notes record the counts as auto "

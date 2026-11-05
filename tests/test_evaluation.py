@@ -75,6 +75,15 @@ def _write_detections(path: Path, entries: list[dict]) -> None:
             handle.write(json.dumps(entry) + "\n")
 
 
+def _write_sources_scene(path: Path, triples: list[tuple[str, str, str]]) -> None:
+    """Write a SOURCES.csv carrying item_id, condition_tags and a scene column."""
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=["item_id", "condition_tags", "scene"])
+        writer.writeheader()
+        for item_id, tags, scene in triples:
+            writer.writerow({"item_id": item_id, "condition_tags": tags, "scene": scene})
+
+
 @pytest.fixture
 def workspace(tmp_path: Path) -> dict:
     """A two-item evaluation set plus one development and one missing item."""
@@ -358,3 +367,187 @@ def test_mixed_labels_score_only_the_verified_rows(workspace):
     assert summary["refusals"]["unverified_label_rows"]["count"] == 1
     assert summary["items"]["evaluated"] == 1
     assert summary["items"]["present_in_table"] == ["tl0002"]
+
+
+# ---------------------------------------------------------------------------
+# Signed error, bias, relative error, cluster bootstrap, exploratory conditions
+# ---------------------------------------------------------------------------
+def test_error_stats_signed_negative_positive_exact_and_zero():
+    # (prediction, ground truth): undercount, overcount, exact, zero-true exact, zero-true overcount.
+    pairs = [(3, 5), (7, 5), (4, 4), (0, 0), (2, 0)]
+    clusters = ["a", "b", "c", "d", "e"]  # distinct so the CI path is exercised lightly
+    stats = ev.error_stats(pairs, clusters, samples=200)
+    assert stats["n"] == 5
+    assert stats["bias"] == pytest.approx(0.4)         # mean(-2, 2, 0, 0, 2)
+    assert stats["mae"] == pytest.approx(1.2)          # mean(2, 2, 0, 0, 2)
+    assert stats["undercounted"] == 1
+    assert stats["overcounted"] == 2
+    assert stats["exact"] == 2
+    assert stats["zero_true_items"] == 2
+    assert stats["relative_error_items"] == 3
+    assert stats["mean_relative_error"] == pytest.approx(round((0.4 + 0.4 + 0.0) / 3, 4))
+
+
+def test_error_stats_all_zero_true_has_no_relative_mean():
+    stats = ev.error_stats([(0, 0), (2, 0)], ["a", "b"], samples=100)
+    assert stats["mean_relative_error"] is None        # every true count was zero
+    assert stats["relative_error_items"] == 0
+    assert stats["zero_true_items"] == 2
+    assert stats["exact"] == 1 and stats["overcounted"] == 1
+    assert stats["bias"] == pytest.approx(1.0)
+
+
+def test_error_stats_empty_is_a_zero_profile():
+    stats = ev.error_stats([], [])
+    assert stats["n"] == 0 and stats["mae"] is None and stats["bias"] is None
+    assert stats["ci95"] == (None, None)
+    assert stats["mean_relative_error"] is None and stats["zero_true_items"] == 0
+    assert stats["undercounted"] == stats["overcounted"] == stats["exact"] == 0
+
+
+def test_cluster_bootstrap_is_deterministic_and_handles_singletons():
+    values = [1.0, 2.0, 3.0, 4.0]
+    clusters = ["a", "a", "b", "b"]
+    first = ev.cluster_bootstrap_ci(values, clusters, samples=500)
+    second = ev.cluster_bootstrap_ci(values, clusters, samples=500)
+    assert first == second and first[0] is not None
+    assert ev.cluster_bootstrap_ci([], []) == (None, None)
+    # a single cluster always resamples to the same mean -> zero-width interval
+    lower, upper = ev.cluster_bootstrap_ci([2.0, 4.0], ["x", "x"], samples=200)
+    assert lower == upper
+
+
+def test_cluster_bootstrap_is_at_least_as_wide_as_image_level_on_correlated_scenes():
+    # Within a scene every item shares a value; scene means alternate 0 and 10, so the
+    # items are strongly clustered and the image-level bootstrap is over-confident.
+    values, clusters = [], []
+    for index in range(10):
+        scene = f"scene{index}"
+        value = 0.0 if index % 2 == 0 else 10.0
+        for _ in range(3):
+            values.append(value)
+            clusters.append(scene)
+    image_lo, image_hi = ev.bootstrap_ci(values, samples=2000)
+    cluster_lo, cluster_hi = ev.cluster_bootstrap_ci(values, clusters, samples=2000)
+    assert (cluster_hi - cluster_lo) >= (image_hi - image_lo)
+    assert (cluster_hi - cluster_lo) > 0
+
+
+def _scene_workspace(tmp_path: Path) -> dict:
+    """Four items across two scenes, verified labels, one zero-truth and one overcount."""
+    labels = tmp_path / "LABELS.csv"
+    sources = tmp_path / "SOURCES.csv"
+    plan = tmp_path / "testset_plan.json"
+    dets = tmp_path / "raw_detections.jsonl"
+    _write_labels(labels, [
+        _row("tl002", {"car": 4, "rickshaw": 3}),
+        _row("tl003", {"car": 2, "rickshaw": 1}),
+        _row("tl005", {"car": 0}),
+        _row("tl006", {"car": 1}),
+    ])
+    _write_sources_scene(sources, [
+        ("tl002", "day", "sceneA"),
+        ("tl003", "day", "sceneA"),
+        ("tl005", "night", "sceneB"),
+        ("tl006", "night", "sceneB"),
+    ])
+    _write_plan(plan, [])
+    counts_by_item = {"tl0002": 4, "tl0003": 2, "tl0005": 0, "tl0006": 2}
+    entries = []
+    for image, count in counts_by_item.items():
+        boxes = _car_boxes(count)
+        for model in config.MODEL_REGISTRY:
+            entries.append(_entry(f"{image}_dhaka_ai.jpg", model, "standard", boxes))
+        entries.append(_entry(f"{image}_dhaka_ai.jpg", "yolov8n", "sliced", boxes))
+    _write_detections(dets, entries)
+    return {"labels": labels, "sources": sources, "plan": plan, "dets": dets,
+            "table": tmp_path / "evaluation_table.csv", "summary": tmp_path / "summary.json"}
+
+
+def test_build_rows_signed_errors_and_scene(tmp_path):
+    ws = _scene_workspace(tmp_path)
+    labels = ev.load_labels(ws["labels"])
+    conditions = ev.load_conditions(ws["sources"])
+    scenes = ev.load_scenes(ws["sources"])
+    excluded = ev.load_development_ids(ws["plan"])
+    cache = ev.load_detection_cache(ws["dets"])
+    rows, _ = ev.build_rows(labels, conditions, cache, excluded, scenes=scenes)
+    by_item = {r["Item"]: r for r in rows}
+
+    assert scenes == {2: "sceneA", 3: "sceneA", 5: "sceneB", 6: "sceneB"}
+    r2 = by_item["tl0002"]
+    assert r2["Scene"] == "sceneA"
+    assert r2["Ground Truth"] == 4 and r2["All Vehicles Ground Truth"] == 7
+    assert r2["YOLOv8n Covered Signed Error"] == 0        # 4 - 4
+    assert r2["YOLOv8n All Vehicles Signed Error"] == -3  # 4 - 7, an all-vehicles undercount
+    r6 = by_item["tl0006"]
+    assert r6["YOLOv8n Covered Signed Error"] == 1        # 2 - 1, an overcount
+
+
+def test_evaluate_new_columns_appended_and_summary_enriched(tmp_path):
+    ws = _scene_workspace(tmp_path)
+    summary = ev.evaluate(
+        labels_csv=ws["labels"], sources_csv=ws["sources"], plan_json=ws["plan"],
+        detections_jsonl=ws["dets"], table_out=ws["table"], summary_out=ws["summary"],
+        bootstrap_samples=200, write=True,
+    )
+    with ws["table"].open(encoding="utf-8", newline="") as handle:
+        header = list(csv.DictReader(handle).fieldnames)
+    # Existing ten columns keep their names and positions; new ones are appended.
+    assert header[:10] == ["Item", "Condition", "Ground Truth", "YOLOv8n", "YOLOv8s",
+                           "RT-DETR-L", "Sliced Count", "Count Range", "Agreement", "Actual Error"]
+    assert header == list(ev.TABLE_COLUMNS)
+
+    covered = summary["model_mae"]["YOLOv8n"]["covered"]
+    for key in ("bias", "undercounted", "overcounted", "exact",
+                "mean_relative_error", "relative_error_items", "zero_true_items"):
+        assert key in covered
+    # covered pairs (4,4),(2,2),(0,0),(2,1): one overcount, three exact, one zero-truth.
+    assert covered["n"] == 4
+    assert covered["overcounted"] == 1 and covered["exact"] == 3 and covered["undercounted"] == 0
+    assert covered["zero_true_items"] == 1
+    assert covered["bias"] == pytest.approx(0.25)
+    assert covered["ci95"][0] is not None
+
+    assert summary["settings"]["bootstrap_method"] == "scene-level cluster"
+    assert summary["settings"]["exploratory_min_images"] == 15
+
+
+def test_condition_detail_marks_exploratory_and_counts_scenes(tmp_path):
+    ws = _scene_workspace(tmp_path)
+    summary = ev.evaluate(
+        labels_csv=ws["labels"], sources_csv=ws["sources"], plan_json=ws["plan"],
+        detections_jsonl=ws["dets"], table_out=ws["table"], summary_out=ws["summary"],
+        bootstrap_samples=200, write=True,
+    )
+    detail = summary["condition_detail"]
+    assert detail["day"] == {"n_images": 2, "scenes": 1, "exploratory": True}
+    assert detail["night"] == {"n_images": 2, "scenes": 1, "exploratory": True}
+    with ws["table"].open(encoding="utf-8", newline="") as handle:
+        rows = list(csv.DictReader(handle))
+    by_item = {r["Item"]: r for r in rows}
+    assert by_item["tl0002"]["Exploratory Conditions"] == "day"
+    assert by_item["tl0006"]["Exploratory Conditions"] == "night"
+
+
+def test_annotate_exploratory_threshold_and_scene_counts():
+    rows = []
+    # 'day' appears on 15 items (not exploratory); 'night' on 3 (exploratory); 'glare' on 14.
+    for index in range(15):
+        rows.append({"Item": f"tl{index:04d}", "Condition": "day", "Scene": f"day-scene-{index % 5}"})
+    for index in range(3):
+        rows.append({"Item": f"n{index:04d}", "Condition": "night", "Scene": "night-scene"})
+    for index in range(14):
+        rows.append({"Item": f"g{index:04d}", "Condition": "glare", "Scene": f"glare-{index}"})
+
+    counts = ev.annotate_exploratory(rows)
+    assert counts["day"] == 15 and counts["night"] == 3 and counts["glare"] == 14
+    assert ev.exploratory_tags(counts) == {"night", "glare"}
+    by_item = {r["Item"]: r for r in rows}
+    assert by_item["tl0000"]["Exploratory Conditions"] == ""        # day is not exploratory
+    assert by_item["n0000"]["Exploratory Conditions"] == "night"    # night is exploratory
+
+    scene_counts = ev.condition_scene_counts(rows)
+    assert scene_counts["day"] == 5      # five distinct day scenes
+    assert scene_counts["night"] == 1    # all night images share one scene
+    assert scene_counts["glare"] == 14
