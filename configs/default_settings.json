@@ -1,0 +1,31 @@
+{
+  "_note": "Pre-registered record of the current defaults used by every benchmark run so far. Confidence is core.config.DEFAULT_CONFIDENCE; input_size 640 and YOLO nms_iou 0.7 are the ultralytics predict defaults (the detector never overrides them). RT-DETR is NMS-free, so uses_nms is false and nms_iou is null. sliced is false: the standard arm runs one full-frame pass; the sliced arm is a separate benchmark mode whose tile settings below mirror the core.config.SLICE_* constructor defaults of core.detector.SlicedDetector. This file documents defaults only; it selects nothing.",
+  "models": {
+    "yolov8n": {
+      "confidence": 0.25,
+      "input_size": 640,
+      "uses_nms": true,
+      "nms_iou": 0.7,
+      "sliced": false
+    },
+    "yolov8s": {
+      "confidence": 0.25,
+      "input_size": 640,
+      "uses_nms": true,
+      "nms_iou": 0.7,
+      "sliced": false
+    },
+    "rtdetr-l": {
+      "confidence": 0.25,
+      "input_size": 640,
+      "uses_nms": false,
+      "nms_iou": null,
+      "sliced": false
+    }
+  },
+  "sliced_tiles": {
+    "tile_size": 640,
+    "overlap_ratio": 0.2,
+    "iou_threshold": 0.5
+  }
+}

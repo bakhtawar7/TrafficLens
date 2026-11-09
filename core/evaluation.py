@@ -49,7 +49,7 @@ import statistics
 from pathlib import Path
 from typing import Any
 
-from . import config, dataset
+from . import config, dataset, settings
 from .detector import Detection
 from .reliability import box_agreement
 
@@ -607,13 +607,16 @@ def evaluate(
     sliced_model_key: str = config.DEFAULT_MODEL_NAME,
     bootstrap_samples: int = 2000,
     write: bool = True,
+    settings_json: Path | None = None,
 ) -> dict[str, Any]:
     """Run the full evaluation and return (and by default write) the summary.
 
     The development subset is excluded everywhere. Rows whose notes still describe the
     counts as an unverified auto derived draft are refused before any statistic runs, and
     the refusal is printed. Raises ValueError when ``sliced_model_key`` is not a registry
-    key.
+    key. ``settings_json`` names the settings file the run was produced under (default
+    ``configs/default_settings.json``); its SHA-256, input sizes, and NMS fields are
+    recorded in the summary so the statistics stay traceable to their configuration.
     """
     if sliced_model_key not in config.MODEL_REGISTRY:
         raise ValueError(f"unknown sliced model key: {sliced_model_key}")
@@ -630,6 +633,7 @@ def evaluate(
     summary = summarise(labels, conditions, rows, missing, excluded, confidence,
                         sliced_model_key, bootstrap_samples, refused_unverified=refused,
                         scenes=scenes)
+    summary["settings"].update(settings.settings_record(settings_json))
     if refused:
         print(
             f"REFUSED {len(refused)} LABELS row(s) whose notes record the counts as auto "

@@ -10,6 +10,7 @@ sets) or exactly 0.0 (disjoint sets), making the reported measure predictable.
 from __future__ import annotations
 
 import csv
+import hashlib
 import json
 from pathlib import Path
 
@@ -551,3 +552,107 @@ def test_annotate_exploratory_threshold_and_scene_counts():
     assert scene_counts["day"] == 5      # five distinct day scenes
     assert scene_counts["night"] == 1    # all night images share one scene
     assert scene_counts["glare"] == 14
+
+
+# ---------------------------------------------------------------------------
+# Development isolation and settings provenance
+# ---------------------------------------------------------------------------
+def test_development_images_never_appear_in_reported_statistics(workspace):
+    """The required isolation test.
+
+    The development item is given every artefact an evaluated item has — labels
+    in both passes, condition tags, and cached detections for all models and
+    modes — and must still appear in no table row and no reported statistic.
+    """
+    with workspace["labels"].open("a", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=["item_id", *config.LABEL_CLASS_NAMES,
+                                                     "labeller_pass", "notes"])
+        writer.writerow(_row("tl001", {"car": 4}, labeller_pass=2))
+    dev_entries = [_entry("tl0001_dhaka_ai.jpg", model, "standard", _car_boxes(4))
+                   for model in config.MODEL_REGISTRY]
+    dev_entries.append(_entry("tl0001_dhaka_ai.jpg", "yolov8n", "sliced", _car_boxes(4)))
+    with workspace["dets"].open("a", encoding="utf-8") as handle:
+        for entry in dev_entries:
+            handle.write(json.dumps(entry) + "\n")
+
+    summary = ev.evaluate(
+        labels_csv=workspace["labels"], sources_csv=workspace["sources"],
+        plan_json=workspace["plan"], detections_jsonl=workspace["dets"],
+        table_out=workspace["table"], summary_out=workspace["summary"],
+        write=True,
+    )
+    with workspace["table"].open(encoding="utf-8", newline="") as handle:
+        items = [row["Item"] for row in csv.DictReader(handle)]
+    assert items == ["tl0002", "tl0003"]
+
+    counts = summary["items"]
+    assert counts["development_excluded"] == 1
+    assert counts["evaluated"] == 2
+    assert counts["present_in_table"] == ["tl0002", "tl0003"]
+    assert counts["missing_detections"] == ["tl0004"]
+    for block in summary["model_mae"].values():
+        assert block["covered"]["n"] == 2
+        assert block["all_vehicles"]["n"] == 2
+    # tl0001 shares the 'day' tag with tl0002; a leak would double the day count.
+    assert summary["condition_detail"]["day"]["n_images"] == 1
+    assert summary["condition_detail"]["night"]["n_images"] == 1
+    for per_model in summary["condition_mae"].values():
+        for block in per_model.values():
+            assert block["n"] == 1
+    # The development item's second pass must not enter the labeller statistics.
+    assert summary["labeller_passes"]["items_both_passes"] == 2
+    assert "tl0001" not in json.dumps(summary)
+
+
+def test_summary_records_the_settings_file_fingerprint(workspace, tmp_path):
+    settings_path = tmp_path / "run_settings.json"
+    payload = {
+        "models": {
+            key: {"confidence": 0.25, "input_size": 1280,
+                  "uses_nms": key != "rtdetr-l",
+                  "nms_iou": None if key == "rtdetr-l" else 0.6,
+                  "sliced": False}
+            for key in config.MODEL_REGISTRY
+        },
+        "sliced_tiles": {"tile_size": 640, "overlap_ratio": 0.2, "iou_threshold": 0.5},
+    }
+    settings_path.write_text(json.dumps(payload), encoding="utf-8")
+    summary = ev.evaluate(
+        labels_csv=workspace["labels"], sources_csv=workspace["sources"],
+        plan_json=workspace["plan"], detections_jsonl=workspace["dets"],
+        table_out=workspace["table"], summary_out=workspace["summary"],
+        settings_json=settings_path, write=True,
+    )
+    recorded = summary["settings"]
+    assert recorded["settings_file"] == "run_settings.json"
+    assert recorded["settings_sha256"] == hashlib.sha256(settings_path.read_bytes()).hexdigest()
+    assert recorded["models"]["yolov8n"]["input_size"] == 1280
+    assert recorded["models"]["yolov8n"]["nms_iou"] == 0.6
+    assert recorded["models"]["rtdetr-l"]["uses_nms"] is False
+    assert recorded["models"]["rtdetr-l"]["nms_iou"] is None
+    on_disk = json.loads(workspace["summary"].read_text(encoding="utf-8"))
+    assert on_disk["settings"]["settings_sha256"] == recorded["settings_sha256"]
+
+
+def test_summary_defaults_to_the_registered_settings_file(workspace):
+    summary = ev.evaluate(
+        labels_csv=workspace["labels"], sources_csv=workspace["sources"],
+        plan_json=workspace["plan"], detections_jsonl=workspace["dets"],
+        table_out=workspace["table"], summary_out=workspace["summary"],
+        write=False,
+    )
+    recorded = summary["settings"]
+    assert recorded["settings_file"] == "default_settings.json"
+    expected = hashlib.sha256(config.DEFAULT_SETTINGS_JSON.read_bytes()).hexdigest()
+    assert recorded["settings_sha256"] == expected
+    assert recorded["models"]["yolov8n"]["input_size"] == 640
+    assert recorded["models"]["rtdetr-l"]["nms_iou"] is None
+
+
+def test_evaluate_missing_settings_file_raises(workspace, tmp_path):
+    with pytest.raises(FileNotFoundError):
+        ev.evaluate(
+            labels_csv=workspace["labels"], sources_csv=workspace["sources"],
+            plan_json=workspace["plan"], detections_jsonl=workspace["dets"],
+            settings_json=tmp_path / "absent.json", write=False,
+        )

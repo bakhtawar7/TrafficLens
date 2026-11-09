@@ -8,14 +8,18 @@ confidence filtering (see ``core.reliability``); nothing is re-run for that.
 
 One JSON line per (image, model, mode) goes to ``results/raw_detections.jsonl``
 with the SHA-256 of the image file, load time, inference time measured after
-warmup, and the raw boxes. Entries whose (image hash, model, mode) triple is
-already in the file are skipped, so reruns only do the missing work.
+warmup, and the raw boxes. Each entry also records the settings file it was
+produced under (``--settings``, default ``configs/default_settings.json``):
+its SHA-256 plus the model's input size and NMS fields. Entries whose
+(image hash, model, mode) triple is already in the file are skipped, so reruns
+only do the missing work.
 
 Usage::
 
     python scripts/run_benchmark.py --dev        # development subset only
     python scripts/run_benchmark.py              # all test set images
     python scripts/run_benchmark.py --models yolov8n,rtdetr-l
+    python scripts/run_benchmark.py --settings configs/default_settings.json
 """
 from __future__ import annotations
 
@@ -30,7 +34,7 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from core import config, dataset  # noqa: E402
+from core import config, dataset, settings  # noqa: E402
 from core.detector import SlicedDetector, build_detector  # noqa: E402
 
 MODES: tuple[str, ...] = ("standard", "sliced")
@@ -112,6 +116,8 @@ def main(argv: list[str] | None = None) -> int:
                         help="comma separated registry keys (default: all)")
     parser.add_argument("--output", default=str(DEFAULT_OUTPUT),
                         help="JSONL cache file (appended, never rewritten)")
+    parser.add_argument("--settings", default=str(config.DEFAULT_SETTINGS_JSON),
+                        help="settings file whose hash and fields are recorded with every entry")
     args = parser.parse_args(argv)
 
     keys = [key.strip() for key in args.models.split(",") if key.strip()]
@@ -119,6 +125,12 @@ def main(argv: list[str] | None = None) -> int:
     if unknown:
         print(f"ERROR: models not in registry: {', '.join(unknown)}")
         print(f"Known keys: {', '.join(config.MODEL_REGISTRY)}")
+        return 1
+
+    try:
+        settings_record = settings.settings_record(args.settings)
+    except FileNotFoundError as error:
+        print(f"ERROR: {error}")
         return 1
 
     try:
@@ -137,6 +149,8 @@ def main(argv: list[str] | None = None) -> int:
 
     print(f"Images: {len(images)} ({'development subset' if args.dev else 'full test set folder'})")
     print(f"Models: {', '.join(keys)} | Modes: {', '.join(MODES)}")
+    print(f"Settings: {settings_record['settings_file']} "
+          f"(sha256 {settings_record['settings_sha256']})")
     print(f"Raw detections stored at threshold {threshold}")
     print(f"Cache: {len(cached)} entries already in {output_path}\n")
 
@@ -156,6 +170,7 @@ def main(argv: list[str] | None = None) -> int:
                       f"{len(MODES) * len(images)} entries cached; model not loaded\n")
                 continue
             detector = build_detector(key)
+            model_settings = settings_record["models"].get(key, {})
             warmup_start = time.perf_counter()
             detector.warmup()
             warmup_seconds = time.perf_counter() - warmup_start
@@ -186,6 +201,11 @@ def main(argv: list[str] | None = None) -> int:
                         "model_name": detector.name,
                         "mode": mode,
                         "threshold": threshold,
+                        "settings_file": settings_record["settings_file"],
+                        "settings_sha256": settings_record["settings_sha256"],
+                        "input_size": model_settings.get("input_size"),
+                        "uses_nms": model_settings.get("uses_nms"),
+                        "nms_iou": model_settings.get("nms_iou"),
                         "load_seconds": detector.load_seconds,
                         "inference_ms": inference_ms,
                         "width": width,

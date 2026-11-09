@@ -31,6 +31,9 @@ TESTSET_REVIEW_CHECKLIST_CSV: Path = TESTSET_REVIEW_DIR / "REVIEW.csv"
 CONFIGS_DIR: Path = PROJECT_ROOT / "configs"
 CLASS_MAPPING_JSON: Path = CONFIGS_DIR / "class_mapping.json"
 TAG_CUTOFFS_JSON: Path = CONFIGS_DIR / "tag_cutoffs.json"
+#: Pre-registered record of the current per-model defaults; the benchmark and the
+#: evaluator hash this file into results/summary.json so runs stay auditable.
+DEFAULT_SETTINGS_JSON: Path = CONFIGS_DIR / "default_settings.json"
 
 # Generated curation outputs, never written back into the source dataset.
 RESULTS_DIR: Path = PROJECT_ROOT / "results"
