@@ -251,6 +251,106 @@ Over items labelled in both the first and second pass and outside the developmen
 * `all_vehicles_mean_abs_difference` = same statistic on `all_vehicles_total`.
 * `identical_fraction` = fraction of items whose covered difference is exactly `0`.
 
+## Label free reliability features (`core/features.py`)
+
+Features that may predict counting error, computed from inference time information
+only: the cached standard-mode detections of all three registry models and the image
+pixels. `scripts/build_features.py` never opens `LABELS.csv`, `annotation_counts.csv`,
+or any dataset annotation, so the table exists before labelling and cannot leak a
+label into a feature. The cache is read at the lowest sweep threshold (0.15);
+confidence, agreement, and geometry features then filter at `DEFAULT_CONFIDENCE`
+(0.25), while threshold sensitivity uses the full low-threshold list. The table covers
+every cached image, development subset included, because no label is involved.
+
+Undefined values are `None` (empty CSV cells), never a fabricated zero. An empty
+detection set has no mean confidence but an honestly zero sensitivity and density.
+
+### Confidence (per model)
+
+Over one model's detections at the default confidence:
+
+```
+mean_confidence = mean of the detection scores
+min_confidence  = lowest detection score
+mid_band_share  = fraction with 0.25 <= confidence <= 0.50   (bounds inclusive)
+```
+
+Empty set: all three are `None`. Why it may predict error: a low mean or minimum
+means the model is unsure about what it saw, and a large mid-band share means many
+detections sit near the decision boundary, so the count depends heavily on the
+threshold and is fragile.
+
+### Threshold sensitivity (per model)
+
+With `n_t` the model's total vehicle count derived at each sweep threshold
+`t` in `(0.15, 0.25, 0.35, 0.50)`:
+
+```
+threshold_sensitivity = max(n_t) - min(n_t)
+```
+
+Empty set: `0.0` (zero at every threshold). Why it may predict error: a count that
+moves widely with the threshold is built from unstable detections, so any single
+threshold choice carries a large error bar.
+
+### Agreement (pairs and families)
+
+Exactly the H2 measures defined above, computed at the default confidence:
+`box_agreement` and `count_disagreement` for each of the three model pairs, plus
+`within_family` (mean over the same-family pair, YOLOv8n vs YOLOv8s) and
+`cross_family` (mean over the cross-family pairs containing `best_yolo`, currently
+YOLOv8s vs RT-DETR-L). A missing model leaves its pairs and any aggregate without
+pairs as `None`. Why it may predict error: independently trained models rarely fail
+the same way, so low agreement flags an image where at least one model is likely
+wrong (hypothesis H2).
+
+### Scene statistics (pixels only)
+
+```
+mean_brightness = mean of the grayscale image
+contrast        = standard deviation of the grayscale image
+saturated_share = fraction of pixels with any BGR channel clipped at 255
+blur            = variance of the Laplacian (CV_32F on grayscale)
+```
+
+Brightness and blur use the same definitions as `core.dataset.measure_image`
+(`mean_luma` and `sharpness`). Saturation here is true channel clipping, distinct
+from the screening metric `highlight_fraction` (grayscale >= 245). Missing or
+undecodable image: all four `None`. Why they may predict error: darkness, glare,
+low contrast, and blur are the documented degradation conditions; each raises the
+miss and false detection rate.
+
+### Geometry (pooled over every present model)
+
+Boxes from all models at the default confidence are pooled; a vehicle seen by three
+models contributes three boxes, because the features describe detector output, not
+unique vehicles. With `A = width * height`:
+
+```
+box_area_fraction     = box area / A
+median_box_area_fraction = median of the fractions
+small_box_share       = fraction of boxes with box_area_fraction < 0.001   (strict)
+detection_density     = number of boxes * 1_000_000 / A    (boxes per megapixel)
+```
+
+The small box threshold `SMALL_BOX_AREA_FRACTION = 0.001` (0.1% of the frame, about
+a 30x30 box in a 1000x1000 image) is a scale invariant stand-in for the COCO small
+object cutoff. No boxes: median and share are `None`, density is `0.0`; no image:
+all three `None`. Why they may predict error: small boxes mark distant vehicles,
+which detectors miss most often, and high density means overlap and occlusion,
+where both missed vehicles and NMS mistakes concentrate.
+
+### Table mechanics
+
+`results/features.csv` carries `item_id`, the `settings_sha256` of the settings file
+used (default `configs/default_settings.json`), and the 29 feature columns in the
+stable order of `core.features.TABLE_COLUMNS`. The runner reuses an existing table
+whose every row carries the current hash and recomputes when the hash changes
+(`core.features.needs_recompute`). It prints only aggregate summaries (per feature
+mean, range, and missing count); per-image detections and counts never reach the
+console. Feature constants live in `core/features.py`: `MID_CONFIDENCE_BAND`
+`(0.25, 0.50)` and `SMALL_BOX_AREA_FRACTION` `0.001`.
+
 ## Constants (`core/config.py`)
 
 | Name | Value | Role |

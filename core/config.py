@@ -44,6 +44,8 @@ AUDIT_SHEET_CSV: Path = RESULTS_DIR / "audit_sheet.csv"
 RAW_DETECTIONS_JSONL: Path = RESULTS_DIR / "raw_detections.jsonl"
 EVALUATION_TABLE_CSV: Path = RESULTS_DIR / "evaluation_table.csv"
 EVALUATION_SUMMARY_JSON: Path = RESULTS_DIR / "summary.json"
+#: Label free reliability features, one row per cached image (core.features).
+FEATURES_CSV: Path = RESULTS_DIR / "features.csv"
 # Timestamped copies of data/testset/LABELS.csv taken by the manual labelling app
 # before a session's first write, so a bad save can always be rolled back.
 LABEL_BACKUPS_DIR: Path = RESULTS_DIR / "label_backups"
