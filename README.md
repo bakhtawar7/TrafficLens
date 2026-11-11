@@ -47,6 +47,7 @@ app shows a clearly labelled placeholder panel rather than fake data.
 | Development-only read guard for tuning (dev_guard) | Built (script/library) |
 | Signed error, bias, and scene-level cluster bootstrap intervals | Built (script/library) |
 | Blind manual count audit app (label_app) with atomic saves | Built (script/library) |
+| Label-free reliability feature table (build_features) | Built (script/library) |
 | Metrics reference with every formula (`docs/metrics.md`) | Built |
 | ByteTrack video counting | Planned for Week 3 |
 | Learned error predictor and reliability score | Planned for Week 3 |
@@ -91,16 +92,17 @@ trafficlens/
     ui/           Tab renderers (image, video, reliability, evaluation, history)
   core/           Detector registry, counting, annotation, export, validation, dataset,
                   curation, reliability (sweep and agreement), evaluation, settings
-                  provenance, development read guard, config
+                  provenance, development read guard, label free features, config
   configs/        Reviewed class mapping, quartile tag cut offs, sampling plan (seed,
                   subsets), default model settings
   data/           Test set media (the 75 curated images are versioned), inventory and logs
   docs/           Problem statement, hypotheses, protocol, architecture, wireframe
   results/        Generated artefacts (curation log, overlays, audit sheet, raw detection
-                  cache, evaluation table, summary); untracked
+                  cache, evaluation table, summary, feature table); untracked
   scripts/        Indexing, cleaning, tagging, test set build, expansion and checks, tag
                   proposals, review sheets, blind labelling app (label_app), detector
-                  comparison (run_detectors), benchmark runner (run_benchmark)
+                  comparison (run_detectors), benchmark runner (run_benchmark), feature
+                  table (build_features)
   tests/          pytest suite
   .streamlit/     Theme configuration
   requirements.txt
@@ -203,6 +205,13 @@ The pieces are:
 * `core.dev_guard` is the leakage guard for tuning: it returns only the seeded development
   subset ids and raises `DevelopmentOnlyError` before any bytes are read when code asks for
   a non-development image.
+* `core.features` computes label-free reliability features per image from the cached
+  standard-mode detections and the pixels alone: confidence statistics, threshold
+  sensitivity, the H2 agreement pairs and family aggregates, scene statistics, and box
+  geometry. `scripts/build_features.py` writes `results/features.csv` stamped with the
+  settings hash, reuses the table until that hash changes, and prints only aggregate
+  summaries (feature means, ranges, missing counts). It reads no label or annotation file,
+  so the table can be built before labelling and cannot leak a label into a feature.
 * `docs/metrics.md` defines every reported formula (the three ranges, both agreement scores,
   mean absolute and signed error, bias, relative error, and the cluster bootstrap interval)
   so each number is reproducible.
