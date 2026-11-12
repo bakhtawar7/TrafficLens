@@ -285,7 +285,7 @@ def needs_recompute(path: Path, settings_sha256: str) -> bool:
     try:
         with path.open("r", encoding="utf-8", newline="") as handle:
             reader = csv.DictReader(handle)
-            if "settings_sha256" not in (reader.fieldnames or []):
+            if tuple(reader.fieldnames or ()) != TABLE_COLUMNS:
                 return True
             rows = list(reader)
     except (OSError, csv.Error):

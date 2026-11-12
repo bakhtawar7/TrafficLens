@@ -19,8 +19,10 @@ from __future__ import annotations
 
 import argparse
 import csv
+import json
 import sys
 from pathlib import Path
+from typing import Any
 
 ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
@@ -42,6 +44,70 @@ def image_paths_by_item(images_dir: Path) -> dict[int, Path]:
         if number is not None and number not in paths:
             paths[number] = path
     return paths
+
+
+def _read_feature_rows(path: Path) -> list[dict[str, Any]]:
+    """Read an existing feature table for aggregate-only reporting."""
+    with path.open("r", encoding="utf-8", newline="") as handle:
+        rows: list[dict[str, Any]] = []
+        for row in csv.DictReader(handle):
+            parsed: dict[str, Any] = {
+                "item_id": row["item_id"],
+                "settings_sha256": row["settings_sha256"],
+            }
+            for column in features.TABLE_COLUMNS[2:]:
+                value = row[column]
+                parsed[column] = None if value == "" else float(value)
+            rows.append(parsed)
+    return rows
+
+
+def _print_aggregate_summary(rows: list[dict[str, Any]]) -> None:
+    """Print means, ranges, and missing values without exposing per-image data."""
+    print("Aggregate summary (mean, range, missing per feature):")
+    for column, stats in features.summarise_features(rows).items():
+        mean = "n/a" if stats["mean"] is None else f"{stats['mean']:.6g}"
+        low = "n/a" if stats["min"] is None else f"{stats['min']:.6g}"
+        high = "n/a" if stats["max"] is None else f"{stats['max']:.6g}"
+        print(f"  {column}: mean={mean}, range=[{low}, {high}], missing={stats['missing']}")
+
+
+def _cache_validation_error(path: Path, settings_hash: str) -> str | None:
+    """Require a settings-matched, low-threshold standard cache for all models."""
+    if not path.is_file():
+        return f"cached detections file missing: {path}"
+
+    required_models = set(config.MODEL_REGISTRY)
+    models_by_item: dict[int, set[str]] = {}
+    found_matching_entries = False
+    with path.open("r", encoding="utf-8") as handle:
+        for line_number, line in enumerate(handle, 1):
+            if not line.strip():
+                continue
+            try:
+                entry = json.loads(line)
+            except json.JSONDecodeError as error:
+                return f"invalid JSON in cached detections at line {line_number}: {error}"
+            if entry.get("settings_sha256") != settings_hash or entry.get("mode") != "standard":
+                continue
+            model = entry.get("model")
+            item = ev.normalise_item_id(str(entry.get("image", "")).split("_")[0])
+            if model not in required_models or item is None:
+                continue
+            found_matching_entries = True
+            try:
+                threshold = float(entry["threshold"])
+            except (KeyError, TypeError, ValueError):
+                return "matching cache entries lack a valid inference threshold"
+            if not 0 <= threshold <= min(config.THRESHOLD_SWEEP):
+                return "matching cache entries were not inferred at the lowest threshold sweep value"
+            models_by_item.setdefault(item, set()).add(model)
+
+    if not found_matching_entries:
+        return "no standard-mode detections match the requested settings hash"
+    if any(models != required_models for models in models_by_item.values()):
+        return "matching cache does not contain all models for every image"
+    return None
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -66,10 +132,15 @@ def main(argv: list[str] | None = None) -> int:
 
     output_path = Path(args.output)
     if not features.needs_recompute(output_path, settings_hash):
-        print(f"Features already computed for settings sha256 {settings_hash}; reusing {output_path}")
+        _print_aggregate_summary(_read_feature_rows(output_path))
         return 0
 
-    cache = ev.load_detection_cache(Path(args.cache), min(config.THRESHOLD_SWEEP))
+    cache_path = Path(args.cache)
+    cache_error = _cache_validation_error(cache_path, settings_hash)
+    if cache_error is not None:
+        print(f"ERROR: {cache_error}; run scripts/run_benchmark.py with the selected settings")
+        return 1
+    cache = ev.load_detection_cache(cache_path, min(config.THRESHOLD_SWEEP), settings_hash)
     if not cache:
         print(f"ERROR: no cached detections in {args.cache}; run scripts/run_benchmark.py first")
         return 1
@@ -86,16 +157,7 @@ def main(argv: list[str] | None = None) -> int:
         writer.writeheader()
         writer.writerows(rows)
 
-    print(f"Features: {len(rows)} images written to {output_path}")
-    print(f"Settings: {Path(args.settings).name} (sha256 {settings_hash})")
-    print("Inputs: cached standard-mode detections and image pixels only; no labels read")
-    print("Scope: every cached image, development subset included; the features use no labels")
-    print("Aggregate summary (mean, range, missing per feature):")
-    for column, stats in features.summarise_features(rows).items():
-        mean = "n/a" if stats["mean"] is None else f"{stats['mean']:.6g}"
-        low = "n/a" if stats["min"] is None else f"{stats['min']:.6g}"
-        high = "n/a" if stats["max"] is None else f"{stats['max']:.6g}"
-        print(f"  {column}: mean={mean}, range=[{low}, {high}], missing={stats['missing']}")
+    _print_aggregate_summary(rows)
     return 0
 
 

@@ -274,6 +274,12 @@ def test_needs_recompute_decision(tmp_path):
     assert features.needs_recompute(path, "current") is True   # header only
 
 
+def test_needs_recompute_when_feature_schema_changes(tmp_path):
+    path = tmp_path / "features.csv"
+    path.write_text("item_id,settings_sha256\n tl0001,current\n", encoding="utf-8")
+    assert features.needs_recompute(path, "current") is True
+
+
 # ---------------------------------------------------------------------------
 # Runner: write, reuse, recompute, and aggregate-only printing
 # ---------------------------------------------------------------------------
@@ -282,17 +288,19 @@ def runner_workspace(tmp_path: Path) -> dict:
     images = tmp_path / "images"
     images.mkdir()
     _write_image(images / "tl0001_dhaka_ai.png", _flat_image(100))
+    settings_path = tmp_path / "settings.json"
+    settings_path.write_text(json.dumps({"models": {}}), encoding="utf-8")
+    settings_hash = hashlib.sha256(settings_path.read_bytes()).hexdigest()
     cache_path = tmp_path / "raw_detections.jsonl"
     entries = [
         {"image": "tl0001_dhaka_ai.png", "model": key, "mode": "standard",
+         "threshold": min(config.THRESHOLD_SWEEP), "settings_sha256": settings_hash,
          "detections": [{"class_id": 2, "class_name": "car", "confidence": 0.9,
                          "xyxy": [0.0, 0.0, 10.0, 10.0]}]}
         for key in config.MODEL_REGISTRY
     ]
     cache_path.write_text("\n".join(json.dumps(entry) for entry in entries) + "\n",
                           encoding="utf-8")
-    settings_path = tmp_path / "settings.json"
-    settings_path.write_text(json.dumps({"models": {}}), encoding="utf-8")
     return {"images": images, "cache": cache_path, "settings": settings_path,
             "output": tmp_path / "features.csv"}
 
@@ -317,7 +325,7 @@ def test_runner_writes_table_and_prints_aggregates_only(runner_workspace, capsys
     assert "detections" not in printed.replace("cached standard-mode detections", "")
 
 
-def test_runner_reuses_table_when_hash_unchanged(runner_workspace, monkeypatch):
+def test_runner_reuses_table_when_hash_unchanged(runner_workspace, monkeypatch, capsys):
     ws = runner_workspace
     assert bf.main(_runner_args(ws)) == 0
 
@@ -326,6 +334,9 @@ def test_runner_reuses_table_when_hash_unchanged(runner_workspace, monkeypatch):
 
     monkeypatch.setattr(features, "build_feature_table", _never_called)
     assert bf.main(_runner_args(ws)) == 0
+    printed = capsys.readouterr().out
+    assert "mean=" in printed and "missing=" in printed
+    assert "tl0001" not in printed
 
 
 def test_runner_recomputes_when_hash_changes(runner_workspace, monkeypatch):
@@ -333,6 +344,16 @@ def test_runner_recomputes_when_hash_changes(runner_workspace, monkeypatch):
     assert bf.main(_runner_args(ws)) == 0
     ws["settings"].write_text(json.dumps({"models": {"yolov8n": {"input_size": 1280}}}),
                               encoding="utf-8")
+    settings_hash = hashlib.sha256(ws["settings"].read_bytes()).hexdigest()
+    entries = [
+        {"image": "tl0001_dhaka_ai.png", "model": key, "mode": "standard",
+         "threshold": min(config.THRESHOLD_SWEEP), "settings_sha256": settings_hash,
+         "detections": [{"class_id": 2, "class_name": "car", "confidence": 0.9,
+                         "xyxy": [0.0, 0.0, 10.0, 10.0]}]}
+        for key in config.MODEL_REGISTRY
+    ]
+    ws["cache"].write_text("\n".join(json.dumps(entry) for entry in entries) + "\n",
+                           encoding="utf-8")
     calls = []
     original = features.build_feature_table
 
@@ -345,7 +366,30 @@ def test_runner_recomputes_when_hash_changes(runner_workspace, monkeypatch):
     assert calls == [True]
     with ws["output"].open(encoding="utf-8", newline="") as handle:
         row = next(csv.DictReader(handle))
-    assert row["settings_sha256"] == hashlib.sha256(ws["settings"].read_bytes()).hexdigest()
+    assert row["settings_sha256"] == settings_hash
+
+
+def test_runner_rejects_cache_with_different_settings_hash(runner_workspace, capsys):
+    ws = runner_workspace
+    assert bf.main(_runner_args(ws)) == 0
+    ws["settings"].write_text(json.dumps({"models": {"yolov8n": {"input_size": 1280}}}),
+                              encoding="utf-8")
+    assert bf.main(_runner_args(ws)) == 1
+    assert "no standard-mode detections match the requested settings hash" in capsys.readouterr().out
+
+
+def test_runner_rejects_cache_without_all_models(runner_workspace, capsys):
+    ws = runner_workspace
+    entries = [
+        {"image": "tl0001_dhaka_ai.png", "model": "yolov8n", "mode": "standard",
+         "threshold": min(config.THRESHOLD_SWEEP),
+         "settings_sha256": hashlib.sha256(ws["settings"].read_bytes()).hexdigest(),
+         "detections": []}
+    ]
+    ws["cache"].write_text("\n".join(json.dumps(entry) for entry in entries) + "\n",
+                           encoding="utf-8")
+    assert bf.main(_runner_args(ws)) == 1
+    assert "does not contain all models" in capsys.readouterr().out
 
 
 def test_runner_missing_settings_and_empty_cache_fail(runner_workspace, tmp_path):
