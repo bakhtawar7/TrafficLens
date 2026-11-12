@@ -1,0 +1,49 @@
+{
+  "_note": "Selected once from the seeded ten-image development subset; frozen before evaluation. Standard inference was used for tuning. The sliced benchmark arm reuses these model settings with the default tile settings below.",
+  "selection_rule": "Minimum mean absolute covered-count error; tied settings fall within the minimum-MAE setting's 95% image-level bootstrap interval; then normalized L1 distance to configs/default_settings.json; then faster mean inference.",
+  "development_images": [
+    "tl0005",
+    "tl0006",
+    "tl0009",
+    "tl0011",
+    "tl0013",
+    "tl0016",
+    "tl0018",
+    "tl0023",
+    "tl0031",
+    "tl0039"
+  ],
+  "bootstrap_samples": 2000,
+  "bootstrap_unit": "image",
+  "models": {
+    "yolov8n": {
+      "confidence": 0.25,
+      "input_size": 640,
+      "uses_nms": true,
+      "nms_iou": 0.7,
+      "sliced": false,
+      "rationale": "Best MAE 3.5000 with 95% image-bootstrap CI [0.7000, 8.3000]; 24 setting(s) tied by that interval; selected MAE 5.2000 at normalized L1 distance 0.0000 from defaults, then mean inference time 170.4 ms."
+    },
+    "yolov8s": {
+      "confidence": 0.25,
+      "input_size": 640,
+      "uses_nms": true,
+      "nms_iou": 0.7,
+      "sliced": false,
+      "rationale": "Best MAE 3.5000 with 95% image-bootstrap CI [1.3000, 6.3000]; 24 setting(s) tied by that interval; selected MAE 3.5000 at normalized L1 distance 0.0000 from defaults, then mean inference time 912.3 ms."
+    },
+    "rtdetr-l": {
+      "confidence": 0.25,
+      "input_size": 640,
+      "uses_nms": false,
+      "nms_iou": null,
+      "sliced": false,
+      "rationale": "Best MAE 3.2000 with 95% image-bootstrap CI [0.9000, 6.0000]; 6 setting(s) tied by that interval; selected MAE 5.6000 at normalized L1 distance 0.0000 from defaults, then mean inference time 3845.5 ms."
+    }
+  },
+  "sliced_tiles": {
+    "tile_size": 640,
+    "overlap_ratio": 0.2,
+    "iou_threshold": 0.5
+  }
+}

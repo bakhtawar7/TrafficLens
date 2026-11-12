@@ -104,8 +104,10 @@ class _FakeWrapper:
     def __init__(self, weights: str) -> None:
         type(self).calls += 1
         self.weights = weights
+        self.predict_calls = []
 
     def predict(self, image, **kwargs):  # noqa: ANN001, ANN201 - fake model surface
+        self.predict_calls.append(kwargs)
         return []
 
 
@@ -149,6 +151,32 @@ def test_rtdetr_warmup_uses_the_detr_wrapper(monkeypatch: pytest.MonkeyPatch) ->
     assert FakeRTDETR.calls == 1
     assert FakeYOLO.calls == 0
     assert detector.load_seconds is not None
+
+
+def test_detector_passes_input_size_and_yolo_nms_iou(monkeypatch: pytest.MonkeyPatch) -> None:
+    _install_fake_ultralytics(monkeypatch)
+    detector = build_detector("yolov8n")
+    detector.detect(
+        np.zeros((32, 32, 3), dtype=np.uint8),
+        0.35,
+        input_size=1280,
+        nms_iou=0.6,
+    )
+    kwargs = detector._model.predict_calls[-1]
+    assert kwargs["conf"] == 0.35
+    assert kwargs["imgsz"] == 1280
+    assert kwargs["iou"] == 0.6
+
+
+def test_rtdetr_rejects_an_nms_setting(monkeypatch: pytest.MonkeyPatch) -> None:
+    _install_fake_ultralytics(monkeypatch)
+    detector = build_detector("rtdetr-l")
+    with pytest.raises(ValueError, match="does not use NMS"):
+        detector.detect(
+            np.zeros((32, 32, 3), dtype=np.uint8),
+            0.25,
+            nms_iou=0.6,
+        )
 
 
 # ---------------------------------------------------------------------------

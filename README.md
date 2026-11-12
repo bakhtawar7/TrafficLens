@@ -49,7 +49,7 @@ app shows a clearly labelled placeholder panel rather than fake data.
 | Blind manual count audit app (label_app) with atomic saves | Built (script/library) |
 | Label-free reliability feature table (build_features) | Built (script/library) |
 | Metrics reference with every formula (`docs/metrics.md`) | Built |
-| ByteTrack video counting | Planned for Week 3 |
+| Provenance-gated ByteTrack video line counting | Built; not evaluated |
 | Learned error predictor and reliability score | Planned for Week 3 |
 | Needs review flag and SQLite history | Planned for Week 4 |
 
@@ -228,12 +228,20 @@ python scripts/run_detectors.py                     # per-image counts and timin
 python scripts/run_benchmark.py --dev               # cache raw detections for the development subset
 python scripts/run_benchmark.py                     # full test set, standard and sliced modes
 python scripts/run_benchmark.py --settings configs/default_settings.json   # explicit settings file
+python scripts/tune_on_dev.py                       # guarded coarse grid and frozen final settings
+python scripts/run_benchmark.py --evaluation-only --settings configs/final_settings.json --configured-confidence
+python -c "from core.config import FINAL_SETTINGS_JSON; from core.evaluation import evaluate; evaluate(settings_json=FINAL_SETTINGS_JSON)"
 ```
 
 The benchmark writes one line per (image, model, mode) to `results/raw_detections.jsonl`
-and skips entries already cached, so reruns only do the missing work. Both the benchmark
-and the evaluator accept a settings file path and default to `configs/default_settings.json`;
-a missing settings file stops the run rather than letting it proceed without provenance.
+and skips entries already cached for the selected settings fingerprint, so reruns only do
+the missing work. `scripts/tune_on_dev.py` evaluates standard inference only on the guarded
+development images, writes its per-setting metrics to `results/tune_dev_table.csv`, and
+selects a read-only `configs/final_settings.json`. Pass that file to the evaluation-only
+benchmark and evaluator to keep the final cache and `results/summary.json` tied to the
+frozen settings hash. The sliced benchmark arm reuses the selected model settings with
+the default tile configuration. A missing settings file stops a run rather than letting
+it proceed without provenance.
 Evaluation over that cache produces `results/evaluation_table.csv` and `results/summary.json`;
 run the full benchmark first, because the development subset is excluded from every reported
 statistic and only cached detections can be scored.
@@ -245,6 +253,9 @@ statistic and only cached detections can be scored.
 * Small and distant vehicles are frequently missed.
 * Rickshaws and other local vehicle types have no COCO class and may be missed or
   mislabelled. TrafficLens never claims to detect rickshaws.
+* Video tracking may assign duplicate or switched IDs. Occlusion can interrupt or merge
+  tracks, so virtual-line inbound/outbound counts are not guaranteed to match unique vehicles.
+  Video results are outside the evaluation and carry no accuracy claim.
 * Dashboard counts come from pretrained models and are not yet checked against ground
   truth in the app; `core.evaluation` computes that comparison offline, but its numbers
   are only as good as the human labelling pass they depend on.
@@ -260,9 +271,12 @@ statistic and only cached detections can be scored.
   `Detector` protocol and covered by the test suite; plus the Reliability tab showing per
   model counts, the count range, and the two H2 agreement measures (count disagreement and
   class-aware box agreement) with a sidebar sliced toggle.
-* **Week 3 (planned):** video counting with ByteTrack and the learned error predictor that
-  would turn model agreement into a trust score. Neither is built; the Reliability tab
-  reports agreement only and draws no trust verdict.
+* **Week 3 (partial):** provenance-gated video counting with a virtual line and ByteTrack is
+  built. Add a row to `data/samples/video/PROVENANCE.csv` with the video filename, source URL,
+  author, licence text, and ISO download date before processing; the app never downloads a
+  clip or model weights. Video results are not evaluated and carry no accuracy claim. The
+  learned error predictor is not built; the Reliability tab reports agreement only and draws
+  no trust verdict.
 * **Week 4 (in progress):** stratified test set build with audit artefacts (expanded to 75
   images under the pre-registered cap rule), the local road scene benchmark runner, the
   ground-truth evaluation module, and the Evaluation tab (scored table, error by condition,

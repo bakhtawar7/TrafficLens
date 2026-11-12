@@ -150,17 +150,17 @@ def test_uploader_gates_file_type_and_size(app) -> None:
     assert proto.max_upload_size_mb == config.MAX_UPLOAD_BYTES // (1024 * 1024)
 
 
-def test_placeholder_tabs_declare_their_week_and_show_no_results(app) -> None:
+def test_video_tab_disclaims_accuracy_and_is_no_longer_a_placeholder(app) -> None:
     app.run()
     messages = [warning.value for warning in app.warning]
-    # Only Video is left as a Week 3 placeholder; Reliability is now a real tab
-    # and Evaluation keeps the Week 4 placeholder until its table is generated.
-    assert sum("Planned for Week 3" in message for message in messages) == 1
+    assert not any("Planned for Week 3" in message for message in messages)
     assert sum("Planned for Week 4" in message for message in messages) == 2
     assert not app.metric
     assert not app.download_button
     # Reliability is no longer a placeholder: it prompts for an upload instead.
     assert any("compare the models" in info.value for info in app.info)
+    assert any("Upload a video" in info.value for info in app.info)
+    assert any("carry no accuracy claim" in value.value for value in app.markdown)
     assert not any("reliability scoring" in message.lower() for message in messages)
 
 

@@ -84,6 +84,9 @@ def _render_limitations() -> None:
                     "* Small and distant vehicles are frequently missed.",
                     "* Rickshaws and other local vehicle types have no COCO class and may "
                     "be missed or mislabelled. TrafficLens never claims to detect rickshaws.",
+                    "* Video tracking may assign duplicate or switched IDs, especially during "
+                    "occlusion; video crossing totals can therefore be wrong.",
+                    "* Video results are not part of the evaluation and carry no accuracy claim.",
                     "* Results come from pretrained models without verification against "
                     "ground truth in Week 1.",
                 ]
@@ -94,7 +97,7 @@ def _render_limitations() -> None:
 def main() -> None:
     """Assemble the full dashboard."""
     st.title("TrafficLens")
-    st.caption("Vehicle counting from a single image, with honest limits.")
+    st.caption("Image counts and experimental video crossings, with honest limits.")
 
     uploaded_file, selected_classes, confidence_threshold, sliced = _render_sidebar()
     _render_limitations()

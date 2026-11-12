@@ -50,8 +50,10 @@ def image_file_hash(path: Path) -> str:
     return digest.hexdigest()
 
 
-def list_images(images_dir: Path, dev_only: bool) -> list[Path]:
-    """Sorted test set images; ``--dev`` restricts to the development subset.
+def list_images(
+    images_dir: Path, dev_only: bool, evaluation_only: bool = False
+) -> list[Path]:
+    """Sorted test-set images, optionally restricted to either seeded partition.
 
     Raises:
         FileNotFoundError: when the images folder or the seeded plan file is
@@ -63,7 +65,7 @@ def list_images(images_dir: Path, dev_only: bool) -> list[Path]:
         path for path in images_dir.iterdir()
         if path.is_file() and path.suffix.lower() in config.ALLOWED_EXTENSIONS
     )
-    if not dev_only:
+    if not dev_only and not evaluation_only:
         return images
     if not config.TESTSET_PLAN_JSON.exists():
         raise FileNotFoundError(
@@ -71,12 +73,14 @@ def list_images(images_dir: Path, dev_only: bool) -> list[Path]:
         )
     plan = json.loads(config.TESTSET_PLAN_JSON.read_text(encoding="utf-8"))
     dev_ids = set(plan.get("development_subset", []))
-    return [path for path in images if path.stem.split("_")[0] in dev_ids]
+    if dev_only:
+        return [path for path in images if path.stem.split("_")[0] in dev_ids]
+    return [path for path in images if path.stem.split("_")[0] not in dev_ids]
 
 
-def load_cached_keys(output_path: Path) -> set[tuple[str, str, str]]:
-    """Read existing JSONL and collect (image_hash, model, mode) already stored."""
-    keys: set[tuple[str, str, str]] = set()
+def load_cached_keys(output_path: Path, settings_hash: str) -> set[tuple[str, str, str, str]]:
+    """Read entries for this settings fingerprint, keyed by image/model/mode."""
+    keys: set[tuple[str, str, str, str]] = set()
     if not output_path.exists():
         return keys
     with output_path.open("r", encoding="utf-8") as handle:
@@ -86,7 +90,10 @@ def load_cached_keys(output_path: Path) -> set[tuple[str, str, str]]:
                 continue
             try:
                 entry = json.loads(line)
-                keys.add((entry["image_hash"], entry["model"], entry["mode"]))
+                if entry.get("settings_sha256") == settings_hash:
+                    keys.add((
+                        entry["image_hash"], entry["model"], entry["mode"], settings_hash,
+                    ))
             except (json.JSONDecodeError, KeyError):
                 print(f"WARNING: ignoring malformed cached line: {line[:80]}")
     return keys
@@ -110,6 +117,8 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Cache raw detections for every model and mode.")
     parser.add_argument("--dev", action="store_true",
                         help="run only the seeded development subset from configs/testset_plan.json")
+    parser.add_argument("--evaluation-only", action="store_true",
+                        help="exclude the seeded development subset")
     parser.add_argument("--images-dir", default=str(config.TESTSET_IMAGES_DIR),
                         help="folder of test set images")
     parser.add_argument("--models", default=",".join(config.MODEL_REGISTRY),
@@ -118,7 +127,12 @@ def main(argv: list[str] | None = None) -> int:
                         help="JSONL cache file (appended, never rewritten)")
     parser.add_argument("--settings", default=str(config.DEFAULT_SETTINGS_JSON),
                         help="settings file whose hash and fields are recorded with every entry")
+    parser.add_argument("--configured-confidence", action="store_true",
+                        help="infer at each model's configured confidence instead of the lowest sweep threshold")
     args = parser.parse_args(argv)
+    if args.dev and args.evaluation_only:
+        print("ERROR: --dev and --evaluation-only are mutually exclusive.")
+        return 1
 
     keys = [key.strip() for key in args.models.split(",") if key.strip()]
     unknown = [key for key in keys if key not in config.MODEL_REGISTRY]
@@ -134,7 +148,7 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     try:
-        images = list_images(Path(args.images_dir), args.dev)
+        images = list_images(Path(args.images_dir), args.dev, args.evaluation_only)
     except FileNotFoundError as error:
         print(f"ERROR: {error}")
         return 1
@@ -144,14 +158,15 @@ def main(argv: list[str] | None = None) -> int:
 
     output_path = Path(args.output)
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    cached = load_cached_keys(output_path)
-    threshold = min(config.THRESHOLD_SWEEP)
+    settings_hash = settings_record["settings_sha256"]
+    cached = load_cached_keys(output_path, settings_hash)
+    base_threshold = min(config.THRESHOLD_SWEEP)
 
     print(f"Images: {len(images)} ({'development subset' if args.dev else 'full test set folder'})")
     print(f"Models: {', '.join(keys)} | Modes: {', '.join(MODES)}")
     print(f"Settings: {settings_record['settings_file']} "
           f"(sha256 {settings_record['settings_sha256']})")
-    print(f"Raw detections stored at threshold {threshold}")
+    print(f"Raw detections stored at {'configured per-model confidence' if args.configured_confidence else base_threshold}")
     print(f"Cache: {len(cached)} entries already in {output_path}\n")
 
     written = 0
@@ -162,7 +177,7 @@ def main(argv: list[str] | None = None) -> int:
         for key in keys:
             pending = [
                 path for path in images
-                if any((digests[path], key, mode) not in cached for mode in MODES)
+                if any((digests[path], key, mode, settings_hash) not in cached for mode in MODES)
             ]
             if not pending:
                 skipped += len(MODES) * len(images)
@@ -171,16 +186,39 @@ def main(argv: list[str] | None = None) -> int:
                 continue
             detector = build_detector(key)
             model_settings = settings_record["models"].get(key, {})
+            threshold = (
+                float(model_settings["confidence"])
+                if args.configured_confidence
+                else base_threshold
+            )
+            input_size = model_settings.get("input_size")
+            nms_iou = model_settings.get("nms_iou") if model_settings.get("uses_nms") else None
             warmup_start = time.perf_counter()
             detector.warmup()
             warmup_seconds = time.perf_counter() - warmup_start
-            sliced = SlicedDetector(detector)
+            sliced = SlicedDetector(
+                detector,
+                tile_size=int(settings_record.get("sliced_tiles", {}).get(
+                    "tile_size", config.SLICE_TILE_SIZE
+                )),
+                overlap_ratio=float(settings_record.get("sliced_tiles", {}).get(
+                    "overlap_ratio", config.SLICE_OVERLAP_RATIO
+                )),
+                iou_threshold=float(settings_record.get("sliced_tiles", {}).get(
+                    "iou_threshold", config.SLICE_IOU_THRESHOLD
+                )),
+                input_size=input_size,
+                nms_iou=nms_iou,
+            )
             print(f"{detector.name}: load {detector.load_seconds:.2f} s, "
                   f"warmup {warmup_seconds:.2f} s")
 
             for path in images:
                 digest = digests[path]
-                todo = [mode for mode in MODES if (digest, key, mode) not in cached]
+                todo = [
+                    mode for mode in MODES
+                    if (digest, key, mode, settings_hash) not in cached
+                ]
                 skipped += len(MODES) - len(todo)
                 if not todo:
                     continue
@@ -192,7 +230,12 @@ def main(argv: list[str] | None = None) -> int:
                 for mode in todo:
                     runner = detector if mode == "standard" else sliced
                     start = time.perf_counter()
-                    detections = runner.detect(image, threshold)
+                    if mode == "standard":
+                        detections = runner.detect(
+                            image, threshold, input_size=input_size, nms_iou=nms_iou
+                        )
+                    else:
+                        detections = runner.detect(image, threshold)
                     inference_ms = (time.perf_counter() - start) * 1000.0
                     entry = {
                         "image": path.name,
@@ -215,6 +258,7 @@ def main(argv: list[str] | None = None) -> int:
                     handle.write(json.dumps(entry) + "\n")
                     handle.flush()
                     written += 1
+                    cached.add((digest, key, mode, settings_hash))
                     print(f"  {path.name} {mode:>8}: {len(detections):>3} detections, "
                           f"{inference_ms:8.1f} ms")
             print()

@@ -205,7 +205,9 @@ def load_development_ids(path: Path) -> set[int]:
 
 
 def load_detection_cache(
-    path: Path, confidence: float = config.DEFAULT_CONFIDENCE
+    path: Path,
+    confidence: float | dict[str, float] = config.DEFAULT_CONFIDENCE,
+    settings_sha256: str | None = None,
 ) -> dict[tuple[int, str, str], list[Detection]]:
     """Read the benchmark JSONL into (item, model key, mode) detection lists.
 
@@ -223,16 +225,25 @@ def load_detection_cache(
             if not line:
                 continue
             entry = json.loads(line)
+            if settings_sha256 is not None and entry.get("settings_sha256") != settings_sha256:
+                continue
             item = normalise_item_id(str(entry.get("image", "")).split("_")[0])
             if item is None:
                 continue
+            model_key = str(entry["model"])
+            model_confidence = (
+                confidence.get(model_key, config.DEFAULT_CONFIDENCE)
+                if isinstance(confidence, dict)
+                else confidence
+            )
             detections = [
                 Detection(int(d["class_id"]), str(d["class_name"]), float(d["confidence"]),
                           tuple(float(v) for v in d["xyxy"]))
                 for d in entry.get("detections", [])
-                if d["class_name"] in COVERED_CLASSES and float(d["confidence"]) >= confidence
+                if d["class_name"] in COVERED_CLASSES
+                and float(d["confidence"]) >= model_confidence
             ]
-            cache[(item, str(entry["model"]), str(entry["mode"]))] = detections
+            cache[(item, model_key, str(entry["mode"]))] = detections
     return cache
 
 
@@ -626,14 +637,24 @@ def evaluate(
     conditions = load_conditions(Path(sources_csv))
     scenes = load_scenes(Path(sources_csv))
     excluded = load_development_ids(Path(plan_json))
-    cache = load_detection_cache(Path(detections_jsonl), confidence)
+    selected_settings = settings.settings_record(settings_json)
+    model_confidence = {
+        key: float(record.get("confidence", confidence))
+        for key, record in selected_settings["models"].items()
+    }
+    cache = load_detection_cache(
+        Path(detections_jsonl),
+        model_confidence if settings_json is not None else confidence,
+        selected_settings["settings_sha256"] if settings_json is not None else None,
+    )
     rows, missing = build_rows(labels, conditions, cache, excluded, sliced_model_key, scenes)
     # Flag exploratory conditions on the rows before anything is written or summarised.
     annotate_exploratory(rows)
     summary = summarise(labels, conditions, rows, missing, excluded, confidence,
                         sliced_model_key, bootstrap_samples, refused_unverified=refused,
                         scenes=scenes)
-    summary["settings"].update(settings.settings_record(settings_json))
+    summary["settings"].update(selected_settings)
+    summary["settings"]["model_confidence"] = model_confidence
     if refused:
         print(
             f"REFUSED {len(refused)} LABELS row(s) whose notes record the counts as auto "

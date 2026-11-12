@@ -87,3 +87,17 @@ machine generated.
 
 The second pass exists to catch drift and ambiguity, not to overwrite quickly. When in
 doubt, apply the rules above and document the decision.
+
+## Category decisions — 11 November 2026
+
+The seven categories are `car`, `bus`, `truck`, `motorcycle`, `rickshaw`, `loader rickshaw`,
+and `other`.
+
+* "Bike" means motorcycle. The rider is not counted.
+* Passenger auto rickshaws are counted as `rickshaw`. Cargo auto rickshaws are counted as
+  `loader rickshaw`.
+* Pedal bicycles and tangas (horse-drawn carts) are counted as `other`.
+* A vehicle I cannot classify with confidence is counted as `other`, with the reason in the
+  notes field.
+
+These rules were fixed before any model results were viewed and must not be changed afterwards.

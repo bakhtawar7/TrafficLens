@@ -1,1 +1,11 @@
 item_id,car,bus,truck,motorcycle,rickshaw,loader_rickshaw,other,labeller_pass,notes
+tl0005,6,5,1,1,2,0,0,1,auto rickshaws counted as rickshaw; tangas counted as other; bicycles counted as other; bikes mean motorcycles
+tl0006,2,0,1,2,0,0,0,1,auto rickshaws counted as rickshaw; tangas counted as other; bicycles counted as other; bikes mean motorcycles
+tl0009,0,0,0,0,2,0,1,1,auto rickshaws counted as rickshaw; tangas counted as other; bicycles counted as other; bikes mean motorcycles; no covered vehicles present
+tl0011,3,0,0,0,3,0,3,1,auto rickshaws counted as rickshaw; tangas counted as other; bicycles counted as other; bikes mean motorcycles
+tl0013,0,0,4,0,0,0,0,1,auto rickshaws counted as rickshaw; tangas counted as other; bicycles counted as other; bikes mean motorcycles
+tl0016,1,8,1,0,0,0,0,1,auto rickshaws counted as rickshaw; tangas counted as other; bicycles counted as other; bikes mean motorcycles
+tl0018,26,1,0,6,0,0,0,1,"auto rickshaws counted as rickshaw; tangas counted as other; bicycles counted as other; bikes mean motorcycles; dense scene, counts may be off by a few"
+tl0023,0,3,0,1,1,0,0,1,auto rickshaws counted as rickshaw; tangas counted as other; bicycles counted as other; bikes mean motorcycles
+tl0031,7,3,0,0,9,0,0,1,auto rickshaws counted as rickshaw; tangas counted as other; bicycles counted as other; bikes mean motorcycles
+tl0039,1,0,0,3,0,0,2,1,auto rickshaws counted as rickshaw; tangas counted as other; bicycles counted as other; bikes mean motorcycles

@@ -18,6 +18,8 @@ TESTSET_DIR: Path = DATA_DIR / "testset"
 TESTSET_IMAGES_DIR: Path = TESTSET_DIR / "images"
 TESTSET_CLIPS_DIR: Path = TESTSET_DIR / "clips"
 SAMPLES_DIR: Path = DATA_DIR / "samples"
+VIDEO_SAMPLES_DIR: Path = SAMPLES_DIR / "video"
+VIDEO_PROVENANCE_CSV: Path = VIDEO_SAMPLES_DIR / "PROVENANCE.csv"
 SOURCES_CSV: Path = TESTSET_DIR / "SOURCES.csv"
 LABELS_CSV: Path = TESTSET_DIR / "LABELS.csv"
 
@@ -34,6 +36,7 @@ TAG_CUTOFFS_JSON: Path = CONFIGS_DIR / "tag_cutoffs.json"
 #: Pre-registered record of the current per-model defaults; the benchmark and the
 #: evaluator hash this file into results/summary.json so runs stay auditable.
 DEFAULT_SETTINGS_JSON: Path = CONFIGS_DIR / "default_settings.json"
+FINAL_SETTINGS_JSON: Path = CONFIGS_DIR / "final_settings.json"
 
 # Generated curation outputs, never written back into the source dataset.
 RESULTS_DIR: Path = PROJECT_ROOT / "results"

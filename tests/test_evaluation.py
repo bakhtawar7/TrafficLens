@@ -175,6 +175,25 @@ def test_load_detection_cache_filters_confidence_and_class(tmp_path):
     assert isinstance(kept[0], Detection)
 
 
+def test_load_detection_cache_requires_settings_hash_and_model_confidence(tmp_path):
+    p = tmp_path / "r.jsonl"
+    first = _entry("tl0002_x.jpg", "yolov8n", "standard",
+                   [_det(box=(0, 0, 10, 10), conf=0.9)])
+    second = _entry("tl0002_x.jpg", "yolov8s", "standard",
+                    [_det(box=(0, 0, 10, 10), conf=0.9)])
+    first["settings_sha256"] = "selected"
+    second["settings_sha256"] = "other"
+    _write_detections(p, [first, second])
+
+    cache = ev.load_detection_cache(
+        p,
+        {"yolov8n": 0.95, "yolov8s": 0.25},
+        settings_sha256="selected",
+    )
+    assert cache[(2, "yolov8n", "standard")] == []
+    assert (2, "yolov8s", "standard") not in cache
+
+
 def test_bootstrap_ci_is_deterministic_and_empty_safe():
     lo1, hi1 = ev.bootstrap_ci([1.0, 2.0, 3.0, 4.0], samples=500)
     lo2, hi2 = ev.bootstrap_ci([1.0, 2.0, 3.0, 4.0], samples=500)

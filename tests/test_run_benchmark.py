@@ -26,7 +26,7 @@ class _StubDetector:
     def warmup(self) -> None:
         pass
 
-    def detect(self, image, confidence_threshold: float) -> list:
+    def detect(self, image, confidence_threshold: float, **kwargs) -> list:
         return []
 
 
@@ -38,7 +38,7 @@ def benchmark_workspace(tmp_path: Path, monkeypatch) -> dict:
     assert ok
     encoded.tofile(str(images / "tl0001_dhaka_ai.jpg"))
     monkeypatch.setattr(rb, "build_detector", lambda key: _StubDetector())
-    monkeypatch.setattr(rb, "SlicedDetector", lambda detector: detector)
+    monkeypatch.setattr(rb, "SlicedDetector", lambda detector, **kwargs: detector)
     settings_path = tmp_path / "settings.json"
     settings_path.write_text(json.dumps({
         "models": {"yolov8n": {"confidence": 0.25, "input_size": 640,
@@ -92,3 +92,30 @@ def test_missing_settings_file_stops_before_any_model_work(benchmark_workspace, 
                     "--settings", str(ws["settings"].parent / "absent.json")])
     assert code == 1
     assert not ws["output"].exists()
+
+
+def test_cache_keys_are_scoped_to_the_settings_hash(tmp_path: Path):
+    cache = tmp_path / "cache.jsonl"
+    cache.write_text(
+        "\n".join(json.dumps({
+            "image_hash": "image",
+            "model": "yolov8n",
+            "mode": "standard",
+            "settings_sha256": fingerprint,
+        }) for fingerprint in ("old", "new")),
+        encoding="utf-8",
+    )
+    assert rb.load_cached_keys(cache, "new") == {
+        ("image", "yolov8n", "standard", "new"),
+    }
+
+
+def test_evaluation_only_image_list_excludes_development_subset(tmp_path: Path):
+    from core import dev_guard
+
+    dev_id = f"tl{min(dev_guard.development_ids()):04d}"
+    dev_image = tmp_path / f"{dev_id}_sample.jpg"
+    eval_image = tmp_path / "tl9999_sample.jpg"
+    dev_image.touch()
+    eval_image.touch()
+    assert rb.list_images(tmp_path, dev_only=False, evaluation_only=True) == [eval_image]

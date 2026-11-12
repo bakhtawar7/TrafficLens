@@ -8,6 +8,8 @@ opencv-python-headless>=4.9.0.0
 # Floor set by the InferenceSlicer slice_wh/overlap_wh API used by
 # core.detector.SlicedDetector; earlier releases had a different signature.
 supervision>=0.31.0
+# Supervision 0.31+ consumes the standalone Roboflow Trackers implementation.
+trackers>=2.7.0
 pandas>=2.0.0
 plotly>=5.20.0
 pillow>=10.2.0

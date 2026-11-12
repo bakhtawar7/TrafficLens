@@ -43,7 +43,14 @@ class Detector(Protocol):
 
     name: str
 
-    def detect(self, image: np.ndarray, confidence_threshold: float) -> list[Detection]:
+    def detect(
+        self,
+        image: np.ndarray,
+        confidence_threshold: float,
+        *,
+        input_size: int | None = None,
+        nms_iou: float | None = None,
+    ) -> list[Detection]:
         """Detect objects in a BGR image above the given confidence threshold.
 
         Args:
@@ -102,8 +109,30 @@ class _UltralyticsDetector:
 
     def detect(self, image: np.ndarray, confidence_threshold: float) -> list[Detection]:
         """Run inference and convert ultralytics results into ``Detection`` objects."""
+        return self._detect(image, confidence_threshold)
+
+    def _detect(
+        self,
+        image: np.ndarray,
+        confidence_threshold: float,
+        *,
+        input_size: int | None = None,
+        nms_iou: float | None = None,
+    ) -> list[Detection]:
+        """Run inference with optional Ultralytics input-size and NMS settings."""
         model = self._ensure_model()
-        results = model.predict(image, conf=confidence_threshold, verbose=False)
+        kwargs: dict[str, object] = {"conf": confidence_threshold, "verbose": False}
+        if input_size is not None:
+            if input_size <= 0:
+                raise ValueError(f"input_size must be positive, got {input_size}")
+            kwargs["imgsz"] = input_size
+        if self.family == "yolo" and nms_iou is not None:
+            if not 0.0 < nms_iou <= 1.0:
+                raise ValueError(f"nms_iou must be in (0, 1], got {nms_iou}")
+            kwargs["iou"] = nms_iou
+        elif self.family != "yolo" and nms_iou is not None:
+            raise ValueError(f"{self.name} does not use NMS")
+        results = model.predict(image, **kwargs)
 
         detections: list[Detection] = []
         names = model.names
@@ -141,6 +170,18 @@ class YoloDetector(_UltralyticsDetector):
     ) -> None:
         super().__init__(weights=weights, name=name, family="yolo", class_name="YOLO")
 
+    def detect(
+        self,
+        image: np.ndarray,
+        confidence_threshold: float,
+        *,
+        input_size: int | None = None,
+        nms_iou: float | None = None,
+    ) -> list[Detection]:
+        return self._detect(
+            image, confidence_threshold, input_size=input_size, nms_iou=nms_iou
+        )
+
 
 class RtdetrDetector(_UltralyticsDetector):
     """Ultralytics RT-DETR wrapper implementing the :class:`Detector` protocol."""
@@ -151,6 +192,18 @@ class RtdetrDetector(_UltralyticsDetector):
         name: str = config.MODEL_REGISTRY["rtdetr-l"].display_name,
     ) -> None:
         super().__init__(weights=weights, name=name, family="detr", class_name="RTDETR")
+
+    def detect(
+        self,
+        image: np.ndarray,
+        confidence_threshold: float,
+        *,
+        input_size: int | None = None,
+        nms_iou: float | None = None,
+    ) -> list[Detection]:
+        return self._detect(
+            image, confidence_threshold, input_size=input_size, nms_iou=nms_iou
+        )
 
 
 _FAMILY_TO_CLASS: dict[str, type[_UltralyticsDetector]] = {
@@ -225,6 +278,8 @@ class SlicedDetector:
         overlap_ratio: float = config.SLICE_OVERLAP_RATIO,
         iou_threshold: float = config.SLICE_IOU_THRESHOLD,
         name: str | None = None,
+        input_size: int | None = None,
+        nms_iou: float | None = None,
     ) -> None:
         """Wrap ``detector``.
 
@@ -247,6 +302,8 @@ class SlicedDetector:
         self.tile_size = int(tile_size)
         self.overlap_px = min(max(0, round(self.tile_size * overlap_ratio)), self.tile_size - 1)
         self.iou_threshold = float(iou_threshold)
+        self.input_size = input_size
+        self.nms_iou = nms_iou
         self.name = name if name is not None else f"{detector.name} (sliced)"
 
     @property
@@ -271,7 +328,15 @@ class SlicedDetector:
         class_names: dict[int, str] = {}
 
         def callback(tile: np.ndarray) -> sv.Detections:
-            tile_detections = self._detector.detect(tile, confidence_threshold)
+            if self.input_size is None and self.nms_iou is None:
+                tile_detections = self._detector.detect(tile, confidence_threshold)
+            else:
+                tile_detections = self._detector.detect(
+                    tile,
+                    confidence_threshold,
+                    input_size=self.input_size,
+                    nms_iou=self.nms_iou,
+                )
             for detection in tile_detections:
                 class_names[detection.class_id] = detection.class_name
             return _detections_to_sv(tile_detections)
