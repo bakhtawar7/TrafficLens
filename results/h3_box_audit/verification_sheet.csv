@@ -1,0 +1,31 @@
+box_id,crop_file,source_image,dataset_class,mapped_category,x_min,y_min,x_max,y_max,verified_class,annotation_status,scope_status
+1b0f8a1f99c2f116,box_01.png,train/Final Train Dataset/Numan_(137).jpg,rickshaw,rickshaw,233.0,83.0,314.0,215.0,,"annotation referenced, unverified",exploratory
+6d25ce3fdad9cab1,box_02.png,train/Final Train Dataset/Navid_22.jpg,three wheelers (CNG),rickshaw,1637.0,337.0,1920.0,731.0,,"annotation referenced, unverified",exploratory
+a34bf99b7ae32f38,box_03.png,train/Final Train Dataset/127.jpg,rickshaw,rickshaw,331.0,1565.0,385.0,1619.0,,"annotation referenced, unverified",exploratory
+8e6823fc8c1b6a9e,box_04.png,train/Final Train Dataset/214.jpg,rickshaw,rickshaw,586.0,389.0,646.0,428.0,,"annotation referenced, unverified",exploratory
+a84a37c06753bf20,box_05.png,train/Final Train Dataset/Navid_564.jpg,three wheelers (CNG),rickshaw,1495.0,675.0,1586.0,770.0,,"annotation referenced, unverified",exploratory
+926306b1a22426d0,box_06.png,train/Final Train Dataset/Navid_536.jpg,rickshaw,rickshaw,1612.0,256.0,1640.0,301.0,,"annotation referenced, unverified",exploratory
+05236a73a028b6a5,box_07.png,train/Final Train Dataset/07.jpg,three wheelers (CNG),rickshaw,320.0,1162.0,386.0,1243.0,,"annotation referenced, unverified",exploratory
+b70e0566f88bc982,box_08.png,train/Final Train Dataset/97.jpg,rickshaw,rickshaw,399.0,276.0,412.0,291.0,,"annotation referenced, unverified",exploratory
+8c9478f5bd1b5761,box_09.png,train/Final Train Dataset/Dipto_836.jpg,three wheelers (CNG),rickshaw,698.0,615.0,743.0,668.0,,"annotation referenced, unverified",exploratory
+1fcb1b490aaf15a0,box_10.png,train/Final Train Dataset/Pias (253).jpg,three wheelers (CNG),rickshaw,1.0,221.0,66.0,275.0,,"annotation referenced, unverified",exploratory
+fccb3c798780fccc,box_11.png,train/Final Train Dataset/67.jpg,three wheelers (CNG),rickshaw,358.0,375.0,375.0,396.0,,"annotation referenced, unverified",exploratory
+e839b90e62db3719,box_12.png,train/Final Train Dataset/Navid_766.jpg,three wheelers (CNG),rickshaw,1277.0,598.0,1312.0,635.0,,"annotation referenced, unverified",exploratory
+0f66191eee4da655,box_13.png,train/Final Train Dataset/Numan_(88).jpg,rickshaw,rickshaw,1.0,70.0,42.0,169.0,,"annotation referenced, unverified",exploratory
+ff5723d6a68097e9,box_14.png,train/Final Train Dataset/Asraf_02.jpg,three wheelers (CNG),rickshaw,80.0,355.0,202.0,482.0,,"annotation referenced, unverified",exploratory
+e5b447130a4cd1a6,box_15.png,train/Final Train Dataset/Numan_(480).jpg,three wheelers (CNG),rickshaw,869.0,763.0,947.0,873.0,,"annotation referenced, unverified",exploratory
+b3ad6fdf24997469,box_16.png,train/Final Train Dataset/Dipto_ 111.jpg,three wheelers (CNG),rickshaw,326.0,502.0,689.0,847.0,,"annotation referenced, unverified",exploratory
+b53c518b17a91c7a,box_17.png,train/Final Train Dataset/Navid_54.jpg,rickshaw,rickshaw,1176.0,788.0,1471.0,1080.0,,"annotation referenced, unverified",exploratory
+0bbd50e60f2320a0,box_18.png,train/Final Train Dataset/Asraf_19.jpg,three wheelers (CNG),rickshaw,1361.0,208.0,1513.0,372.0,,"annotation referenced, unverified",exploratory
+c8a70eb85dd6b3f3,box_19.png,train/Final Train Dataset/129.jpg,rickshaw,rickshaw,264.0,1421.0,297.0,1456.0,,"annotation referenced, unverified",exploratory
+f07753d0a74cf7c9,box_20.png,train/Final Train Dataset/Numan_(119).jpg,rickshaw,rickshaw,13.0,131.0,264.0,359.0,,"annotation referenced, unverified",exploratory
+6a4c20ea4484b471,box_21.png,train/Final Train Dataset/77.jpg,three wheelers (CNG),rickshaw,1004.0,383.0,1058.0,423.0,,"annotation referenced, unverified",exploratory
+0a1b9744b43f7928,box_22.png,train/Final Train Dataset/Dipto_ 46.jpg,rickshaw,rickshaw,1285.0,395.0,1307.0,424.0,,"annotation referenced, unverified",exploratory
+b32af3de3e02f072,box_23.png,train/Final Train Dataset/Dipto_ 266.jpg,rickshaw,rickshaw,606.0,453.0,639.0,513.0,,"annotation referenced, unverified",exploratory
+f2e3515ed592b9fe,box_24.png,train/Final Train Dataset/Numan_(293).JPG,rickshaw,rickshaw,1627.0,1836.0,1661.0,1891.0,,"annotation referenced, unverified",exploratory
+c7dc074372be4997,box_25.png,train/Final Train Dataset/Navid_541.jpg,rickshaw,rickshaw,1001.0,305.0,1050.0,398.0,,"annotation referenced, unverified",exploratory
+1fc90ed31e3aa90d,box_26.png,train/Final Train Dataset/Navid_235.jpg,rickshaw,rickshaw,606.0,443.0,708.0,533.0,,"annotation referenced, unverified",exploratory
+865770d7e238659d,box_27.png,train/Final Train Dataset/Numan_(335).jpg,three wheelers (CNG),rickshaw,1348.0,725.0,1385.0,753.0,,"annotation referenced, unverified",exploratory
+ac4fae4c32fa5c12,box_28.png,train/Final Train Dataset/Dipto_352.jpg,auto rickshaw,rickshaw,2941.0,1629.0,3091.0,1845.0,,"annotation referenced, unverified",exploratory
+6cf787de5d9aa310,box_29.png,train/Final Train Dataset/Dipto_793.jpg,three wheelers (CNG),rickshaw,750.0,514.0,903.0,690.0,,"annotation referenced, unverified",exploratory
+ea1819f6d8ce0e0a,box_30.png,train/Final Train Dataset/Navid_622.JPG,rickshaw,rickshaw,267.0,1343.0,767.0,2143.0,,"annotation referenced, unverified",exploratory

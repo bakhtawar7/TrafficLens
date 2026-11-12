@@ -1,0 +1,35 @@
+{
+  "annotation_status": "annotation referenced, unverified",
+  "scope_status": "exploratory",
+  "interpretation": "Provisional only. Source dataset boxes are unverified and must not be used to select inference settings.",
+  "settings_selection": "none; no settings changed or selected from these results",
+  "scope": "selected source images with target-category annotations; fresh standard-mode local inference",
+  "source": {
+    "selected_images": 55,
+    "source_images_found": 55,
+    "ambiguous_source_names": 0,
+    "missing_source_images": 0
+  },
+  "inference": {
+    "source": "fresh local standard-mode inference; no cache reused",
+    "settings_file": "default_settings.json",
+    "settings_sha256": "548355bc016c59b1d6d67b61b8b69371a2061c16d53656f7ee944c75001a81bf",
+    "inference_threshold": 0.15,
+    "reported_default_threshold": 0.25,
+    "images": 49,
+    "models": [
+      "yolov8n",
+      "yolov8s",
+      "rtdetr-l"
+    ],
+    "weights": "all required local model files checked before loading; no download attempted"
+  },
+  "source_annotation_boxes_in_scope": 217,
+  "boxes_analyzed": 217,
+  "box_model_outcomes": 651,
+  "categories_below_50_boxes_are_exploratory": true,
+  "box_audit": {
+    "selected_boxes": 30,
+    "verification_sheet": "C:\\Users\\bakht\\Desktop\\TrafficLens\\results\\h3_box_audit\\verification_sheet.csv"
+  }
+}

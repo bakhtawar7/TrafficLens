@@ -408,6 +408,36 @@ and reports a one-sided p-value for ridge MAE improvement over mean confidence. 
 checks whether apparent predictive skill is stronger than expected under a no-association
 null; it is a diagnostic, not a substitute for the pre-registered H1 decision.
 
+## Provisional H3 box confusion (`core/confusion.py`)
+
+`scripts/run_h3_confusion.py` compares PASCAL VOC boxes with fresh standard-mode detections
+run locally on the corresponding source images.
+The categories use `configs/class_mapping.json`: mapped rickshaw classes (including the CNG
+source class), mapped loader-rickshaw classes, and the original `van` and `pickup` source
+classes. The evaluation is one-to-one and class-agnostic: candidate box pairs require IoU
+at least 0.5 and are greedily assigned in descending IoU order. A matched detector class is
+reported as `car`, `bus`, `truck`, `motorcycle`, or `another class`. An unmatched box is
+`low confidence` if a 0.15-to-below-0.25 detection overlaps it at the same IoU threshold;
+otherwise it is `not seen`. Default-threshold miss rate is the combined low-confidence and
+not-seen fraction.
+
+The report currently restricts comparison to selected source images that have target
+annotations. All three models run locally in standard mode on the exact source image, at the
+0.15 sweep floor; scores are then categorized at the 0.25 default threshold. Existing
+benchmark cache entries are not reused because their image hashes do not match these source
+archive images. Scene bootstrap intervals resample complete scenes. Every aggregate row
+gives its box and scene counts; categories with fewer than 50 boxes are exploratory.
+The settings-file hash used for traceability is recorded in
+`results/h3_confusion_metadata.json`; the H3 outcomes do not tune or select settings.
+
+All H3 outputs are labelled `annotation referenced, unverified` and `exploratory`. They
+must not be treated as ground truth and must never be used to select inference settings.
+The 30-box audit sample is chosen from mapped rickshaw/CNG boxes with a fixed seed. Its
+context crops show only the dataset class, and `results/h3_box_audit/verification_sheet.csv`
+has a blank `verified_class` field for human review. On rerun, a nonblank verified class
+replaces that source annotation's category in the analysis; blank cells retain the original
+mapping.
+
 ## Constants (`core/config.py`)
 
 | Name | Value | Role |

@@ -49,6 +49,11 @@ EVALUATION_TABLE_CSV: Path = RESULTS_DIR / "evaluation_table.csv"
 EVALUATION_SUMMARY_JSON: Path = RESULTS_DIR / "summary.json"
 #: Label free reliability features, one row per cached image (core.features).
 FEATURES_CSV: Path = RESULTS_DIR / "features.csv"
+H3_CONFUSION_CSV: Path = RESULTS_DIR / "h3_confusion.csv"
+H3_BOX_OUTCOMES_CSV: Path = RESULTS_DIR / "h3_box_outcomes.csv"
+H3_CONFUSION_CHART: Path = RESULTS_DIR / "h3_confusion_matrix.png"
+H3_CONFUSION_METADATA: Path = RESULTS_DIR / "h3_confusion_metadata.json"
+H3_BOX_AUDIT_DIR: Path = RESULTS_DIR / "h3_box_audit"
 # Timestamped copies of data/testset/LABELS.csv taken by the manual labelling app
 # before a session's first write, so a bad save can always be rolled back.
 LABEL_BACKUPS_DIR: Path = RESULTS_DIR / "label_backups"

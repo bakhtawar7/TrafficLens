@@ -1,0 +1,652 @@
+box_id,item_id,scene,source_image,dataset_class,category,model,outcome,matched_detection_class,annotation_status,scope_status
+14cd5370d4ede14e,tl0005,train:Final Train Dataset:blk0004,train/Final Train Dataset/02.jpg,van,van,yolov8n,truck,truck,"annotation referenced, unverified",exploratory
+2dafe524dab08cf9,tl0005,train:Final Train Dataset:blk0004,train/Final Train Dataset/02.jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+35aab2b73b27ffd3,tl0005,train:Final Train Dataset:blk0004,train/Final Train Dataset/02.jpg,three wheelers (CNG),rickshaw,yolov8n,truck,truck,"annotation referenced, unverified",exploratory
+4f4a90e85f26105c,tl0005,train:Final Train Dataset:blk0004,train/Final Train Dataset/02.jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+556cbd7f62888714,tl0005,train:Final Train Dataset:blk0004,train/Final Train Dataset/02.jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+7da85129556281ea,tl0005,train:Final Train Dataset:blk0004,train/Final Train Dataset/02.jpg,three wheelers (CNG),rickshaw,yolov8n,low confidence,,"annotation referenced, unverified",exploratory
+85ed5a4144a58d5f,tl0005,train:Final Train Dataset:blk0004,train/Final Train Dataset/02.jpg,three wheelers (CNG),rickshaw,yolov8n,car,car,"annotation referenced, unverified",exploratory
+8c6216cc1e169c3f,tl0005,train:Final Train Dataset:blk0004,train/Final Train Dataset/02.jpg,pickup,pickup,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+8de2fa01195d3fa0,tl0005,train:Final Train Dataset:blk0004,train/Final Train Dataset/02.jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+d1c7b251c3fbbcc9,tl0005,train:Final Train Dataset:blk0004,train/Final Train Dataset/02.jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+14cd5370d4ede14e,tl0005,train:Final Train Dataset:blk0004,train/Final Train Dataset/02.jpg,van,van,yolov8s,truck,truck,"annotation referenced, unverified",exploratory
+2dafe524dab08cf9,tl0005,train:Final Train Dataset:blk0004,train/Final Train Dataset/02.jpg,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+35aab2b73b27ffd3,tl0005,train:Final Train Dataset:blk0004,train/Final Train Dataset/02.jpg,three wheelers (CNG),rickshaw,yolov8s,truck,truck,"annotation referenced, unverified",exploratory
+4f4a90e85f26105c,tl0005,train:Final Train Dataset:blk0004,train/Final Train Dataset/02.jpg,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+556cbd7f62888714,tl0005,train:Final Train Dataset:blk0004,train/Final Train Dataset/02.jpg,three wheelers (CNG),rickshaw,yolov8s,car,car,"annotation referenced, unverified",exploratory
+7da85129556281ea,tl0005,train:Final Train Dataset:blk0004,train/Final Train Dataset/02.jpg,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+85ed5a4144a58d5f,tl0005,train:Final Train Dataset:blk0004,train/Final Train Dataset/02.jpg,three wheelers (CNG),rickshaw,yolov8s,car,car,"annotation referenced, unverified",exploratory
+8c6216cc1e169c3f,tl0005,train:Final Train Dataset:blk0004,train/Final Train Dataset/02.jpg,pickup,pickup,yolov8s,low confidence,,"annotation referenced, unverified",exploratory
+8de2fa01195d3fa0,tl0005,train:Final Train Dataset:blk0004,train/Final Train Dataset/02.jpg,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+d1c7b251c3fbbcc9,tl0005,train:Final Train Dataset:blk0004,train/Final Train Dataset/02.jpg,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+14cd5370d4ede14e,tl0005,train:Final Train Dataset:blk0004,train/Final Train Dataset/02.jpg,van,van,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+2dafe524dab08cf9,tl0005,train:Final Train Dataset:blk0004,train/Final Train Dataset/02.jpg,three wheelers (CNG),rickshaw,rtdetr-l,low confidence,,"annotation referenced, unverified",exploratory
+35aab2b73b27ffd3,tl0005,train:Final Train Dataset:blk0004,train/Final Train Dataset/02.jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+4f4a90e85f26105c,tl0005,train:Final Train Dataset:blk0004,train/Final Train Dataset/02.jpg,three wheelers (CNG),rickshaw,rtdetr-l,not seen,,"annotation referenced, unverified",exploratory
+556cbd7f62888714,tl0005,train:Final Train Dataset:blk0004,train/Final Train Dataset/02.jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+7da85129556281ea,tl0005,train:Final Train Dataset:blk0004,train/Final Train Dataset/02.jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+85ed5a4144a58d5f,tl0005,train:Final Train Dataset:blk0004,train/Final Train Dataset/02.jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+8c6216cc1e169c3f,tl0005,train:Final Train Dataset:blk0004,train/Final Train Dataset/02.jpg,pickup,pickup,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+8de2fa01195d3fa0,tl0005,train:Final Train Dataset:blk0004,train/Final Train Dataset/02.jpg,three wheelers (CNG),rickshaw,rtdetr-l,low confidence,,"annotation referenced, unverified",exploratory
+d1c7b251c3fbbcc9,tl0005,train:Final Train Dataset:blk0004,train/Final Train Dataset/02.jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+0eb2146590079805,tl0053,train:Final Train Dataset:blk0000,train/Final Train Dataset/05.jpg,three wheelers (CNG),rickshaw,yolov8n,low confidence,,"annotation referenced, unverified",exploratory
+1e30204b5cd06692,tl0053,train:Final Train Dataset:blk0000,train/Final Train Dataset/05.jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+24b40dd9aeb496a3,tl0053,train:Final Train Dataset:blk0000,train/Final Train Dataset/05.jpg,rickshaw,rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+2db372fd687899c5,tl0053,train:Final Train Dataset:blk0000,train/Final Train Dataset/05.jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+2f8b735286ce7810,tl0053,train:Final Train Dataset:blk0000,train/Final Train Dataset/05.jpg,pickup,pickup,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+4faeaa85261bef77,tl0053,train:Final Train Dataset:blk0000,train/Final Train Dataset/05.jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+621ccb2d31f8bd44,tl0053,train:Final Train Dataset:blk0000,train/Final Train Dataset/05.jpg,three wheelers (CNG),rickshaw,yolov8n,low confidence,,"annotation referenced, unverified",exploratory
+70bf89bd0d9dade5,tl0053,train:Final Train Dataset:blk0000,train/Final Train Dataset/05.jpg,three wheelers (CNG),rickshaw,yolov8n,low confidence,,"annotation referenced, unverified",exploratory
+8c8769f0ed95461c,tl0053,train:Final Train Dataset:blk0000,train/Final Train Dataset/05.jpg,pickup,pickup,yolov8n,car,car,"annotation referenced, unverified",exploratory
+ac01672d4a597839,tl0053,train:Final Train Dataset:blk0000,train/Final Train Dataset/05.jpg,pickup,pickup,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+c340c8653b9fe39f,tl0053,train:Final Train Dataset:blk0000,train/Final Train Dataset/05.jpg,van,van,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+d2c5261512dd7ebd,tl0053,train:Final Train Dataset:blk0000,train/Final Train Dataset/05.jpg,three wheelers (CNG),rickshaw,yolov8n,low confidence,,"annotation referenced, unverified",exploratory
+d5425f4c3024e475,tl0053,train:Final Train Dataset:blk0000,train/Final Train Dataset/05.jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+0eb2146590079805,tl0053,train:Final Train Dataset:blk0000,train/Final Train Dataset/05.jpg,three wheelers (CNG),rickshaw,yolov8s,low confidence,,"annotation referenced, unverified",exploratory
+1e30204b5cd06692,tl0053,train:Final Train Dataset:blk0000,train/Final Train Dataset/05.jpg,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+24b40dd9aeb496a3,tl0053,train:Final Train Dataset:blk0000,train/Final Train Dataset/05.jpg,rickshaw,rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+2db372fd687899c5,tl0053,train:Final Train Dataset:blk0000,train/Final Train Dataset/05.jpg,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+2f8b735286ce7810,tl0053,train:Final Train Dataset:blk0000,train/Final Train Dataset/05.jpg,pickup,pickup,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+4faeaa85261bef77,tl0053,train:Final Train Dataset:blk0000,train/Final Train Dataset/05.jpg,three wheelers (CNG),rickshaw,yolov8s,low confidence,,"annotation referenced, unverified",exploratory
+621ccb2d31f8bd44,tl0053,train:Final Train Dataset:blk0000,train/Final Train Dataset/05.jpg,three wheelers (CNG),rickshaw,yolov8s,low confidence,,"annotation referenced, unverified",exploratory
+70bf89bd0d9dade5,tl0053,train:Final Train Dataset:blk0000,train/Final Train Dataset/05.jpg,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+8c8769f0ed95461c,tl0053,train:Final Train Dataset:blk0000,train/Final Train Dataset/05.jpg,pickup,pickup,yolov8s,car,car,"annotation referenced, unverified",exploratory
+ac01672d4a597839,tl0053,train:Final Train Dataset:blk0000,train/Final Train Dataset/05.jpg,pickup,pickup,yolov8s,low confidence,,"annotation referenced, unverified",exploratory
+c340c8653b9fe39f,tl0053,train:Final Train Dataset:blk0000,train/Final Train Dataset/05.jpg,van,van,yolov8s,car,car,"annotation referenced, unverified",exploratory
+d2c5261512dd7ebd,tl0053,train:Final Train Dataset:blk0000,train/Final Train Dataset/05.jpg,three wheelers (CNG),rickshaw,yolov8s,car,car,"annotation referenced, unverified",exploratory
+d5425f4c3024e475,tl0053,train:Final Train Dataset:blk0000,train/Final Train Dataset/05.jpg,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+0eb2146590079805,tl0053,train:Final Train Dataset:blk0000,train/Final Train Dataset/05.jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+1e30204b5cd06692,tl0053,train:Final Train Dataset:blk0000,train/Final Train Dataset/05.jpg,three wheelers (CNG),rickshaw,rtdetr-l,not seen,,"annotation referenced, unverified",exploratory
+24b40dd9aeb496a3,tl0053,train:Final Train Dataset:blk0000,train/Final Train Dataset/05.jpg,rickshaw,rickshaw,rtdetr-l,not seen,,"annotation referenced, unverified",exploratory
+2db372fd687899c5,tl0053,train:Final Train Dataset:blk0000,train/Final Train Dataset/05.jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+2f8b735286ce7810,tl0053,train:Final Train Dataset:blk0000,train/Final Train Dataset/05.jpg,pickup,pickup,rtdetr-l,not seen,,"annotation referenced, unverified",exploratory
+4faeaa85261bef77,tl0053,train:Final Train Dataset:blk0000,train/Final Train Dataset/05.jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+621ccb2d31f8bd44,tl0053,train:Final Train Dataset:blk0000,train/Final Train Dataset/05.jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+70bf89bd0d9dade5,tl0053,train:Final Train Dataset:blk0000,train/Final Train Dataset/05.jpg,three wheelers (CNG),rickshaw,rtdetr-l,motorcycle,motorcycle,"annotation referenced, unverified",exploratory
+8c8769f0ed95461c,tl0053,train:Final Train Dataset:blk0000,train/Final Train Dataset/05.jpg,pickup,pickup,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+ac01672d4a597839,tl0053,train:Final Train Dataset:blk0000,train/Final Train Dataset/05.jpg,pickup,pickup,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+c340c8653b9fe39f,tl0053,train:Final Train Dataset:blk0000,train/Final Train Dataset/05.jpg,van,van,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+d2c5261512dd7ebd,tl0053,train:Final Train Dataset:blk0000,train/Final Train Dataset/05.jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+d5425f4c3024e475,tl0053,train:Final Train Dataset:blk0000,train/Final Train Dataset/05.jpg,three wheelers (CNG),rickshaw,rtdetr-l,low confidence,,"annotation referenced, unverified",exploratory
+3eb9ad8eacd5d1c7,tl0011,train:Final Train Dataset:blk0006,train/Final Train Dataset/09.jpg,human hauler,loader_rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+f22413b9d6a21e8c,tl0011,train:Final Train Dataset:blk0006,train/Final Train Dataset/09.jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+3eb9ad8eacd5d1c7,tl0011,train:Final Train Dataset:blk0006,train/Final Train Dataset/09.jpg,human hauler,loader_rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+f22413b9d6a21e8c,tl0011,train:Final Train Dataset:blk0006,train/Final Train Dataset/09.jpg,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+3eb9ad8eacd5d1c7,tl0011,train:Final Train Dataset:blk0006,train/Final Train Dataset/09.jpg,human hauler,loader_rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+f22413b9d6a21e8c,tl0011,train:Final Train Dataset:blk0006,train/Final Train Dataset/09.jpg,three wheelers (CNG),rickshaw,rtdetr-l,low confidence,,"annotation referenced, unverified",exploratory
+15592abaa8ac7f83,tl0002,train:Final Train Dataset:blk0000,train/Final Train Dataset/10.jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+501c1ca7529346ab,tl0002,train:Final Train Dataset:blk0000,train/Final Train Dataset/10.jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+687d0b59d7264658,tl0002,train:Final Train Dataset:blk0000,train/Final Train Dataset/10.jpg,van,van,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+6abd5e0cf9679212,tl0002,train:Final Train Dataset:blk0000,train/Final Train Dataset/10.jpg,human hauler,loader_rickshaw,yolov8n,low confidence,,"annotation referenced, unverified",exploratory
+adf4d576b69a333c,tl0002,train:Final Train Dataset:blk0000,train/Final Train Dataset/10.jpg,van,van,yolov8n,car,car,"annotation referenced, unverified",exploratory
+fd154a050637acc5,tl0002,train:Final Train Dataset:blk0000,train/Final Train Dataset/10.jpg,pickup,pickup,yolov8n,bus,bus,"annotation referenced, unverified",exploratory
+15592abaa8ac7f83,tl0002,train:Final Train Dataset:blk0000,train/Final Train Dataset/10.jpg,three wheelers (CNG),rickshaw,yolov8s,low confidence,,"annotation referenced, unverified",exploratory
+501c1ca7529346ab,tl0002,train:Final Train Dataset:blk0000,train/Final Train Dataset/10.jpg,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+687d0b59d7264658,tl0002,train:Final Train Dataset:blk0000,train/Final Train Dataset/10.jpg,van,van,yolov8s,low confidence,,"annotation referenced, unverified",exploratory
+6abd5e0cf9679212,tl0002,train:Final Train Dataset:blk0000,train/Final Train Dataset/10.jpg,human hauler,loader_rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+adf4d576b69a333c,tl0002,train:Final Train Dataset:blk0000,train/Final Train Dataset/10.jpg,van,van,yolov8s,car,car,"annotation referenced, unverified",exploratory
+fd154a050637acc5,tl0002,train:Final Train Dataset:blk0000,train/Final Train Dataset/10.jpg,pickup,pickup,yolov8s,bus,bus,"annotation referenced, unverified",exploratory
+15592abaa8ac7f83,tl0002,train:Final Train Dataset:blk0000,train/Final Train Dataset/10.jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+501c1ca7529346ab,tl0002,train:Final Train Dataset:blk0000,train/Final Train Dataset/10.jpg,three wheelers (CNG),rickshaw,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+687d0b59d7264658,tl0002,train:Final Train Dataset:blk0000,train/Final Train Dataset/10.jpg,van,van,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+6abd5e0cf9679212,tl0002,train:Final Train Dataset:blk0000,train/Final Train Dataset/10.jpg,human hauler,loader_rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+adf4d576b69a333c,tl0002,train:Final Train Dataset:blk0000,train/Final Train Dataset/10.jpg,van,van,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+fd154a050637acc5,tl0002,train:Final Train Dataset:blk0000,train/Final Train Dataset/10.jpg,pickup,pickup,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+0a7965e2c06c3eb6,tl0049,train:Final Train Dataset:blk0005,train/Final Train Dataset/219.jpg,rickshaw,rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+1321803b43467962,tl0049,train:Final Train Dataset:blk0005,train/Final Train Dataset/219.jpg,rickshaw,rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+17f7dbb24b135963,tl0049,train:Final Train Dataset:blk0005,train/Final Train Dataset/219.jpg,rickshaw,rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+209c9572f48f0c44,tl0049,train:Final Train Dataset:blk0005,train/Final Train Dataset/219.jpg,rickshaw,rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+25f4f97537d34b19,tl0049,train:Final Train Dataset:blk0005,train/Final Train Dataset/219.jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+2d4e2956875195ac,tl0049,train:Final Train Dataset:blk0005,train/Final Train Dataset/219.jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+315f838b3de2d09d,tl0049,train:Final Train Dataset:blk0005,train/Final Train Dataset/219.jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+54a1f5ad0512f191,tl0049,train:Final Train Dataset:blk0005,train/Final Train Dataset/219.jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+6c83206719a53197,tl0049,train:Final Train Dataset:blk0005,train/Final Train Dataset/219.jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+c19ae07dec71c710,tl0049,train:Final Train Dataset:blk0005,train/Final Train Dataset/219.jpg,rickshaw,rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+ea8c5a9aefb5e48d,tl0049,train:Final Train Dataset:blk0005,train/Final Train Dataset/219.jpg,three wheelers (CNG),rickshaw,yolov8n,low confidence,,"annotation referenced, unverified",exploratory
+fadf883e8c5aaf33,tl0049,train:Final Train Dataset:blk0005,train/Final Train Dataset/219.jpg,rickshaw,rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+0a7965e2c06c3eb6,tl0049,train:Final Train Dataset:blk0005,train/Final Train Dataset/219.jpg,rickshaw,rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+1321803b43467962,tl0049,train:Final Train Dataset:blk0005,train/Final Train Dataset/219.jpg,rickshaw,rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+17f7dbb24b135963,tl0049,train:Final Train Dataset:blk0005,train/Final Train Dataset/219.jpg,rickshaw,rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+209c9572f48f0c44,tl0049,train:Final Train Dataset:blk0005,train/Final Train Dataset/219.jpg,rickshaw,rickshaw,yolov8s,car,car,"annotation referenced, unverified",exploratory
+25f4f97537d34b19,tl0049,train:Final Train Dataset:blk0005,train/Final Train Dataset/219.jpg,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+2d4e2956875195ac,tl0049,train:Final Train Dataset:blk0005,train/Final Train Dataset/219.jpg,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+315f838b3de2d09d,tl0049,train:Final Train Dataset:blk0005,train/Final Train Dataset/219.jpg,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+54a1f5ad0512f191,tl0049,train:Final Train Dataset:blk0005,train/Final Train Dataset/219.jpg,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+6c83206719a53197,tl0049,train:Final Train Dataset:blk0005,train/Final Train Dataset/219.jpg,three wheelers (CNG),rickshaw,yolov8s,car,car,"annotation referenced, unverified",exploratory
+c19ae07dec71c710,tl0049,train:Final Train Dataset:blk0005,train/Final Train Dataset/219.jpg,rickshaw,rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+ea8c5a9aefb5e48d,tl0049,train:Final Train Dataset:blk0005,train/Final Train Dataset/219.jpg,three wheelers (CNG),rickshaw,yolov8s,car,car,"annotation referenced, unverified",exploratory
+fadf883e8c5aaf33,tl0049,train:Final Train Dataset:blk0005,train/Final Train Dataset/219.jpg,rickshaw,rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+0a7965e2c06c3eb6,tl0049,train:Final Train Dataset:blk0005,train/Final Train Dataset/219.jpg,rickshaw,rickshaw,rtdetr-l,not seen,,"annotation referenced, unverified",exploratory
+1321803b43467962,tl0049,train:Final Train Dataset:blk0005,train/Final Train Dataset/219.jpg,rickshaw,rickshaw,rtdetr-l,not seen,,"annotation referenced, unverified",exploratory
+17f7dbb24b135963,tl0049,train:Final Train Dataset:blk0005,train/Final Train Dataset/219.jpg,rickshaw,rickshaw,rtdetr-l,not seen,,"annotation referenced, unverified",exploratory
+209c9572f48f0c44,tl0049,train:Final Train Dataset:blk0005,train/Final Train Dataset/219.jpg,rickshaw,rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+25f4f97537d34b19,tl0049,train:Final Train Dataset:blk0005,train/Final Train Dataset/219.jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+2d4e2956875195ac,tl0049,train:Final Train Dataset:blk0005,train/Final Train Dataset/219.jpg,three wheelers (CNG),rickshaw,rtdetr-l,not seen,,"annotation referenced, unverified",exploratory
+315f838b3de2d09d,tl0049,train:Final Train Dataset:blk0005,train/Final Train Dataset/219.jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+54a1f5ad0512f191,tl0049,train:Final Train Dataset:blk0005,train/Final Train Dataset/219.jpg,three wheelers (CNG),rickshaw,rtdetr-l,not seen,,"annotation referenced, unverified",exploratory
+6c83206719a53197,tl0049,train:Final Train Dataset:blk0005,train/Final Train Dataset/219.jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+c19ae07dec71c710,tl0049,train:Final Train Dataset:blk0005,train/Final Train Dataset/219.jpg,rickshaw,rickshaw,rtdetr-l,motorcycle,motorcycle,"annotation referenced, unverified",exploratory
+ea8c5a9aefb5e48d,tl0049,train:Final Train Dataset:blk0005,train/Final Train Dataset/219.jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+fadf883e8c5aaf33,tl0049,train:Final Train Dataset:blk0005,train/Final Train Dataset/219.jpg,rickshaw,rickshaw,rtdetr-l,not seen,,"annotation referenced, unverified",exploratory
+0616908de1cc4c58,tl0015,train:Final Train Dataset:blk0007,train/Final Train Dataset/223.jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+124c9850af9b23e7,tl0015,train:Final Train Dataset:blk0007,train/Final Train Dataset/223.jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+411eea7e99b090ca,tl0015,train:Final Train Dataset:blk0007,train/Final Train Dataset/223.jpg,three wheelers (CNG),rickshaw,yolov8n,car,car,"annotation referenced, unverified",exploratory
+5cfeb6a998c35ad5,tl0015,train:Final Train Dataset:blk0007,train/Final Train Dataset/223.jpg,three wheelers (CNG),rickshaw,yolov8n,car,car,"annotation referenced, unverified",exploratory
+6b70d69125796fd0,tl0015,train:Final Train Dataset:blk0007,train/Final Train Dataset/223.jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+6bb5515f8918c032,tl0015,train:Final Train Dataset:blk0007,train/Final Train Dataset/223.jpg,three wheelers (CNG),rickshaw,yolov8n,car,car,"annotation referenced, unverified",exploratory
+8f290dda6de43cff,tl0015,train:Final Train Dataset:blk0007,train/Final Train Dataset/223.jpg,van,van,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+a883f7ff939e7531,tl0015,train:Final Train Dataset:blk0007,train/Final Train Dataset/223.jpg,pickup,pickup,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+d79624d2d8b0b1c7,tl0015,train:Final Train Dataset:blk0007,train/Final Train Dataset/223.jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+e103c89c7b0cb30d,tl0015,train:Final Train Dataset:blk0007,train/Final Train Dataset/223.jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+0616908de1cc4c58,tl0015,train:Final Train Dataset:blk0007,train/Final Train Dataset/223.jpg,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+124c9850af9b23e7,tl0015,train:Final Train Dataset:blk0007,train/Final Train Dataset/223.jpg,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+411eea7e99b090ca,tl0015,train:Final Train Dataset:blk0007,train/Final Train Dataset/223.jpg,three wheelers (CNG),rickshaw,yolov8s,low confidence,,"annotation referenced, unverified",exploratory
+5cfeb6a998c35ad5,tl0015,train:Final Train Dataset:blk0007,train/Final Train Dataset/223.jpg,three wheelers (CNG),rickshaw,yolov8s,car,car,"annotation referenced, unverified",exploratory
+6b70d69125796fd0,tl0015,train:Final Train Dataset:blk0007,train/Final Train Dataset/223.jpg,three wheelers (CNG),rickshaw,yolov8s,car,car,"annotation referenced, unverified",exploratory
+6bb5515f8918c032,tl0015,train:Final Train Dataset:blk0007,train/Final Train Dataset/223.jpg,three wheelers (CNG),rickshaw,yolov8s,car,car,"annotation referenced, unverified",exploratory
+8f290dda6de43cff,tl0015,train:Final Train Dataset:blk0007,train/Final Train Dataset/223.jpg,van,van,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+a883f7ff939e7531,tl0015,train:Final Train Dataset:blk0007,train/Final Train Dataset/223.jpg,pickup,pickup,yolov8s,low confidence,,"annotation referenced, unverified",exploratory
+d79624d2d8b0b1c7,tl0015,train:Final Train Dataset:blk0007,train/Final Train Dataset/223.jpg,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+e103c89c7b0cb30d,tl0015,train:Final Train Dataset:blk0007,train/Final Train Dataset/223.jpg,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+0616908de1cc4c58,tl0015,train:Final Train Dataset:blk0007,train/Final Train Dataset/223.jpg,three wheelers (CNG),rickshaw,rtdetr-l,low confidence,,"annotation referenced, unverified",exploratory
+124c9850af9b23e7,tl0015,train:Final Train Dataset:blk0007,train/Final Train Dataset/223.jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+411eea7e99b090ca,tl0015,train:Final Train Dataset:blk0007,train/Final Train Dataset/223.jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+5cfeb6a998c35ad5,tl0015,train:Final Train Dataset:blk0007,train/Final Train Dataset/223.jpg,three wheelers (CNG),rickshaw,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+6b70d69125796fd0,tl0015,train:Final Train Dataset:blk0007,train/Final Train Dataset/223.jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+6bb5515f8918c032,tl0015,train:Final Train Dataset:blk0007,train/Final Train Dataset/223.jpg,three wheelers (CNG),rickshaw,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+8f290dda6de43cff,tl0015,train:Final Train Dataset:blk0007,train/Final Train Dataset/223.jpg,van,van,rtdetr-l,low confidence,,"annotation referenced, unverified",exploratory
+a883f7ff939e7531,tl0015,train:Final Train Dataset:blk0007,train/Final Train Dataset/223.jpg,pickup,pickup,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+d79624d2d8b0b1c7,tl0015,train:Final Train Dataset:blk0007,train/Final Train Dataset/223.jpg,three wheelers (CNG),rickshaw,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+e103c89c7b0cb30d,tl0015,train:Final Train Dataset:blk0007,train/Final Train Dataset/223.jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+1915687656b6d8be,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+2a0fa6fcc31bcedd,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,pickup,pickup,yolov8n,bus,bus,"annotation referenced, unverified",exploratory
+34aaaedad773a5bd,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,three wheelers (CNG),rickshaw,yolov8n,car,car,"annotation referenced, unverified",exploratory
+39d7c46b2ac8b7ea,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,three wheelers (CNG),rickshaw,yolov8n,car,car,"annotation referenced, unverified",exploratory
+3ebac7f1727eae2c,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,three wheelers (CNG),rickshaw,yolov8n,car,car,"annotation referenced, unverified",exploratory
+4ee6d2970dbbd4f8,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+533db47e5d3c4b8d,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,van,van,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+63f5ebf33a0fe79d,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,three wheelers (CNG),rickshaw,yolov8n,car,car,"annotation referenced, unverified",exploratory
+6f6cf12dac94ed9f,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,three wheelers (CNG),rickshaw,yolov8n,low confidence,,"annotation referenced, unverified",exploratory
+8179de06c11c2c10,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+83ba22e2b5320c34,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+8a72f196c92fa0b0,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+926dc2ba817d06bf,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,van,van,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+bc47191379062d5e,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,three wheelers (CNG),rickshaw,yolov8n,low confidence,,"annotation referenced, unverified",exploratory
+c0c0ecb71d66eb3f,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+eac6b8b6e8c81e58,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+f3647ecbf5eb6aaf,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,pickup,pickup,yolov8n,truck,truck,"annotation referenced, unverified",exploratory
+1915687656b6d8be,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,three wheelers (CNG),rickshaw,yolov8s,truck,truck,"annotation referenced, unverified",exploratory
+2a0fa6fcc31bcedd,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,pickup,pickup,yolov8s,truck,truck,"annotation referenced, unverified",exploratory
+34aaaedad773a5bd,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,three wheelers (CNG),rickshaw,yolov8s,car,car,"annotation referenced, unverified",exploratory
+39d7c46b2ac8b7ea,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,three wheelers (CNG),rickshaw,yolov8s,truck,truck,"annotation referenced, unverified",exploratory
+3ebac7f1727eae2c,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,three wheelers (CNG),rickshaw,yolov8s,car,car,"annotation referenced, unverified",exploratory
+4ee6d2970dbbd4f8,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,three wheelers (CNG),rickshaw,yolov8s,truck,truck,"annotation referenced, unverified",exploratory
+533db47e5d3c4b8d,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,van,van,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+63f5ebf33a0fe79d,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,three wheelers (CNG),rickshaw,yolov8s,car,car,"annotation referenced, unverified",exploratory
+6f6cf12dac94ed9f,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,three wheelers (CNG),rickshaw,yolov8s,low confidence,,"annotation referenced, unverified",exploratory
+8179de06c11c2c10,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,three wheelers (CNG),rickshaw,yolov8s,low confidence,,"annotation referenced, unverified",exploratory
+83ba22e2b5320c34,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+8a72f196c92fa0b0,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+926dc2ba817d06bf,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,van,van,yolov8s,car,car,"annotation referenced, unverified",exploratory
+bc47191379062d5e,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,three wheelers (CNG),rickshaw,yolov8s,truck,truck,"annotation referenced, unverified",exploratory
+c0c0ecb71d66eb3f,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+eac6b8b6e8c81e58,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+f3647ecbf5eb6aaf,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,pickup,pickup,yolov8s,car,car,"annotation referenced, unverified",exploratory
+1915687656b6d8be,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,three wheelers (CNG),rickshaw,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+2a0fa6fcc31bcedd,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,pickup,pickup,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+34aaaedad773a5bd,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,three wheelers (CNG),rickshaw,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+39d7c46b2ac8b7ea,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+3ebac7f1727eae2c,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,three wheelers (CNG),rickshaw,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+4ee6d2970dbbd4f8,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,three wheelers (CNG),rickshaw,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+533db47e5d3c4b8d,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,van,van,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+63f5ebf33a0fe79d,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+6f6cf12dac94ed9f,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,three wheelers (CNG),rickshaw,rtdetr-l,bus,bus,"annotation referenced, unverified",exploratory
+8179de06c11c2c10,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,three wheelers (CNG),rickshaw,rtdetr-l,low confidence,,"annotation referenced, unverified",exploratory
+83ba22e2b5320c34,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,three wheelers (CNG),rickshaw,rtdetr-l,not seen,,"annotation referenced, unverified",exploratory
+8a72f196c92fa0b0,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,three wheelers (CNG),rickshaw,rtdetr-l,not seen,,"annotation referenced, unverified",exploratory
+926dc2ba817d06bf,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,van,van,rtdetr-l,low confidence,,"annotation referenced, unverified",exploratory
+bc47191379062d5e,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+c0c0ecb71d66eb3f,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,three wheelers (CNG),rickshaw,rtdetr-l,not seen,,"annotation referenced, unverified",exploratory
+eac6b8b6e8c81e58,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,three wheelers (CNG),rickshaw,rtdetr-l,not seen,,"annotation referenced, unverified",exploratory
+f3647ecbf5eb6aaf,tl0022,train:Final Train Dataset:blk0001,train/Final Train Dataset/228.jpg,pickup,pickup,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+40600459bf0c2c35,tl0050,train:Final Train Dataset:blk0000,train/Final Train Dataset/229.jpg,three wheelers (CNG),rickshaw,yolov8n,car,car,"annotation referenced, unverified",exploratory
+5224980826525ad0,tl0050,train:Final Train Dataset:blk0000,train/Final Train Dataset/229.jpg,three wheelers (CNG),rickshaw,yolov8n,car,car,"annotation referenced, unverified",exploratory
+552c8a2aa9f9ccf6,tl0050,train:Final Train Dataset:blk0000,train/Final Train Dataset/229.jpg,van,van,yolov8n,truck,truck,"annotation referenced, unverified",exploratory
+8f0b6aa16ee4c87c,tl0050,train:Final Train Dataset:blk0000,train/Final Train Dataset/229.jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+b142e7ed4ba4c18e,tl0050,train:Final Train Dataset:blk0000,train/Final Train Dataset/229.jpg,pickup,pickup,yolov8n,car,car,"annotation referenced, unverified",exploratory
+c8c9e1a27681edc6,tl0050,train:Final Train Dataset:blk0000,train/Final Train Dataset/229.jpg,three wheelers (CNG),rickshaw,yolov8n,car,car,"annotation referenced, unverified",exploratory
+dc774227f4edb00a,tl0050,train:Final Train Dataset:blk0000,train/Final Train Dataset/229.jpg,three wheelers (CNG),rickshaw,yolov8n,car,car,"annotation referenced, unverified",exploratory
+e06d0b7219378937,tl0050,train:Final Train Dataset:blk0000,train/Final Train Dataset/229.jpg,three wheelers (CNG),rickshaw,yolov8n,low confidence,,"annotation referenced, unverified",exploratory
+40600459bf0c2c35,tl0050,train:Final Train Dataset:blk0000,train/Final Train Dataset/229.jpg,three wheelers (CNG),rickshaw,yolov8s,car,car,"annotation referenced, unverified",exploratory
+5224980826525ad0,tl0050,train:Final Train Dataset:blk0000,train/Final Train Dataset/229.jpg,three wheelers (CNG),rickshaw,yolov8s,car,car,"annotation referenced, unverified",exploratory
+552c8a2aa9f9ccf6,tl0050,train:Final Train Dataset:blk0000,train/Final Train Dataset/229.jpg,van,van,yolov8s,car,car,"annotation referenced, unverified",exploratory
+8f0b6aa16ee4c87c,tl0050,train:Final Train Dataset:blk0000,train/Final Train Dataset/229.jpg,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+b142e7ed4ba4c18e,tl0050,train:Final Train Dataset:blk0000,train/Final Train Dataset/229.jpg,pickup,pickup,yolov8s,bus,bus,"annotation referenced, unverified",exploratory
+c8c9e1a27681edc6,tl0050,train:Final Train Dataset:blk0000,train/Final Train Dataset/229.jpg,three wheelers (CNG),rickshaw,yolov8s,car,car,"annotation referenced, unverified",exploratory
+dc774227f4edb00a,tl0050,train:Final Train Dataset:blk0000,train/Final Train Dataset/229.jpg,three wheelers (CNG),rickshaw,yolov8s,truck,truck,"annotation referenced, unverified",exploratory
+e06d0b7219378937,tl0050,train:Final Train Dataset:blk0000,train/Final Train Dataset/229.jpg,three wheelers (CNG),rickshaw,yolov8s,low confidence,,"annotation referenced, unverified",exploratory
+40600459bf0c2c35,tl0050,train:Final Train Dataset:blk0000,train/Final Train Dataset/229.jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+5224980826525ad0,tl0050,train:Final Train Dataset:blk0000,train/Final Train Dataset/229.jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+552c8a2aa9f9ccf6,tl0050,train:Final Train Dataset:blk0000,train/Final Train Dataset/229.jpg,van,van,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+8f0b6aa16ee4c87c,tl0050,train:Final Train Dataset:blk0000,train/Final Train Dataset/229.jpg,three wheelers (CNG),rickshaw,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+b142e7ed4ba4c18e,tl0050,train:Final Train Dataset:blk0000,train/Final Train Dataset/229.jpg,pickup,pickup,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+c8c9e1a27681edc6,tl0050,train:Final Train Dataset:blk0000,train/Final Train Dataset/229.jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+dc774227f4edb00a,tl0050,train:Final Train Dataset:blk0000,train/Final Train Dataset/229.jpg,three wheelers (CNG),rickshaw,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+e06d0b7219378937,tl0050,train:Final Train Dataset:blk0000,train/Final Train Dataset/229.jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+2f9804c012301df0,tl0010,train:Final Train Dataset:blk0006,train/Final Train Dataset/67.jpg,rickshaw,rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+8f7200fd117c4f05,tl0010,train:Final Train Dataset:blk0006,train/Final Train Dataset/67.jpg,pickup,pickup,yolov8n,car,car,"annotation referenced, unverified",exploratory
+93fdc32f61e97680,tl0010,train:Final Train Dataset:blk0006,train/Final Train Dataset/67.jpg,rickshaw,rickshaw,yolov8n,another class,person,"annotation referenced, unverified",exploratory
+b5e884cf58296960,tl0010,train:Final Train Dataset:blk0006,train/Final Train Dataset/67.jpg,three wheelers (CNG),rickshaw,yolov8n,bus,bus,"annotation referenced, unverified",exploratory
+f4deb6c2fb020393,tl0010,train:Final Train Dataset:blk0006,train/Final Train Dataset/67.jpg,rickshaw,rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+fccb3c798780fccc,tl0010,train:Final Train Dataset:blk0006,train/Final Train Dataset/67.jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+fef793f6482f4e64,tl0010,train:Final Train Dataset:blk0006,train/Final Train Dataset/67.jpg,rickshaw,rickshaw,yolov8n,low confidence,,"annotation referenced, unverified",exploratory
+2f9804c012301df0,tl0010,train:Final Train Dataset:blk0006,train/Final Train Dataset/67.jpg,rickshaw,rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+8f7200fd117c4f05,tl0010,train:Final Train Dataset:blk0006,train/Final Train Dataset/67.jpg,pickup,pickup,yolov8s,car,car,"annotation referenced, unverified",exploratory
+93fdc32f61e97680,tl0010,train:Final Train Dataset:blk0006,train/Final Train Dataset/67.jpg,rickshaw,rickshaw,yolov8s,low confidence,,"annotation referenced, unverified",exploratory
+b5e884cf58296960,tl0010,train:Final Train Dataset:blk0006,train/Final Train Dataset/67.jpg,three wheelers (CNG),rickshaw,yolov8s,car,car,"annotation referenced, unverified",exploratory
+f4deb6c2fb020393,tl0010,train:Final Train Dataset:blk0006,train/Final Train Dataset/67.jpg,rickshaw,rickshaw,yolov8s,low confidence,,"annotation referenced, unverified",exploratory
+fccb3c798780fccc,tl0010,train:Final Train Dataset:blk0006,train/Final Train Dataset/67.jpg,three wheelers (CNG),rickshaw,yolov8s,low confidence,,"annotation referenced, unverified",exploratory
+fef793f6482f4e64,tl0010,train:Final Train Dataset:blk0006,train/Final Train Dataset/67.jpg,rickshaw,rickshaw,yolov8s,low confidence,,"annotation referenced, unverified",exploratory
+2f9804c012301df0,tl0010,train:Final Train Dataset:blk0006,train/Final Train Dataset/67.jpg,rickshaw,rickshaw,rtdetr-l,not seen,,"annotation referenced, unverified",exploratory
+8f7200fd117c4f05,tl0010,train:Final Train Dataset:blk0006,train/Final Train Dataset/67.jpg,pickup,pickup,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+93fdc32f61e97680,tl0010,train:Final Train Dataset:blk0006,train/Final Train Dataset/67.jpg,rickshaw,rickshaw,rtdetr-l,not seen,,"annotation referenced, unverified",exploratory
+b5e884cf58296960,tl0010,train:Final Train Dataset:blk0006,train/Final Train Dataset/67.jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+f4deb6c2fb020393,tl0010,train:Final Train Dataset:blk0006,train/Final Train Dataset/67.jpg,rickshaw,rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+fccb3c798780fccc,tl0010,train:Final Train Dataset:blk0006,train/Final Train Dataset/67.jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+fef793f6482f4e64,tl0010,train:Final Train Dataset:blk0006,train/Final Train Dataset/67.jpg,rickshaw,rickshaw,rtdetr-l,another class,person,"annotation referenced, unverified",exploratory
+0712b1bbe71e3b7b,tl0001,train:Final Train Dataset:blk0000,train/Final Train Dataset/84.jpg,pickup,pickup,yolov8n,bus,bus,"annotation referenced, unverified",exploratory
+0ea7860f361a06e2,tl0001,train:Final Train Dataset:blk0000,train/Final Train Dataset/84.jpg,pickup,pickup,yolov8n,low confidence,,"annotation referenced, unverified",exploratory
+2e1ae7081ea5d666,tl0001,train:Final Train Dataset:blk0000,train/Final Train Dataset/84.jpg,van,van,yolov8n,car,car,"annotation referenced, unverified",exploratory
+308ca600383c42eb,tl0001,train:Final Train Dataset:blk0000,train/Final Train Dataset/84.jpg,pickup,pickup,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+57844ed1ae258fee,tl0001,train:Final Train Dataset:blk0000,train/Final Train Dataset/84.jpg,pickup,pickup,yolov8n,low confidence,,"annotation referenced, unverified",exploratory
+5fcdf419603f37ae,tl0001,train:Final Train Dataset:blk0000,train/Final Train Dataset/84.jpg,pickup,pickup,yolov8n,bus,bus,"annotation referenced, unverified",exploratory
+60d50887bbe129dc,tl0001,train:Final Train Dataset:blk0000,train/Final Train Dataset/84.jpg,three wheelers (CNG),rickshaw,yolov8n,low confidence,,"annotation referenced, unverified",exploratory
+6542d268d2ea814c,tl0001,train:Final Train Dataset:blk0000,train/Final Train Dataset/84.jpg,van,van,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+69ec8b2bd91d69bf,tl0001,train:Final Train Dataset:blk0000,train/Final Train Dataset/84.jpg,pickup,pickup,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+97c819e6e5575d5a,tl0001,train:Final Train Dataset:blk0000,train/Final Train Dataset/84.jpg,pickup,pickup,yolov8n,low confidence,,"annotation referenced, unverified",exploratory
+9c3199f94d2ee308,tl0001,train:Final Train Dataset:blk0000,train/Final Train Dataset/84.jpg,van,van,yolov8n,low confidence,,"annotation referenced, unverified",exploratory
+c049d0c38fcf61ba,tl0001,train:Final Train Dataset:blk0000,train/Final Train Dataset/84.jpg,pickup,pickup,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+c2a3fe9cc0b9f5b4,tl0001,train:Final Train Dataset:blk0000,train/Final Train Dataset/84.jpg,pickup,pickup,yolov8n,bus,bus,"annotation referenced, unverified",exploratory
+cdfbf1cf5ca81e35,tl0001,train:Final Train Dataset:blk0000,train/Final Train Dataset/84.jpg,van,van,yolov8n,car,car,"annotation referenced, unverified",exploratory
+e2da2645dc877d92,tl0001,train:Final Train Dataset:blk0000,train/Final Train Dataset/84.jpg,human hauler,loader_rickshaw,yolov8n,car,car,"annotation referenced, unverified",exploratory
+0712b1bbe71e3b7b,tl0001,train:Final Train Dataset:blk0000,train/Final Train Dataset/84.jpg,pickup,pickup,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+0ea7860f361a06e2,tl0001,train:Final Train Dataset:blk0000,train/Final Train Dataset/84.jpg,pickup,pickup,yolov8s,truck,truck,"annotation referenced, unverified",exploratory
+2e1ae7081ea5d666,tl0001,train:Final Train Dataset:blk0000,train/Final Train Dataset/84.jpg,van,van,yolov8s,car,car,"annotation referenced, unverified",exploratory
+308ca600383c42eb,tl0001,train:Final Train Dataset:blk0000,train/Final Train Dataset/84.jpg,pickup,pickup,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+57844ed1ae258fee,tl0001,train:Final Train Dataset:blk0000,train/Final Train Dataset/84.jpg,pickup,pickup,yolov8s,bus,bus,"annotation referenced, unverified",exploratory
+5fcdf419603f37ae,tl0001,train:Final Train Dataset:blk0000,train/Final Train Dataset/84.jpg,pickup,pickup,yolov8s,bus,bus,"annotation referenced, unverified",exploratory
+60d50887bbe129dc,tl0001,train:Final Train Dataset:blk0000,train/Final Train Dataset/84.jpg,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+6542d268d2ea814c,tl0001,train:Final Train Dataset:blk0000,train/Final Train Dataset/84.jpg,van,van,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+69ec8b2bd91d69bf,tl0001,train:Final Train Dataset:blk0000,train/Final Train Dataset/84.jpg,pickup,pickup,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+97c819e6e5575d5a,tl0001,train:Final Train Dataset:blk0000,train/Final Train Dataset/84.jpg,pickup,pickup,yolov8s,bus,bus,"annotation referenced, unverified",exploratory
+9c3199f94d2ee308,tl0001,train:Final Train Dataset:blk0000,train/Final Train Dataset/84.jpg,van,van,yolov8s,car,car,"annotation referenced, unverified",exploratory
+c049d0c38fcf61ba,tl0001,train:Final Train Dataset:blk0000,train/Final Train Dataset/84.jpg,pickup,pickup,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+c2a3fe9cc0b9f5b4,tl0001,train:Final Train Dataset:blk0000,train/Final Train Dataset/84.jpg,pickup,pickup,yolov8s,low confidence,,"annotation referenced, unverified",exploratory
+cdfbf1cf5ca81e35,tl0001,train:Final Train Dataset:blk0000,train/Final Train Dataset/84.jpg,van,van,yolov8s,car,car,"annotation referenced, unverified",exploratory
+e2da2645dc877d92,tl0001,train:Final Train Dataset:blk0000,train/Final Train Dataset/84.jpg,human hauler,loader_rickshaw,yolov8s,car,car,"annotation referenced, unverified",exploratory
+0712b1bbe71e3b7b,tl0001,train:Final Train Dataset:blk0000,train/Final Train Dataset/84.jpg,pickup,pickup,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+0ea7860f361a06e2,tl0001,train:Final Train Dataset:blk0000,train/Final Train Dataset/84.jpg,pickup,pickup,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+2e1ae7081ea5d666,tl0001,train:Final Train Dataset:blk0000,train/Final Train Dataset/84.jpg,van,van,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+308ca600383c42eb,tl0001,train:Final Train Dataset:blk0000,train/Final Train Dataset/84.jpg,pickup,pickup,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+57844ed1ae258fee,tl0001,train:Final Train Dataset:blk0000,train/Final Train Dataset/84.jpg,pickup,pickup,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+5fcdf419603f37ae,tl0001,train:Final Train Dataset:blk0000,train/Final Train Dataset/84.jpg,pickup,pickup,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+60d50887bbe129dc,tl0001,train:Final Train Dataset:blk0000,train/Final Train Dataset/84.jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+6542d268d2ea814c,tl0001,train:Final Train Dataset:blk0000,train/Final Train Dataset/84.jpg,van,van,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+69ec8b2bd91d69bf,tl0001,train:Final Train Dataset:blk0000,train/Final Train Dataset/84.jpg,pickup,pickup,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+97c819e6e5575d5a,tl0001,train:Final Train Dataset:blk0000,train/Final Train Dataset/84.jpg,pickup,pickup,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+9c3199f94d2ee308,tl0001,train:Final Train Dataset:blk0000,train/Final Train Dataset/84.jpg,van,van,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+c049d0c38fcf61ba,tl0001,train:Final Train Dataset:blk0000,train/Final Train Dataset/84.jpg,pickup,pickup,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+c2a3fe9cc0b9f5b4,tl0001,train:Final Train Dataset:blk0000,train/Final Train Dataset/84.jpg,pickup,pickup,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+cdfbf1cf5ca81e35,tl0001,train:Final Train Dataset:blk0000,train/Final Train Dataset/84.jpg,van,van,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+e2da2645dc877d92,tl0001,train:Final Train Dataset:blk0000,train/Final Train Dataset/84.jpg,human hauler,loader_rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+39022c3ed3afd87b,tl0003,train:Final Train Dataset:blk0000,train/Final Train Dataset/86.JPG,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+659898ed73f6275c,tl0003,train:Final Train Dataset:blk0000,train/Final Train Dataset/86.JPG,pickup,pickup,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+8a743b36cd346172,tl0003,train:Final Train Dataset:blk0000,train/Final Train Dataset/86.JPG,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+90ea4c9554c78d74,tl0003,train:Final Train Dataset:blk0000,train/Final Train Dataset/86.JPG,van,van,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+bad28cf16c1cf32b,tl0003,train:Final Train Dataset:blk0000,train/Final Train Dataset/86.JPG,van,van,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+dba9692bbe26b275,tl0003,train:Final Train Dataset:blk0000,train/Final Train Dataset/86.JPG,van,van,yolov8n,car,car,"annotation referenced, unverified",exploratory
+e1b1676a3acbffee,tl0003,train:Final Train Dataset:blk0000,train/Final Train Dataset/86.JPG,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+eb2bc0e1e98688b2,tl0003,train:Final Train Dataset:blk0000,train/Final Train Dataset/86.JPG,van,van,yolov8n,car,car,"annotation referenced, unverified",exploratory
+f157084da198139a,tl0003,train:Final Train Dataset:blk0000,train/Final Train Dataset/86.JPG,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+39022c3ed3afd87b,tl0003,train:Final Train Dataset:blk0000,train/Final Train Dataset/86.JPG,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+659898ed73f6275c,tl0003,train:Final Train Dataset:blk0000,train/Final Train Dataset/86.JPG,pickup,pickup,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+8a743b36cd346172,tl0003,train:Final Train Dataset:blk0000,train/Final Train Dataset/86.JPG,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+90ea4c9554c78d74,tl0003,train:Final Train Dataset:blk0000,train/Final Train Dataset/86.JPG,van,van,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+bad28cf16c1cf32b,tl0003,train:Final Train Dataset:blk0000,train/Final Train Dataset/86.JPG,van,van,yolov8s,low confidence,,"annotation referenced, unverified",exploratory
+dba9692bbe26b275,tl0003,train:Final Train Dataset:blk0000,train/Final Train Dataset/86.JPG,van,van,yolov8s,truck,truck,"annotation referenced, unverified",exploratory
+e1b1676a3acbffee,tl0003,train:Final Train Dataset:blk0000,train/Final Train Dataset/86.JPG,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+eb2bc0e1e98688b2,tl0003,train:Final Train Dataset:blk0000,train/Final Train Dataset/86.JPG,van,van,yolov8s,truck,truck,"annotation referenced, unverified",exploratory
+f157084da198139a,tl0003,train:Final Train Dataset:blk0000,train/Final Train Dataset/86.JPG,three wheelers (CNG),rickshaw,yolov8s,truck,truck,"annotation referenced, unverified",exploratory
+39022c3ed3afd87b,tl0003,train:Final Train Dataset:blk0000,train/Final Train Dataset/86.JPG,three wheelers (CNG),rickshaw,rtdetr-l,not seen,,"annotation referenced, unverified",exploratory
+659898ed73f6275c,tl0003,train:Final Train Dataset:blk0000,train/Final Train Dataset/86.JPG,pickup,pickup,rtdetr-l,low confidence,,"annotation referenced, unverified",exploratory
+8a743b36cd346172,tl0003,train:Final Train Dataset:blk0000,train/Final Train Dataset/86.JPG,three wheelers (CNG),rickshaw,rtdetr-l,not seen,,"annotation referenced, unverified",exploratory
+90ea4c9554c78d74,tl0003,train:Final Train Dataset:blk0000,train/Final Train Dataset/86.JPG,van,van,rtdetr-l,low confidence,,"annotation referenced, unverified",exploratory
+bad28cf16c1cf32b,tl0003,train:Final Train Dataset:blk0000,train/Final Train Dataset/86.JPG,van,van,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+dba9692bbe26b275,tl0003,train:Final Train Dataset:blk0000,train/Final Train Dataset/86.JPG,van,van,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+e1b1676a3acbffee,tl0003,train:Final Train Dataset:blk0000,train/Final Train Dataset/86.JPG,three wheelers (CNG),rickshaw,rtdetr-l,not seen,,"annotation referenced, unverified",exploratory
+eb2bc0e1e98688b2,tl0003,train:Final Train Dataset:blk0000,train/Final Train Dataset/86.JPG,van,van,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+f157084da198139a,tl0003,train:Final Train Dataset:blk0000,train/Final Train Dataset/86.JPG,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+4965e673483c1818,tl0043,train:pias,train/Final Train Dataset/Asraf_01.jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+95f7ae0a2ba36cb1,tl0043,train:pias,train/Final Train Dataset/Asraf_01.jpg,wheelbarrow,loader_rickshaw,yolov8n,truck,truck,"annotation referenced, unverified",exploratory
+4965e673483c1818,tl0043,train:pias,train/Final Train Dataset/Asraf_01.jpg,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+95f7ae0a2ba36cb1,tl0043,train:pias,train/Final Train Dataset/Asraf_01.jpg,wheelbarrow,loader_rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+4965e673483c1818,tl0043,train:pias,train/Final Train Dataset/Asraf_01.jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+95f7ae0a2ba36cb1,tl0043,train:pias,train/Final Train Dataset/Asraf_01.jpg,wheelbarrow,loader_rickshaw,rtdetr-l,low confidence,,"annotation referenced, unverified",exploratory
+c17973d9c91ca2ff,tl0026,train:Final Train Dataset:blk0002,train/Final Train Dataset/Asraf_53.jpg,pickup,pickup,yolov8n,car,car,"annotation referenced, unverified",exploratory
+c17973d9c91ca2ff,tl0026,train:Final Train Dataset:blk0002,train/Final Train Dataset/Asraf_53.jpg,pickup,pickup,yolov8s,low confidence,,"annotation referenced, unverified",exploratory
+c17973d9c91ca2ff,tl0026,train:Final Train Dataset:blk0002,train/Final Train Dataset/Asraf_53.jpg,pickup,pickup,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+0d4125999ec45ed8,tl0030,train:Final Train Dataset:blk0003,train/Final Train Dataset/Dipto_ 115.jpg,pickup,pickup,yolov8n,truck,truck,"annotation referenced, unverified",exploratory
+481ec5b5d57ce73e,tl0030,train:Final Train Dataset:blk0003,train/Final Train Dataset/Dipto_ 115.jpg,pickup,pickup,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+0d4125999ec45ed8,tl0030,train:Final Train Dataset:blk0003,train/Final Train Dataset/Dipto_ 115.jpg,pickup,pickup,yolov8s,truck,truck,"annotation referenced, unverified",exploratory
+481ec5b5d57ce73e,tl0030,train:Final Train Dataset:blk0003,train/Final Train Dataset/Dipto_ 115.jpg,pickup,pickup,yolov8s,low confidence,,"annotation referenced, unverified",exploratory
+0d4125999ec45ed8,tl0030,train:Final Train Dataset:blk0003,train/Final Train Dataset/Dipto_ 115.jpg,pickup,pickup,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+481ec5b5d57ce73e,tl0030,train:Final Train Dataset:blk0003,train/Final Train Dataset/Dipto_ 115.jpg,pickup,pickup,rtdetr-l,low confidence,,"annotation referenced, unverified",exploratory
+b9ac7b79b90fe480,tl0042,train:numan,train/Final Train Dataset/Dipto_21.jpg,human hauler,loader_rickshaw,yolov8n,bus,bus,"annotation referenced, unverified",exploratory
+b9ac7b79b90fe480,tl0042,train:numan,train/Final Train Dataset/Dipto_21.jpg,human hauler,loader_rickshaw,yolov8s,truck,truck,"annotation referenced, unverified",exploratory
+b9ac7b79b90fe480,tl0042,train:numan,train/Final Train Dataset/Dipto_21.jpg,human hauler,loader_rickshaw,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+0ec836f0c41420f9,tl0033,train:asraf,train/Final Train Dataset/Dipto_482.jpg,van,van,yolov8n,car,car,"annotation referenced, unverified",exploratory
+32cbd8630a6fd997,tl0033,train:asraf,train/Final Train Dataset/Dipto_482.jpg,van,van,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+ab1caae47d77f95e,tl0033,train:asraf,train/Final Train Dataset/Dipto_482.jpg,pickup,pickup,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+dc952b112ea22652,tl0033,train:asraf,train/Final Train Dataset/Dipto_482.jpg,rickshaw,rickshaw,yolov8n,another class,person,"annotation referenced, unverified",exploratory
+e25306a261085e4e,tl0033,train:asraf,train/Final Train Dataset/Dipto_482.jpg,pickup,pickup,yolov8n,truck,truck,"annotation referenced, unverified",exploratory
+f757b16f35f0dd7a,tl0033,train:asraf,train/Final Train Dataset/Dipto_482.jpg,rickshaw,rickshaw,yolov8n,low confidence,,"annotation referenced, unverified",exploratory
+0ec836f0c41420f9,tl0033,train:asraf,train/Final Train Dataset/Dipto_482.jpg,van,van,yolov8s,car,car,"annotation referenced, unverified",exploratory
+32cbd8630a6fd997,tl0033,train:asraf,train/Final Train Dataset/Dipto_482.jpg,van,van,yolov8s,car,car,"annotation referenced, unverified",exploratory
+ab1caae47d77f95e,tl0033,train:asraf,train/Final Train Dataset/Dipto_482.jpg,pickup,pickup,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+dc952b112ea22652,tl0033,train:asraf,train/Final Train Dataset/Dipto_482.jpg,rickshaw,rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+e25306a261085e4e,tl0033,train:asraf,train/Final Train Dataset/Dipto_482.jpg,pickup,pickup,yolov8s,truck,truck,"annotation referenced, unverified",exploratory
+f757b16f35f0dd7a,tl0033,train:asraf,train/Final Train Dataset/Dipto_482.jpg,rickshaw,rickshaw,yolov8s,low confidence,,"annotation referenced, unverified",exploratory
+0ec836f0c41420f9,tl0033,train:asraf,train/Final Train Dataset/Dipto_482.jpg,van,van,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+32cbd8630a6fd997,tl0033,train:asraf,train/Final Train Dataset/Dipto_482.jpg,van,van,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+ab1caae47d77f95e,tl0033,train:asraf,train/Final Train Dataset/Dipto_482.jpg,pickup,pickup,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+dc952b112ea22652,tl0033,train:asraf,train/Final Train Dataset/Dipto_482.jpg,rickshaw,rickshaw,rtdetr-l,another class,person,"annotation referenced, unverified",exploratory
+e25306a261085e4e,tl0033,train:asraf,train/Final Train Dataset/Dipto_482.jpg,pickup,pickup,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+f757b16f35f0dd7a,tl0033,train:asraf,train/Final Train Dataset/Dipto_482.jpg,rickshaw,rickshaw,rtdetr-l,not seen,,"annotation referenced, unverified",exploratory
+13dd9be6baad920d,tl0016,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_640.jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+4c73f9af0d38cb30,tl0016,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_640.jpg,rickshaw,rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+60506dd79d6a823c,tl0016,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_640.jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+68214f7bde21aa49,tl0016,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_640.jpg,pickup,pickup,yolov8n,low confidence,,"annotation referenced, unverified",exploratory
+945815c3dacd29f8,tl0016,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_640.jpg,rickshaw,rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+967a201772fefc74,tl0016,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_640.jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+a13f5d208546e01e,tl0016,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_640.jpg,pickup,pickup,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+adaf3deda4249b8d,tl0016,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_640.jpg,rickshaw,rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+e12512a9caf71f1e,tl0016,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_640.jpg,rickshaw,rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+13dd9be6baad920d,tl0016,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_640.jpg,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+4c73f9af0d38cb30,tl0016,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_640.jpg,rickshaw,rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+60506dd79d6a823c,tl0016,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_640.jpg,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+68214f7bde21aa49,tl0016,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_640.jpg,pickup,pickup,yolov8s,car,car,"annotation referenced, unverified",exploratory
+945815c3dacd29f8,tl0016,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_640.jpg,rickshaw,rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+967a201772fefc74,tl0016,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_640.jpg,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+a13f5d208546e01e,tl0016,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_640.jpg,pickup,pickup,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+adaf3deda4249b8d,tl0016,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_640.jpg,rickshaw,rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+e12512a9caf71f1e,tl0016,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_640.jpg,rickshaw,rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+13dd9be6baad920d,tl0016,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_640.jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+4c73f9af0d38cb30,tl0016,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_640.jpg,rickshaw,rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+60506dd79d6a823c,tl0016,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_640.jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+68214f7bde21aa49,tl0016,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_640.jpg,pickup,pickup,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+945815c3dacd29f8,tl0016,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_640.jpg,rickshaw,rickshaw,rtdetr-l,not seen,,"annotation referenced, unverified",exploratory
+967a201772fefc74,tl0016,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_640.jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+a13f5d208546e01e,tl0016,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_640.jpg,pickup,pickup,rtdetr-l,not seen,,"annotation referenced, unverified",exploratory
+adaf3deda4249b8d,tl0016,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_640.jpg,rickshaw,rickshaw,rtdetr-l,not seen,,"annotation referenced, unverified",exploratory
+e12512a9caf71f1e,tl0016,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_640.jpg,rickshaw,rickshaw,rtdetr-l,not seen,,"annotation referenced, unverified",exploratory
+0d193dac9dae92f2,tl0023,train:Final Train Dataset:blk0001,train/Final Train Dataset/Dipto_641.jpg,rickshaw,rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+86a81226dfedc7bc,tl0023,train:Final Train Dataset:blk0001,train/Final Train Dataset/Dipto_641.jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+c1d8228e1a20ff1a,tl0023,train:Final Train Dataset:blk0001,train/Final Train Dataset/Dipto_641.jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+cfcac7132d420e0a,tl0023,train:Final Train Dataset:blk0001,train/Final Train Dataset/Dipto_641.jpg,rickshaw,rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+e9b15443e19c9293,tl0023,train:Final Train Dataset:blk0001,train/Final Train Dataset/Dipto_641.jpg,rickshaw,rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+e9d4110b0b331376,tl0023,train:Final Train Dataset:blk0001,train/Final Train Dataset/Dipto_641.jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+f5426e0253c657a4,tl0023,train:Final Train Dataset:blk0001,train/Final Train Dataset/Dipto_641.jpg,pickup,pickup,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+0d193dac9dae92f2,tl0023,train:Final Train Dataset:blk0001,train/Final Train Dataset/Dipto_641.jpg,rickshaw,rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+86a81226dfedc7bc,tl0023,train:Final Train Dataset:blk0001,train/Final Train Dataset/Dipto_641.jpg,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+c1d8228e1a20ff1a,tl0023,train:Final Train Dataset:blk0001,train/Final Train Dataset/Dipto_641.jpg,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+cfcac7132d420e0a,tl0023,train:Final Train Dataset:blk0001,train/Final Train Dataset/Dipto_641.jpg,rickshaw,rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+e9b15443e19c9293,tl0023,train:Final Train Dataset:blk0001,train/Final Train Dataset/Dipto_641.jpg,rickshaw,rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+e9d4110b0b331376,tl0023,train:Final Train Dataset:blk0001,train/Final Train Dataset/Dipto_641.jpg,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+f5426e0253c657a4,tl0023,train:Final Train Dataset:blk0001,train/Final Train Dataset/Dipto_641.jpg,pickup,pickup,yolov8s,truck,truck,"annotation referenced, unverified",exploratory
+0d193dac9dae92f2,tl0023,train:Final Train Dataset:blk0001,train/Final Train Dataset/Dipto_641.jpg,rickshaw,rickshaw,rtdetr-l,not seen,,"annotation referenced, unverified",exploratory
+86a81226dfedc7bc,tl0023,train:Final Train Dataset:blk0001,train/Final Train Dataset/Dipto_641.jpg,three wheelers (CNG),rickshaw,rtdetr-l,not seen,,"annotation referenced, unverified",exploratory
+c1d8228e1a20ff1a,tl0023,train:Final Train Dataset:blk0001,train/Final Train Dataset/Dipto_641.jpg,three wheelers (CNG),rickshaw,rtdetr-l,not seen,,"annotation referenced, unverified",exploratory
+cfcac7132d420e0a,tl0023,train:Final Train Dataset:blk0001,train/Final Train Dataset/Dipto_641.jpg,rickshaw,rickshaw,rtdetr-l,not seen,,"annotation referenced, unverified",exploratory
+e9b15443e19c9293,tl0023,train:Final Train Dataset:blk0001,train/Final Train Dataset/Dipto_641.jpg,rickshaw,rickshaw,rtdetr-l,not seen,,"annotation referenced, unverified",exploratory
+e9d4110b0b331376,tl0023,train:Final Train Dataset:blk0001,train/Final Train Dataset/Dipto_641.jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+f5426e0253c657a4,tl0023,train:Final Train Dataset:blk0001,train/Final Train Dataset/Dipto_641.jpg,pickup,pickup,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+047a3e71b9380c3d,tl0017,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_642.jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+0783345eff99870b,tl0017,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_642.jpg,rickshaw,rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+8573318c40cbd215,tl0017,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_642.jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+c7e7056eb69c8994,tl0017,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_642.jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+f3adfc42fe819338,tl0017,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_642.jpg,rickshaw,rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+fd58527a4831056e,tl0017,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_642.jpg,pickup,pickup,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+047a3e71b9380c3d,tl0017,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_642.jpg,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+0783345eff99870b,tl0017,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_642.jpg,rickshaw,rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+8573318c40cbd215,tl0017,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_642.jpg,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+c7e7056eb69c8994,tl0017,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_642.jpg,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+f3adfc42fe819338,tl0017,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_642.jpg,rickshaw,rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+fd58527a4831056e,tl0017,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_642.jpg,pickup,pickup,yolov8s,car,car,"annotation referenced, unverified",exploratory
+047a3e71b9380c3d,tl0017,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_642.jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+0783345eff99870b,tl0017,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_642.jpg,rickshaw,rickshaw,rtdetr-l,not seen,,"annotation referenced, unverified",exploratory
+8573318c40cbd215,tl0017,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_642.jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+c7e7056eb69c8994,tl0017,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_642.jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+f3adfc42fe819338,tl0017,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_642.jpg,rickshaw,rickshaw,rtdetr-l,low confidence,,"annotation referenced, unverified",exploratory
+fd58527a4831056e,tl0017,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_642.jpg,pickup,pickup,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+417a3621fb5e68a9,tl0018,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_643.jpg,pickup,pickup,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+4462091bc1ef98c3,tl0018,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_643.jpg,pickup,pickup,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+8b41fce08780d279,tl0018,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_643.jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+d269ea6a24c15638,tl0018,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_643.jpg,rickshaw,rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+e48a4485b6e8cc2d,tl0018,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_643.jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+417a3621fb5e68a9,tl0018,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_643.jpg,pickup,pickup,yolov8s,car,car,"annotation referenced, unverified",exploratory
+4462091bc1ef98c3,tl0018,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_643.jpg,pickup,pickup,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+8b41fce08780d279,tl0018,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_643.jpg,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+d269ea6a24c15638,tl0018,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_643.jpg,rickshaw,rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+e48a4485b6e8cc2d,tl0018,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_643.jpg,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+417a3621fb5e68a9,tl0018,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_643.jpg,pickup,pickup,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+4462091bc1ef98c3,tl0018,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_643.jpg,pickup,pickup,rtdetr-l,not seen,,"annotation referenced, unverified",exploratory
+8b41fce08780d279,tl0018,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_643.jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+d269ea6a24c15638,tl0018,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_643.jpg,rickshaw,rickshaw,rtdetr-l,not seen,,"annotation referenced, unverified",exploratory
+e48a4485b6e8cc2d,tl0018,train:Final Train Dataset:blk0008,train/Final Train Dataset/Dipto_643.jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+e9e916257038f6e4,tl0039,train:navid,train/Final Train Dataset/Dipto_650.jpg,three wheelers (CNG),rickshaw,yolov8n,truck,truck,"annotation referenced, unverified",exploratory
+e9e916257038f6e4,tl0039,train:navid,train/Final Train Dataset/Dipto_650.jpg,three wheelers (CNG),rickshaw,yolov8s,truck,truck,"annotation referenced, unverified",exploratory
+e9e916257038f6e4,tl0039,train:navid,train/Final Train Dataset/Dipto_650.jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+56235c7fde56331c,tl0036,train:dipto,train/Final Train Dataset/Navid_02.jpg,three wheelers (CNG),rickshaw,yolov8n,car,car,"annotation referenced, unverified",exploratory
+69b0be779c5dd6ed,tl0036,train:dipto,train/Final Train Dataset/Navid_02.jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+56235c7fde56331c,tl0036,train:dipto,train/Final Train Dataset/Navid_02.jpg,three wheelers (CNG),rickshaw,yolov8s,car,car,"annotation referenced, unverified",exploratory
+69b0be779c5dd6ed,tl0036,train:dipto,train/Final Train Dataset/Navid_02.jpg,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+56235c7fde56331c,tl0036,train:dipto,train/Final Train Dataset/Navid_02.jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+69b0be779c5dd6ed,tl0036,train:dipto,train/Final Train Dataset/Navid_02.jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+2b73b20e3ca24d07,tl0037,train:navid,train/Final Train Dataset/Navid_232.jpg,van,van,yolov8n,truck,truck,"annotation referenced, unverified",exploratory
+a54374d73e1df40e,tl0037,train:navid,train/Final Train Dataset/Navid_232.jpg,rickshaw,rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+2b73b20e3ca24d07,tl0037,train:navid,train/Final Train Dataset/Navid_232.jpg,van,van,yolov8s,car,car,"annotation referenced, unverified",exploratory
+a54374d73e1df40e,tl0037,train:navid,train/Final Train Dataset/Navid_232.jpg,rickshaw,rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+2b73b20e3ca24d07,tl0037,train:navid,train/Final Train Dataset/Navid_232.jpg,van,van,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+a54374d73e1df40e,tl0037,train:navid,train/Final Train Dataset/Navid_232.jpg,rickshaw,rickshaw,rtdetr-l,not seen,,"annotation referenced, unverified",exploratory
+9b3ca5f81823dfed,tl0034,train:dipto,train/Final Train Dataset/Navid_234.jpg,van,van,yolov8n,bus,bus,"annotation referenced, unverified",exploratory
+d44e5e1165772d47,tl0034,train:dipto,train/Final Train Dataset/Navid_234.jpg,van,van,yolov8n,bus,bus,"annotation referenced, unverified",exploratory
+f702ff073ce87971,tl0034,train:dipto,train/Final Train Dataset/Navid_234.jpg,rickshaw,rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+9b3ca5f81823dfed,tl0034,train:dipto,train/Final Train Dataset/Navid_234.jpg,van,van,yolov8s,car,car,"annotation referenced, unverified",exploratory
+d44e5e1165772d47,tl0034,train:dipto,train/Final Train Dataset/Navid_234.jpg,van,van,yolov8s,truck,truck,"annotation referenced, unverified",exploratory
+f702ff073ce87971,tl0034,train:dipto,train/Final Train Dataset/Navid_234.jpg,rickshaw,rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+9b3ca5f81823dfed,tl0034,train:dipto,train/Final Train Dataset/Navid_234.jpg,van,van,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+d44e5e1165772d47,tl0034,train:dipto,train/Final Train Dataset/Navid_234.jpg,van,van,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+f702ff073ce87971,tl0034,train:dipto,train/Final Train Dataset/Navid_234.jpg,rickshaw,rickshaw,rtdetr-l,not seen,,"annotation referenced, unverified",exploratory
+5cd87959f0e4230b,tl0040,train:numan,train/Final Train Dataset/Navid_301.jpg,pickup,pickup,yolov8n,car,car,"annotation referenced, unverified",exploratory
+5cd87959f0e4230b,tl0040,train:numan,train/Final Train Dataset/Navid_301.jpg,pickup,pickup,yolov8s,car,car,"annotation referenced, unverified",exploratory
+5cd87959f0e4230b,tl0040,train:numan,train/Final Train Dataset/Navid_301.jpg,pickup,pickup,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+1270789178690306,tl0032,train:asraf,train/Final Train Dataset/Navid_352.JPG,pickup,pickup,yolov8n,truck,truck,"annotation referenced, unverified",exploratory
+dea62eb47fac1206,tl0032,train:asraf,train/Final Train Dataset/Navid_352.JPG,rickshaw,rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+1270789178690306,tl0032,train:asraf,train/Final Train Dataset/Navid_352.JPG,pickup,pickup,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+dea62eb47fac1206,tl0032,train:asraf,train/Final Train Dataset/Navid_352.JPG,rickshaw,rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+1270789178690306,tl0032,train:asraf,train/Final Train Dataset/Navid_352.JPG,pickup,pickup,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+dea62eb47fac1206,tl0032,train:asraf,train/Final Train Dataset/Navid_352.JPG,rickshaw,rickshaw,rtdetr-l,low confidence,,"annotation referenced, unverified",exploratory
+1e443cf7d752bab9,tl0038,train:navid,train/Final Train Dataset/Navid_504.jpg,rickshaw,rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+2dae83e91caf3d68,tl0038,train:navid,train/Final Train Dataset/Navid_504.jpg,rickshaw,rickshaw,yolov8n,low confidence,,"annotation referenced, unverified",exploratory
+86d5caa740edceeb,tl0038,train:navid,train/Final Train Dataset/Navid_504.jpg,van,van,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+1e443cf7d752bab9,tl0038,train:navid,train/Final Train Dataset/Navid_504.jpg,rickshaw,rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+2dae83e91caf3d68,tl0038,train:navid,train/Final Train Dataset/Navid_504.jpg,rickshaw,rickshaw,yolov8s,low confidence,,"annotation referenced, unverified",exploratory
+86d5caa740edceeb,tl0038,train:navid,train/Final Train Dataset/Navid_504.jpg,van,van,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+1e443cf7d752bab9,tl0038,train:navid,train/Final Train Dataset/Navid_504.jpg,rickshaw,rickshaw,rtdetr-l,low confidence,,"annotation referenced, unverified",exploratory
+2dae83e91caf3d68,tl0038,train:navid,train/Final Train Dataset/Navid_504.jpg,rickshaw,rickshaw,rtdetr-l,low confidence,,"annotation referenced, unverified",exploratory
+86d5caa740edceeb,tl0038,train:navid,train/Final Train Dataset/Navid_504.jpg,van,van,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+d8a4b19b70154f98,tl0035,train:dipto,train/Final Train Dataset/Navid_505.jpg,rickshaw,rickshaw,yolov8n,low confidence,,"annotation referenced, unverified",exploratory
+d8a4b19b70154f98,tl0035,train:dipto,train/Final Train Dataset/Navid_505.jpg,rickshaw,rickshaw,yolov8s,truck,truck,"annotation referenced, unverified",exploratory
+d8a4b19b70154f98,tl0035,train:dipto,train/Final Train Dataset/Navid_505.jpg,rickshaw,rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+156cab5692b16d55,tl0041,train:numan,train/Final Train Dataset/Navid_528.jpg,three wheelers (CNG),rickshaw,yolov8n,truck,truck,"annotation referenced, unverified",exploratory
+ce1b5149fc0d918f,tl0041,train:numan,train/Final Train Dataset/Navid_528.jpg,rickshaw,rickshaw,yolov8n,car,car,"annotation referenced, unverified",exploratory
+d289a435bf4e619e,tl0041,train:numan,train/Final Train Dataset/Navid_528.jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+156cab5692b16d55,tl0041,train:numan,train/Final Train Dataset/Navid_528.jpg,three wheelers (CNG),rickshaw,yolov8s,truck,truck,"annotation referenced, unverified",exploratory
+ce1b5149fc0d918f,tl0041,train:numan,train/Final Train Dataset/Navid_528.jpg,rickshaw,rickshaw,yolov8s,car,car,"annotation referenced, unverified",exploratory
+d289a435bf4e619e,tl0041,train:numan,train/Final Train Dataset/Navid_528.jpg,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+156cab5692b16d55,tl0041,train:numan,train/Final Train Dataset/Navid_528.jpg,three wheelers (CNG),rickshaw,rtdetr-l,bus,bus,"annotation referenced, unverified",exploratory
+ce1b5149fc0d918f,tl0041,train:numan,train/Final Train Dataset/Navid_528.jpg,rickshaw,rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+d289a435bf4e619e,tl0041,train:numan,train/Final Train Dataset/Navid_528.jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+01a9b6ed87305ff4,tl0031,train:asraf,train/Final Train Dataset/Numan_(160).jpg,rickshaw,rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+5c35ddec9dbf2e9e,tl0031,train:asraf,train/Final Train Dataset/Numan_(160).jpg,rickshaw,rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+a3ff18476faf0678,tl0031,train:asraf,train/Final Train Dataset/Numan_(160).jpg,pickup,pickup,yolov8n,truck,truck,"annotation referenced, unverified",exploratory
+f9b032c9853800d5,tl0031,train:asraf,train/Final Train Dataset/Numan_(160).jpg,rickshaw,rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+01a9b6ed87305ff4,tl0031,train:asraf,train/Final Train Dataset/Numan_(160).jpg,rickshaw,rickshaw,yolov8s,low confidence,,"annotation referenced, unverified",exploratory
+5c35ddec9dbf2e9e,tl0031,train:asraf,train/Final Train Dataset/Numan_(160).jpg,rickshaw,rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+a3ff18476faf0678,tl0031,train:asraf,train/Final Train Dataset/Numan_(160).jpg,pickup,pickup,yolov8s,truck,truck,"annotation referenced, unverified",exploratory
+f9b032c9853800d5,tl0031,train:asraf,train/Final Train Dataset/Numan_(160).jpg,rickshaw,rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+01a9b6ed87305ff4,tl0031,train:asraf,train/Final Train Dataset/Numan_(160).jpg,rickshaw,rickshaw,rtdetr-l,low confidence,,"annotation referenced, unverified",exploratory
+5c35ddec9dbf2e9e,tl0031,train:asraf,train/Final Train Dataset/Numan_(160).jpg,rickshaw,rickshaw,rtdetr-l,low confidence,,"annotation referenced, unverified",exploratory
+a3ff18476faf0678,tl0031,train:asraf,train/Final Train Dataset/Numan_(160).jpg,pickup,pickup,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+f9b032c9853800d5,tl0031,train:asraf,train/Final Train Dataset/Numan_(160).jpg,rickshaw,rickshaw,rtdetr-l,not seen,,"annotation referenced, unverified",exploratory
+30ff6eea10f34fe9,tl0007,train:Final Train Dataset:blk0005,train/Final Train Dataset/Numan_(293).JPG,human hauler,loader_rickshaw,yolov8n,low confidence,,"annotation referenced, unverified",exploratory
+38b7096ad5925cb4,tl0007,train:Final Train Dataset:blk0005,train/Final Train Dataset/Numan_(293).JPG,rickshaw,rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+c5acefc8ace891cc,tl0007,train:Final Train Dataset:blk0005,train/Final Train Dataset/Numan_(293).JPG,three wheelers (CNG),rickshaw,yolov8n,truck,truck,"annotation referenced, unverified",exploratory
+f2e3515ed592b9fe,tl0007,train:Final Train Dataset:blk0005,train/Final Train Dataset/Numan_(293).JPG,rickshaw,rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+30ff6eea10f34fe9,tl0007,train:Final Train Dataset:blk0005,train/Final Train Dataset/Numan_(293).JPG,human hauler,loader_rickshaw,yolov8s,low confidence,,"annotation referenced, unverified",exploratory
+38b7096ad5925cb4,tl0007,train:Final Train Dataset:blk0005,train/Final Train Dataset/Numan_(293).JPG,rickshaw,rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+c5acefc8ace891cc,tl0007,train:Final Train Dataset:blk0005,train/Final Train Dataset/Numan_(293).JPG,three wheelers (CNG),rickshaw,yolov8s,truck,truck,"annotation referenced, unverified",exploratory
+f2e3515ed592b9fe,tl0007,train:Final Train Dataset:blk0005,train/Final Train Dataset/Numan_(293).JPG,rickshaw,rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+30ff6eea10f34fe9,tl0007,train:Final Train Dataset:blk0005,train/Final Train Dataset/Numan_(293).JPG,human hauler,loader_rickshaw,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+38b7096ad5925cb4,tl0007,train:Final Train Dataset:blk0005,train/Final Train Dataset/Numan_(293).JPG,rickshaw,rickshaw,rtdetr-l,not seen,,"annotation referenced, unverified",exploratory
+c5acefc8ace891cc,tl0007,train:Final Train Dataset:blk0005,train/Final Train Dataset/Numan_(293).JPG,three wheelers (CNG),rickshaw,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+f2e3515ed592b9fe,tl0007,train:Final Train Dataset:blk0005,train/Final Train Dataset/Numan_(293).JPG,rickshaw,rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+8cd99c346ff2b611,tl0006,train:Final Train Dataset:blk0004,train/Final Train Dataset/Numan_(303).JPG,pickup,pickup,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+c03b922063d55879,tl0006,train:Final Train Dataset:blk0004,train/Final Train Dataset/Numan_(303).JPG,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+8cd99c346ff2b611,tl0006,train:Final Train Dataset:blk0004,train/Final Train Dataset/Numan_(303).JPG,pickup,pickup,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+c03b922063d55879,tl0006,train:Final Train Dataset:blk0004,train/Final Train Dataset/Numan_(303).JPG,three wheelers (CNG),rickshaw,yolov8s,car,car,"annotation referenced, unverified",exploratory
+8cd99c346ff2b611,tl0006,train:Final Train Dataset:blk0004,train/Final Train Dataset/Numan_(303).JPG,pickup,pickup,rtdetr-l,not seen,,"annotation referenced, unverified",exploratory
+c03b922063d55879,tl0006,train:Final Train Dataset:blk0004,train/Final Train Dataset/Numan_(303).JPG,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+27393538dfbc2be1,tl0008,train:Final Train Dataset:blk0005,train/Final Train Dataset/Numan_(304).JPG,pickup,pickup,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+b0bb8ab2abca3990,tl0008,train:Final Train Dataset:blk0005,train/Final Train Dataset/Numan_(304).JPG,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+27393538dfbc2be1,tl0008,train:Final Train Dataset:blk0005,train/Final Train Dataset/Numan_(304).JPG,pickup,pickup,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+b0bb8ab2abca3990,tl0008,train:Final Train Dataset:blk0005,train/Final Train Dataset/Numan_(304).JPG,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+27393538dfbc2be1,tl0008,train:Final Train Dataset:blk0005,train/Final Train Dataset/Numan_(304).JPG,pickup,pickup,rtdetr-l,not seen,,"annotation referenced, unverified",exploratory
+b0bb8ab2abca3990,tl0008,train:Final Train Dataset:blk0005,train/Final Train Dataset/Numan_(304).JPG,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+3e70d5419135538d,tl0051,train:Final Train Dataset:blk0006,train/Final Train Dataset/Numan_(305).JPG,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+9b20f2091827697b,tl0051,train:Final Train Dataset:blk0006,train/Final Train Dataset/Numan_(305).JPG,pickup,pickup,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+3e70d5419135538d,tl0051,train:Final Train Dataset:blk0006,train/Final Train Dataset/Numan_(305).JPG,three wheelers (CNG),rickshaw,yolov8s,low confidence,,"annotation referenced, unverified",exploratory
+9b20f2091827697b,tl0051,train:Final Train Dataset:blk0006,train/Final Train Dataset/Numan_(305).JPG,pickup,pickup,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+3e70d5419135538d,tl0051,train:Final Train Dataset:blk0006,train/Final Train Dataset/Numan_(305).JPG,three wheelers (CNG),rickshaw,rtdetr-l,low confidence,,"annotation referenced, unverified",exploratory
+9b20f2091827697b,tl0051,train:Final Train Dataset:blk0006,train/Final Train Dataset/Numan_(305).JPG,pickup,pickup,rtdetr-l,not seen,,"annotation referenced, unverified",exploratory
+9888731eab1d2ddc,tl0019,train:Final Train Dataset:blk0009,train/Final Train Dataset/Numan_(307).JPG,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+c125b03d4453ee6f,tl0019,train:Final Train Dataset:blk0009,train/Final Train Dataset/Numan_(307).JPG,pickup,pickup,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+e36ffea191d120d2,tl0019,train:Final Train Dataset:blk0009,train/Final Train Dataset/Numan_(307).JPG,three wheelers (CNG),rickshaw,yolov8n,low confidence,,"annotation referenced, unverified",exploratory
+9888731eab1d2ddc,tl0019,train:Final Train Dataset:blk0009,train/Final Train Dataset/Numan_(307).JPG,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+c125b03d4453ee6f,tl0019,train:Final Train Dataset:blk0009,train/Final Train Dataset/Numan_(307).JPG,pickup,pickup,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+e36ffea191d120d2,tl0019,train:Final Train Dataset:blk0009,train/Final Train Dataset/Numan_(307).JPG,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+9888731eab1d2ddc,tl0019,train:Final Train Dataset:blk0009,train/Final Train Dataset/Numan_(307).JPG,three wheelers (CNG),rickshaw,rtdetr-l,not seen,,"annotation referenced, unverified",exploratory
+c125b03d4453ee6f,tl0019,train:Final Train Dataset:blk0009,train/Final Train Dataset/Numan_(307).JPG,pickup,pickup,rtdetr-l,not seen,,"annotation referenced, unverified",exploratory
+e36ffea191d120d2,tl0019,train:Final Train Dataset:blk0009,train/Final Train Dataset/Numan_(307).JPG,three wheelers (CNG),rickshaw,rtdetr-l,not seen,,"annotation referenced, unverified",exploratory
+3a013879ee081723,tl0025,train:Final Train Dataset:blk0002,train/Final Train Dataset/Numan_(308).JPG,three wheelers (CNG),rickshaw,yolov8n,low confidence,,"annotation referenced, unverified",exploratory
+f0c959ed3240c4a5,tl0025,train:Final Train Dataset:blk0002,train/Final Train Dataset/Numan_(308).JPG,pickup,pickup,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+3a013879ee081723,tl0025,train:Final Train Dataset:blk0002,train/Final Train Dataset/Numan_(308).JPG,three wheelers (CNG),rickshaw,yolov8s,low confidence,,"annotation referenced, unverified",exploratory
+f0c959ed3240c4a5,tl0025,train:Final Train Dataset:blk0002,train/Final Train Dataset/Numan_(308).JPG,pickup,pickup,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+3a013879ee081723,tl0025,train:Final Train Dataset:blk0002,train/Final Train Dataset/Numan_(308).JPG,three wheelers (CNG),rickshaw,rtdetr-l,not seen,,"annotation referenced, unverified",exploratory
+f0c959ed3240c4a5,tl0025,train:Final Train Dataset:blk0002,train/Final Train Dataset/Numan_(308).JPG,pickup,pickup,rtdetr-l,not seen,,"annotation referenced, unverified",exploratory
+3167a52084e3bc28,tl0028,train:Final Train Dataset:blk0003,train/Final Train Dataset/Numan_(314).jpg,pickup,pickup,yolov8n,truck,truck,"annotation referenced, unverified",exploratory
+9b878c4d5241a5fe,tl0028,train:Final Train Dataset:blk0003,train/Final Train Dataset/Numan_(314).jpg,van,van,yolov8n,car,car,"annotation referenced, unverified",exploratory
+3167a52084e3bc28,tl0028,train:Final Train Dataset:blk0003,train/Final Train Dataset/Numan_(314).jpg,pickup,pickup,yolov8s,truck,truck,"annotation referenced, unverified",exploratory
+9b878c4d5241a5fe,tl0028,train:Final Train Dataset:blk0003,train/Final Train Dataset/Numan_(314).jpg,van,van,yolov8s,car,car,"annotation referenced, unverified",exploratory
+3167a52084e3bc28,tl0028,train:Final Train Dataset:blk0003,train/Final Train Dataset/Numan_(314).jpg,pickup,pickup,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+9b878c4d5241a5fe,tl0028,train:Final Train Dataset:blk0003,train/Final Train Dataset/Numan_(314).jpg,van,van,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+117e6b3ce39da82c,tl0052,train:Final Train Dataset:blk0006,train/Final Train Dataset/Numan_(315).jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+460c874cd1f97782,tl0052,train:Final Train Dataset:blk0006,train/Final Train Dataset/Numan_(315).jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+506036d94fa148c1,tl0052,train:Final Train Dataset:blk0006,train/Final Train Dataset/Numan_(315).jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+551406f902fded24,tl0052,train:Final Train Dataset:blk0006,train/Final Train Dataset/Numan_(315).jpg,van,van,yolov8n,car,car,"annotation referenced, unverified",exploratory
+a7495ef8e1518082,tl0052,train:Final Train Dataset:blk0006,train/Final Train Dataset/Numan_(315).jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+e66b7bd78ee27846,tl0052,train:Final Train Dataset:blk0006,train/Final Train Dataset/Numan_(315).jpg,pickup,pickup,yolov8n,truck,truck,"annotation referenced, unverified",exploratory
+117e6b3ce39da82c,tl0052,train:Final Train Dataset:blk0006,train/Final Train Dataset/Numan_(315).jpg,three wheelers (CNG),rickshaw,yolov8s,low confidence,,"annotation referenced, unverified",exploratory
+460c874cd1f97782,tl0052,train:Final Train Dataset:blk0006,train/Final Train Dataset/Numan_(315).jpg,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+506036d94fa148c1,tl0052,train:Final Train Dataset:blk0006,train/Final Train Dataset/Numan_(315).jpg,three wheelers (CNG),rickshaw,yolov8s,car,car,"annotation referenced, unverified",exploratory
+551406f902fded24,tl0052,train:Final Train Dataset:blk0006,train/Final Train Dataset/Numan_(315).jpg,van,van,yolov8s,truck,truck,"annotation referenced, unverified",exploratory
+a7495ef8e1518082,tl0052,train:Final Train Dataset:blk0006,train/Final Train Dataset/Numan_(315).jpg,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+e66b7bd78ee27846,tl0052,train:Final Train Dataset:blk0006,train/Final Train Dataset/Numan_(315).jpg,pickup,pickup,yolov8s,truck,truck,"annotation referenced, unverified",exploratory
+117e6b3ce39da82c,tl0052,train:Final Train Dataset:blk0006,train/Final Train Dataset/Numan_(315).jpg,three wheelers (CNG),rickshaw,rtdetr-l,low confidence,,"annotation referenced, unverified",exploratory
+460c874cd1f97782,tl0052,train:Final Train Dataset:blk0006,train/Final Train Dataset/Numan_(315).jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+506036d94fa148c1,tl0052,train:Final Train Dataset:blk0006,train/Final Train Dataset/Numan_(315).jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+551406f902fded24,tl0052,train:Final Train Dataset:blk0006,train/Final Train Dataset/Numan_(315).jpg,van,van,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+a7495ef8e1518082,tl0052,train:Final Train Dataset:blk0006,train/Final Train Dataset/Numan_(315).jpg,three wheelers (CNG),rickshaw,rtdetr-l,low confidence,,"annotation referenced, unverified",exploratory
+e66b7bd78ee27846,tl0052,train:Final Train Dataset:blk0006,train/Final Train Dataset/Numan_(315).jpg,pickup,pickup,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+12a4fdc37e2de54b,tl0029,train:Final Train Dataset:blk0003,train/Final Train Dataset/Numan_(353).jpg,three wheelers (CNG),rickshaw,yolov8n,car,car,"annotation referenced, unverified",exploratory
+6f2443bcd15a3868,tl0029,train:Final Train Dataset:blk0003,train/Final Train Dataset/Numan_(353).jpg,pickup,pickup,yolov8n,truck,truck,"annotation referenced, unverified",exploratory
+cef6d60d3079c7a1,tl0029,train:Final Train Dataset:blk0003,train/Final Train Dataset/Numan_(353).jpg,pickup,pickup,yolov8n,truck,truck,"annotation referenced, unverified",exploratory
+12a4fdc37e2de54b,tl0029,train:Final Train Dataset:blk0003,train/Final Train Dataset/Numan_(353).jpg,three wheelers (CNG),rickshaw,yolov8s,car,car,"annotation referenced, unverified",exploratory
+6f2443bcd15a3868,tl0029,train:Final Train Dataset:blk0003,train/Final Train Dataset/Numan_(353).jpg,pickup,pickup,yolov8s,truck,truck,"annotation referenced, unverified",exploratory
+cef6d60d3079c7a1,tl0029,train:Final Train Dataset:blk0003,train/Final Train Dataset/Numan_(353).jpg,pickup,pickup,yolov8s,truck,truck,"annotation referenced, unverified",exploratory
+12a4fdc37e2de54b,tl0029,train:Final Train Dataset:blk0003,train/Final Train Dataset/Numan_(353).jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+6f2443bcd15a3868,tl0029,train:Final Train Dataset:blk0003,train/Final Train Dataset/Numan_(353).jpg,pickup,pickup,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+cef6d60d3079c7a1,tl0029,train:Final Train Dataset:blk0003,train/Final Train Dataset/Numan_(353).jpg,pickup,pickup,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+3672c4678e797194,tl0054,train:Final Train Dataset:blk0007,train/Final Train Dataset/Pias (135).jpg,van,van,yolov8n,car,car,"annotation referenced, unverified",exploratory
+65e735b4f54ebb5f,tl0054,train:Final Train Dataset:blk0007,train/Final Train Dataset/Pias (135).jpg,pickup,pickup,yolov8n,truck,truck,"annotation referenced, unverified",exploratory
+8ffbefb537b57463,tl0054,train:Final Train Dataset:blk0007,train/Final Train Dataset/Pias (135).jpg,pickup,pickup,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+3672c4678e797194,tl0054,train:Final Train Dataset:blk0007,train/Final Train Dataset/Pias (135).jpg,van,van,yolov8s,car,car,"annotation referenced, unverified",exploratory
+65e735b4f54ebb5f,tl0054,train:Final Train Dataset:blk0007,train/Final Train Dataset/Pias (135).jpg,pickup,pickup,yolov8s,truck,truck,"annotation referenced, unverified",exploratory
+8ffbefb537b57463,tl0054,train:Final Train Dataset:blk0007,train/Final Train Dataset/Pias (135).jpg,pickup,pickup,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+3672c4678e797194,tl0054,train:Final Train Dataset:blk0007,train/Final Train Dataset/Pias (135).jpg,van,van,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+65e735b4f54ebb5f,tl0054,train:Final Train Dataset:blk0007,train/Final Train Dataset/Pias (135).jpg,pickup,pickup,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+8ffbefb537b57463,tl0054,train:Final Train Dataset:blk0007,train/Final Train Dataset/Pias (135).jpg,pickup,pickup,rtdetr-l,low confidence,,"annotation referenced, unverified",exploratory
+4db519ea3b306385,tl0012,train:Final Train Dataset:blk0006,train/Final Train Dataset/Pias (149).jpg,pickup,pickup,yolov8n,low confidence,,"annotation referenced, unverified",exploratory
+5d3e1ca6e319b3cd,tl0012,train:Final Train Dataset:blk0006,train/Final Train Dataset/Pias (149).jpg,pickup,pickup,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+a00e231e15fbec13,tl0012,train:Final Train Dataset:blk0006,train/Final Train Dataset/Pias (149).jpg,van,van,yolov8n,car,car,"annotation referenced, unverified",exploratory
+4db519ea3b306385,tl0012,train:Final Train Dataset:blk0006,train/Final Train Dataset/Pias (149).jpg,pickup,pickup,yolov8s,truck,truck,"annotation referenced, unverified",exploratory
+5d3e1ca6e319b3cd,tl0012,train:Final Train Dataset:blk0006,train/Final Train Dataset/Pias (149).jpg,pickup,pickup,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+a00e231e15fbec13,tl0012,train:Final Train Dataset:blk0006,train/Final Train Dataset/Pias (149).jpg,van,van,yolov8s,car,car,"annotation referenced, unverified",exploratory
+4db519ea3b306385,tl0012,train:Final Train Dataset:blk0006,train/Final Train Dataset/Pias (149).jpg,pickup,pickup,rtdetr-l,truck,truck,"annotation referenced, unverified",exploratory
+5d3e1ca6e319b3cd,tl0012,train:Final Train Dataset:blk0006,train/Final Train Dataset/Pias (149).jpg,pickup,pickup,rtdetr-l,low confidence,,"annotation referenced, unverified",exploratory
+a00e231e15fbec13,tl0012,train:Final Train Dataset:blk0006,train/Final Train Dataset/Pias (149).jpg,van,van,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+0931b6189257b412,tl0055,train:Final Train Dataset:blk0007,train/Final Train Dataset/Pias (172).jpg,three wheelers (CNG),rickshaw,yolov8n,car,car,"annotation referenced, unverified",exploratory
+0931b6189257b412,tl0055,train:Final Train Dataset:blk0007,train/Final Train Dataset/Pias (172).jpg,three wheelers (CNG),rickshaw,yolov8s,car,car,"annotation referenced, unverified",exploratory
+0931b6189257b412,tl0055,train:Final Train Dataset:blk0007,train/Final Train Dataset/Pias (172).jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+47bc7f56ff9846d6,tl0020,train:Final Train Dataset:blk0009,train/Final Train Dataset/Pias (173).jpg,three wheelers (CNG),rickshaw,yolov8n,car,car,"annotation referenced, unverified",exploratory
+47bc7f56ff9846d6,tl0020,train:Final Train Dataset:blk0009,train/Final Train Dataset/Pias (173).jpg,three wheelers (CNG),rickshaw,yolov8s,car,car,"annotation referenced, unverified",exploratory
+47bc7f56ff9846d6,tl0020,train:Final Train Dataset:blk0009,train/Final Train Dataset/Pias (173).jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+616d2a881856746e,tl0009,train:Final Train Dataset:blk0005,train/Final Train Dataset/Pias (178).jpg,three wheelers (CNG),rickshaw,yolov8n,low confidence,,"annotation referenced, unverified",exploratory
+83bb7a08b07169b2,tl0009,train:Final Train Dataset:blk0005,train/Final Train Dataset/Pias (178).jpg,pickup,pickup,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+616d2a881856746e,tl0009,train:Final Train Dataset:blk0005,train/Final Train Dataset/Pias (178).jpg,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+83bb7a08b07169b2,tl0009,train:Final Train Dataset:blk0005,train/Final Train Dataset/Pias (178).jpg,pickup,pickup,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+616d2a881856746e,tl0009,train:Final Train Dataset:blk0005,train/Final Train Dataset/Pias (178).jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+83bb7a08b07169b2,tl0009,train:Final Train Dataset:blk0005,train/Final Train Dataset/Pias (178).jpg,pickup,pickup,rtdetr-l,not seen,,"annotation referenced, unverified",exploratory
+48eec447f4eff627,tl0004,train:Final Train Dataset:blk0004,train/Final Train Dataset/Pias (179).jpg,pickup,pickup,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+48eec447f4eff627,tl0004,train:Final Train Dataset:blk0004,train/Final Train Dataset/Pias (179).jpg,pickup,pickup,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+48eec447f4eff627,tl0004,train:Final Train Dataset:blk0004,train/Final Train Dataset/Pias (179).jpg,pickup,pickup,rtdetr-l,low confidence,,"annotation referenced, unverified",exploratory
+1f933214ac8cdc4b,tl0024,train:Final Train Dataset:blk0001,train/Final Train Dataset/Pias (180).jpg,pickup,pickup,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+1f933214ac8cdc4b,tl0024,train:Final Train Dataset:blk0001,train/Final Train Dataset/Pias (180).jpg,pickup,pickup,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+1f933214ac8cdc4b,tl0024,train:Final Train Dataset:blk0001,train/Final Train Dataset/Pias (180).jpg,pickup,pickup,rtdetr-l,low confidence,,"annotation referenced, unverified",exploratory
+5e7de61f712abf86,tl0013,train:Final Train Dataset:blk0007,train/Final Train Dataset/Pias (266).jpg,van,van,yolov8n,car,car,"annotation referenced, unverified",exploratory
+5f8c91f8dcf0a35e,tl0013,train:Final Train Dataset:blk0007,train/Final Train Dataset/Pias (266).jpg,pickup,pickup,yolov8n,car,car,"annotation referenced, unverified",exploratory
+5e7de61f712abf86,tl0013,train:Final Train Dataset:blk0007,train/Final Train Dataset/Pias (266).jpg,van,van,yolov8s,truck,truck,"annotation referenced, unverified",exploratory
+5f8c91f8dcf0a35e,tl0013,train:Final Train Dataset:blk0007,train/Final Train Dataset/Pias (266).jpg,pickup,pickup,yolov8s,car,car,"annotation referenced, unverified",exploratory
+5e7de61f712abf86,tl0013,train:Final Train Dataset:blk0007,train/Final Train Dataset/Pias (266).jpg,van,van,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+5f8c91f8dcf0a35e,tl0013,train:Final Train Dataset:blk0007,train/Final Train Dataset/Pias (266).jpg,pickup,pickup,rtdetr-l,not seen,,"annotation referenced, unverified",exploratory
+8ecb04d52018a1e5,tl0014,train:Final Train Dataset:blk0007,train/Final Train Dataset/Pias (298).jpg,three wheelers (CNG),rickshaw,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+b8ab04044782b53b,tl0014,train:Final Train Dataset:blk0007,train/Final Train Dataset/Pias (298).jpg,pickup,pickup,yolov8n,car,car,"annotation referenced, unverified",exploratory
+fa5d182f51266e1e,tl0014,train:Final Train Dataset:blk0007,train/Final Train Dataset/Pias (298).jpg,pickup,pickup,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+8ecb04d52018a1e5,tl0014,train:Final Train Dataset:blk0007,train/Final Train Dataset/Pias (298).jpg,three wheelers (CNG),rickshaw,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+b8ab04044782b53b,tl0014,train:Final Train Dataset:blk0007,train/Final Train Dataset/Pias (298).jpg,pickup,pickup,yolov8s,car,car,"annotation referenced, unverified",exploratory
+fa5d182f51266e1e,tl0014,train:Final Train Dataset:blk0007,train/Final Train Dataset/Pias (298).jpg,pickup,pickup,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+8ecb04d52018a1e5,tl0014,train:Final Train Dataset:blk0007,train/Final Train Dataset/Pias (298).jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+b8ab04044782b53b,tl0014,train:Final Train Dataset:blk0007,train/Final Train Dataset/Pias (298).jpg,pickup,pickup,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
+fa5d182f51266e1e,tl0014,train:Final Train Dataset:blk0007,train/Final Train Dataset/Pias (298).jpg,pickup,pickup,rtdetr-l,low confidence,,"annotation referenced, unverified",exploratory
+4b627d9e95028ede,tl0021,train:Final Train Dataset:blk0009,train/Final Train Dataset/Pias (325).jpg,pickup,pickup,yolov8n,low confidence,,"annotation referenced, unverified",exploratory
+63e7521d6a12753c,tl0021,train:Final Train Dataset:blk0009,train/Final Train Dataset/Pias (325).jpg,pickup,pickup,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+8fa48e2411a047fa,tl0021,train:Final Train Dataset:blk0009,train/Final Train Dataset/Pias (325).jpg,pickup,pickup,yolov8n,not seen,,"annotation referenced, unverified",exploratory
+d07c664cc1890b88,tl0021,train:Final Train Dataset:blk0009,train/Final Train Dataset/Pias (325).jpg,three wheelers (CNG),rickshaw,yolov8n,car,car,"annotation referenced, unverified",exploratory
+4b627d9e95028ede,tl0021,train:Final Train Dataset:blk0009,train/Final Train Dataset/Pias (325).jpg,pickup,pickup,yolov8s,car,car,"annotation referenced, unverified",exploratory
+63e7521d6a12753c,tl0021,train:Final Train Dataset:blk0009,train/Final Train Dataset/Pias (325).jpg,pickup,pickup,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+8fa48e2411a047fa,tl0021,train:Final Train Dataset:blk0009,train/Final Train Dataset/Pias (325).jpg,pickup,pickup,yolov8s,not seen,,"annotation referenced, unverified",exploratory
+d07c664cc1890b88,tl0021,train:Final Train Dataset:blk0009,train/Final Train Dataset/Pias (325).jpg,three wheelers (CNG),rickshaw,yolov8s,car,car,"annotation referenced, unverified",exploratory
+4b627d9e95028ede,tl0021,train:Final Train Dataset:blk0009,train/Final Train Dataset/Pias (325).jpg,pickup,pickup,rtdetr-l,low confidence,,"annotation referenced, unverified",exploratory
+63e7521d6a12753c,tl0021,train:Final Train Dataset:blk0009,train/Final Train Dataset/Pias (325).jpg,pickup,pickup,rtdetr-l,bus,bus,"annotation referenced, unverified",exploratory
+8fa48e2411a047fa,tl0021,train:Final Train Dataset:blk0009,train/Final Train Dataset/Pias (325).jpg,pickup,pickup,rtdetr-l,low confidence,,"annotation referenced, unverified",exploratory
+d07c664cc1890b88,tl0021,train:Final Train Dataset:blk0009,train/Final Train Dataset/Pias (325).jpg,three wheelers (CNG),rickshaw,rtdetr-l,car,car,"annotation referenced, unverified",exploratory
