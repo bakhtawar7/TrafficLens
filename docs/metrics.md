@@ -351,6 +351,63 @@ mean, range, and missing count); per-image detections and counts never reach the
 console. Feature constants live in `core/features.py`: `MID_CONFIDENCE_BAND`
 `(0.25, 0.50)` and `SMALL_BOX_AREA_FRACTION` `0.001`.
 
+## Error prediction and needs-review flags (`core/predictor.py`)
+
+`scripts/run_predictor.py` joins `results/features.csv` to
+`results/evaluation_table.csv` using canonical item ids. The target is evaluator
+`Actual Error`: the absolute difference between the audited covered total and
+the evaluator's median standard-model count. The development subset is excluded.
+The script reads audited labels only for its readiness gate (at least 30 labelled
+evaluation images and every development image labelled); labels are not predictors.
+
+### Models and validation
+
+The reported models are ridge regression (`alpha=1`), gradient-boosted squared-error
+trees (depth 2, 10 iterations, learning rate 0.05), a one-feature mean-confidence
+regression baseline, and a constant baseline equal to the training-fold mean target.
+Parameters are fixed; no hyperparameter tuning is performed. Missing features are
+median-imputed and all features standardised using training-fold values only.
+
+Validation uses deterministic, size-balanced, five-fold cross-validation grouped by the
+`scene` column in `SOURCES.csv` (fewer folds only when there are fewer than five distinct
+scenes). A scene appears in exactly one validation fold and never in both training and
+validation for that fold. The report records the exact train and validation scene names per
+fold. Every confidence interval resamples whole scenes with replacement; intervals are
+percentile 95% intervals. Results below 60 evaluation images are marked exploratory.
+
+For each model, report mean absolute error of predicted error against the audited error,
+Spearman correlation between predicted and actual error, and needs-review flag metrics,
+each with a scene-level interval. Paired MAE improvements are
+`baseline MAE - model MAE`, with a paired scene bootstrap interval; a positive estimate is
+not called an improvement unless its interval excludes zero.
+
+### Pre-registered needs-review flag
+
+The primary rule flags exactly the highest-predicted-error quarter of the evaluation
+images (rounded up for a non-integral image count; ties break by canonical item id).
+Precision and recall compare those flags with the same-size quarter ranked by true audited
+error. Also report mean true error among flagged and unflagged images. Their intervals use
+the same whole-scene bootstrap. No other cutoff is a primary result; alternate cutoffs, if
+added later, must be labelled sensitivity analyses.
+
+### Hypothesis decisions
+
+H1 follows `docs/hypotheses.md` without changing its fixed review budget: ridge is the
+primary learned model and is compared with the mean-confidence baseline at the worst 20%
+budget. Reject H1 unless ridge's Spearman improvement is at least 0.1, its scene-bootstrap
+interval for the paired correlation difference excludes zero, and it captures strictly
+more of the worst-error images than mean confidence at that same budget.
+
+H2 uses held-out Spearman correlations of `cross_family_count_disagreement` and
+`within_family_count_disagreement` with audited absolute error. Reject H2 unless the
+cross-family correlation is higher and the scene-bootstrap interval for the correlation
+difference excludes zero.
+
+`permutation_skill_test` reruns the grouped fitting pipeline after shuffling targets
+and reports a one-sided p-value for ridge MAE improvement over mean confidence. This
+checks whether apparent predictive skill is stronger than expected under a no-association
+null; it is a diagnostic, not a substitute for the pre-registered H1 decision.
+
 ## Constants (`core/config.py`)
 
 | Name | Value | Role |

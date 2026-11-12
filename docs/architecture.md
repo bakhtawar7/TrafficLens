@@ -5,7 +5,8 @@ reliability, decide, review, and store, with an evaluation branch that scores co
 human ground truth. Week 1 built ingest, detect, and export. Week 2 extended detect to a
 model registry and sliced inference, built the reliability agreement and threshold sweep with
 their dashboard tab, and built the benchmark and ground-truth evaluation branch. The learned
-error predictor, the needs review decision, and the SQLite store remain honest placeholders.
+error predictor and needs-review decision are now available as an offline, scene-grouped
+evaluation workflow. The SQLite store remains a placeholder.
 
 ## Pipeline diagram
 
@@ -23,11 +24,11 @@ flowchart LR
         BM[Benchmark cache<br/>raw detections]
         EVAL[Evaluation<br/>MAE vs ground truth]
         EXP[Export<br/>JSON and CSV]
+        PRED[Learned error predictor<br/>scene-grouped CV]
+        DEC[Needs review<br/>top predicted-error quarter]
     end
     subgraph PLANNED[Planned]
-        PRED[Learned error predictor<br/>Week 3]
         VID[Video tracking ByteTrack<br/>Week 3]
-        DEC[Decide<br/>needs review flag, Week 4]
         REV[Review<br/>inspect flagged runs, Week 4]
         STO[Store<br/>SQLite history, Week 4]
     end
@@ -44,8 +45,8 @@ flowchart LR
 
     classDef built fill:#16263c,stroke:#f5a623,stroke-width:2px,color:#e9eef5;
     classDef planned fill:#0e1a2b,stroke:#5b6b7f,stroke-dasharray:4 3,color:#9fb0c0;
-    class ING,DET,SLC,SWEEP,AGREE,BM,EVAL,EXP built;
-    class PRED,VID,DEC,REV,STO planned;
+    class ING,DET,SLC,SWEEP,AGREE,BM,EVAL,EXP,PRED,DEC built;
+    class VID,REV,STO planned;
 ```
 
 ## Stage by stage
@@ -58,9 +59,9 @@ flowchart LR
 | Reliability (sweep and agreement) | Built | Sweep thresholds from one run and measure agreement between models. | `core/reliability.py`, `app/ui/reliability_tab.py` |
 | Benchmark | Built | Cache raw detections per image, model, and mode for offline reuse. | `scripts/run_benchmark.py` |
 | Evaluation | Built | Score cached counts against human ground truth, development subset excluded. | `core/evaluation.py`, `app/ui/evaluation_tab.py` |
-| Learned error predictor | Planned Week 3 | Predict how far a count can be trusted from detection features. | future `core/reliability.py` |
+| Learned error predictor | Built | Predict audited absolute count error from inference-only features with scene-grouped cross-validation. | `core/predictor.py`, `scripts/run_predictor.py` |
 | Video tracking | Planned Week 3 | Count distinct vehicles across a clip with ByteTrack. | future `core/video.py` |
-| Decide | Planned Week 4 | Turn a reliability score into a needs review flag. | future `core/reliability.py` |
+| Decide | Built | Flag the highest-predicted-error quarter for review and report scene-bootstrap metrics. | `core/predictor.py` |
 | Review | Planned Week 4 | Let a human inspect flagged runs. | future `app/ui/history_tab.py` |
 | Store | Planned Week 4 | Persist run history in SQLite. | future `core/history.py` |
 | Export | Built | Serialise a run to JSON and CSV for download. | `core/export.py` |
@@ -76,6 +77,7 @@ core/
   counting.py     class filtering, per class counts, CountResult
   reliability.py  threshold sweep and the two H2 agreement measures
   evaluation.py   join labels, conditions, and the detection cache; MAE and bootstrap CIs
+  predictor.py    scene-grouped error prediction, bootstrap metrics, and review flags
   annotate.py     boxes and readable labels via supervision
   export.py       JSON payload, CSV row, export file names
   dataset.py      archive parsing, ground truth mapping, tagging, test set selection
@@ -91,6 +93,7 @@ scripts/
   check_testset.py     validate the test set folder before it is used
   run_detectors.py     per-image counts and timings for every registry model
   run_benchmark.py     cache raw detections per image, model, and mode
+  run_predictor.py     evaluate error prediction after audited-label readiness checks
 docs/
   metrics.md      every formula, so each reported number is reproducible
 ```
@@ -106,5 +109,5 @@ docs/
 * The agreement and range formulas are defined once in `core/reliability.py` and
   `core/evaluation.py` and documented in `docs/metrics.md`; the UI renders those values and
   never recomputes a metric inline.
-* The dashboard tabs depend only on `core` functions, so the learned error predictor later
-  adds fields to the Reliability tab rather than rewiring it.
+* The offline predictor and its review flags live in `core/predictor.py`; a future dashboard
+  integration can render these results without reimplementing model or metric logic.
