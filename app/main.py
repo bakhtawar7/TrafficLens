@@ -79,16 +79,21 @@ def _render_limitations() -> None:
         st.markdown(
             "\n".join(
                 [
-                    "* Occlusion and overlap between vehicles cause undercounting.",
-                    "* Night scenes and glare degrade detection quality.",
-                    "* Small and distant vehicles are frequently missed.",
+                    "* Occlusion and overlap between vehicles can hide vehicles or merge "
+                    "their visual evidence.",
+                    "* Night scenes and glare can degrade detections.",
+                    "* Small and distant vehicles may be missed.",
                     "* Rickshaws and other local vehicle types have no COCO class and may "
-                    "be missed or mislabelled. TrafficLens never claims to detect rickshaws.",
+                    "be missed or mislabelled.",
                     "* Video tracking may assign duplicate or switched IDs, especially during "
                     "occlusion; video crossing totals can therefore be wrong.",
                     "* Video results are not part of the evaluation and carry no accuracy claim.",
-                    "* Results come from pretrained models without verification against "
-                    "ground truth in Week 1.",
+                    "* Results come from pretrained models applied to public Dhaka road "
+                    "imagery; model outputs are not ground truth.",
+                    "* Some dataset labels and annotation-referenced analyses are provisional "
+                    "and unverified.",
+                    "* Reliability signals are measured, but are not shown to predict error "
+                    "unless the evaluation demonstrates that relationship.",
                 ]
             )
         )

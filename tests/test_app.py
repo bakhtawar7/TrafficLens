@@ -143,6 +143,23 @@ def test_sidebar_exposes_the_counting_controls(app) -> None:
     assert [expander.label for expander in app.sidebar.expander] == ["Limitations"]
 
 
+def test_limitations_panel_covers_required_caveats(app) -> None:
+    app.run()
+    text = "\n".join(element.value for element in app.sidebar.markdown)
+    required_phrases = (
+        "Occlusion and overlap",
+        "Night scenes and glare",
+        "Small and distant vehicles",
+        "Rickshaws and other local vehicle types",
+        "provisional and unverified",
+        "pretrained models applied to public Dhaka road imagery",
+        "Reliability signals are measured",
+        "not shown to predict error",
+    )
+    for phrase in required_phrases:
+        assert phrase in text
+
+
 def test_uploader_gates_file_type_and_size(app) -> None:
     app.run()
     proto = app.sidebar.file_uploader[0].proto
