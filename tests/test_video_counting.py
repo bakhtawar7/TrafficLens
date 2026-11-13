@@ -131,7 +131,12 @@ def test_synthetic_rectangles_cross_both_directions_through_occlusion(tmp_path):
     ] == [(17, "inbound"), (23, "outbound")]
     with crossings_path.open(encoding="utf-8", newline="") as handle:
         rows = list(csv.DictReader(handle))
-    assert list(rows[0]) == ["track_id", "frame", "direction"]
+    # CSV now includes time_s and class columns in addition to the original three
+    assert "track_id" in rows[0]
+    assert "frame" in rows[0]
+    assert "direction" in rows[0]
+    assert "time_s" in rows[0]
+    assert "class" in rows[0]
     assert [row["direction"] for row in rows] == ["inbound", "outbound"]
 
     capture = cv2.VideoCapture(str(annotated_path))
@@ -232,7 +237,8 @@ def test_real_bytetrack_handles_synthetic_crossing_clip_when_installed(tmp_path)
             frame_rate=fps,
             track_activation_threshold=confidence,
             high_conf_det_threshold=max(confidence, 0.6),
-            minimum_consecutive_frames=2,
+            minimum_consecutive_frames=1,
+            minimum_iou_threshold=0.0,
         )
 
     result = process_video(

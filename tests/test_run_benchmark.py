@@ -119,3 +119,16 @@ def test_evaluation_only_image_list_excludes_development_subset(tmp_path: Path):
     dev_image.touch()
     eval_image.touch()
     assert rb.list_images(tmp_path, dev_only=False, evaluation_only=True) == [eval_image]
+
+def test_benchmark_package_contains_no_image_files():
+    """No image bytes may be committed inside benchmark/."""
+    benchmark_dir = Path(__file__).resolve().parent.parent / "benchmark"
+    if not benchmark_dir.is_dir():
+        pytest.skip("benchmark/ directory does not exist yet")
+    image_exts = {".jpg", ".jpeg", ".png", ".webp", ".gif", ".bmp", ".tiff", ".tif"}
+    found = [
+        str(p.relative_to(benchmark_dir))
+        for p in benchmark_dir.rglob("*")
+        if p.is_file() and p.suffix.lower() in image_exts
+    ]
+    assert found == [], f"Image files found in benchmark/: {found}"

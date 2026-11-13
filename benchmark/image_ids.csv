@@ -1,0 +1,76 @@
+item_id,original_dataset_filename,dataset,split,scene,condition_tags,role,second_pass
+tl0001,tl0001_dhaka_ai.jpg,dhaka_ai,train,train:Final Train Dataset:blk0000,dense;distant,evaluation,no
+tl0002,tl0002_dhaka_ai.jpg,dhaka_ai,train,train:Final Train Dataset:blk0000,day;dense,evaluation,no
+tl0003,tl0003_dhaka_ai.jpg,dhaka_ai,train,train:Final Train Dataset:blk0000,night;glare;dense;distant,evaluation,no
+tl0004,tl0004_dhaka_ai.jpg,dhaka_ai,train,train:Final Train Dataset:blk0004,day;dense,evaluation,no
+tl0005,tl0005_dhaka_ai.jpg,dhaka_ai,train,train:Final Train Dataset:blk0004,night;dense,development,no
+tl0006,tl0006_dhaka_ai.jpg,dhaka_ai,train,train:Final Train Dataset:blk0004,night;glare,development,no
+tl0007,tl0007_dhaka_ai.jpg,dhaka_ai,train,train:Final Train Dataset:blk0005,day;dense;distant,evaluation,yes
+tl0008,tl0008_dhaka_ai.jpg,dhaka_ai,train,train:Final Train Dataset:blk0005,day;dense,evaluation,yes
+tl0009,tl0009_dhaka_ai.jpg,dhaka_ai,train,train:Final Train Dataset:blk0005,day;sparse,development,no
+tl0010,tl0010_dhaka_ai.jpg,dhaka_ai,train,train:Final Train Dataset:blk0006,sparse,evaluation,no
+tl0011,tl0011_dhaka_ai.jpg,dhaka_ai,train,train:Final Train Dataset:blk0006,dense;distant,development,no
+tl0012,tl0012_dhaka_ai.jpg,dhaka_ai,train,train:Final Train Dataset:blk0006,,evaluation,no
+tl0013,tl0013_dhaka_ai.jpg,dhaka_ai,train,train:Final Train Dataset:blk0007,sparse,development,no
+tl0014,tl0014_dhaka_ai.jpg,dhaka_ai,train,train:Final Train Dataset:blk0007,,evaluation,no
+tl0015,tl0015_dhaka_ai.jpg,dhaka_ai,train,train:Final Train Dataset:blk0007,night,evaluation,no
+tl0016,tl0016_dhaka_ai.png,dhaka_ai,train,train:Final Train Dataset:blk0008,glare;dense,development,no
+tl0017,tl0017_dhaka_ai.jpg,dhaka_ai,train,train:Final Train Dataset:blk0008,glare;dense,evaluation,no
+tl0018,tl0018_dhaka_ai.jpg,dhaka_ai,train,train:Final Train Dataset:blk0008,night;glare;dense;distant,development,no
+tl0019,tl0019_dhaka_ai.jpg,dhaka_ai,train,train:Final Train Dataset:blk0009,dense,evaluation,no
+tl0020,tl0020_dhaka_ai.jpg,dhaka_ai,train,train:Final Train Dataset:blk0009,day;dense,evaluation,no
+tl0021,tl0021_dhaka_ai.jpg,dhaka_ai,train,train:Final Train Dataset:blk0009,day,evaluation,no
+tl0022,tl0022_dhaka_ai.jpg,dhaka_ai,train,train:Final Train Dataset:blk0001,day;dense,evaluation,yes
+tl0023,tl0023_dhaka_ai.jpg,dhaka_ai,train,train:Final Train Dataset:blk0001,sparse,development,no
+tl0024,tl0024_dhaka_ai.jpg,dhaka_ai,train,train:Final Train Dataset:blk0001,night,evaluation,no
+tl0025,tl0025_dhaka_ai.jpg,dhaka_ai,train,train:Final Train Dataset:blk0002,dense,evaluation,no
+tl0026,tl0026_dhaka_ai.jpg,dhaka_ai,train,train:Final Train Dataset:blk0002,day;glare;dense;distant,evaluation,no
+tl0027,tl0027_dhaka_ai.jpg,dhaka_ai,train,train:Final Train Dataset:blk0002,day;dense;distant,evaluation,no
+tl0028,tl0028_dhaka_ai.jpg,dhaka_ai,train,train:Final Train Dataset:blk0003,night;glare;dense;distant,evaluation,no
+tl0029,tl0029_dhaka_ai.jpg,dhaka_ai,train,train:Final Train Dataset:blk0003,day;dense;distant,evaluation,yes
+tl0030,tl0030_dhaka_ai.jpg,dhaka_ai,train,train:Final Train Dataset:blk0003,dense,evaluation,no
+tl0031,tl0031_dhaka_ai.jpg,dhaka_ai,train,train:asraf,dense,development,no
+tl0032,tl0032_dhaka_ai.jpg,dhaka_ai,train,train:asraf,sparse,evaluation,no
+tl0033,tl0033_dhaka_ai.jpg,dhaka_ai,train,train:asraf,,evaluation,no
+tl0034,tl0034_dhaka_ai.jpg,dhaka_ai,train,train:dipto,day;sparse,evaluation,no
+tl0035,tl0035_dhaka_ai.jpg,dhaka_ai,train,train:dipto,day;glare;sparse,evaluation,yes
+tl0036,tl0036_dhaka_ai.jpg,dhaka_ai,train,train:dipto,day;sparse,evaluation,yes
+tl0037,tl0037_dhaka_ai.jpg,dhaka_ai,train,train:navid,night;glare;dense;distant,evaluation,no
+tl0038,tl0038_dhaka_ai.jpg,dhaka_ai,train,train:navid,day;sparse,evaluation,yes
+tl0039,tl0039_dhaka_ai.jpg,dhaka_ai,train,train:navid,day;sparse,development,no
+tl0040,tl0040_dhaka_ai.jpg,dhaka_ai,train,train:numan,sparse,evaluation,no
+tl0041,tl0041_dhaka_ai.jpg,dhaka_ai,train,train:numan,night;glare;sparse,evaluation,no
+tl0042,tl0042_dhaka_ai.jpg,dhaka_ai,train,train:numan,day;dense,evaluation,no
+tl0043,tl0043_dhaka_ai.jpg,dhaka_ai,train,train:pias,night;glare;dense;distant,evaluation,yes
+tl0044,tl0044_dhaka_ai.jpg,dhaka_ai,train,train:pias,night;glare;sparse;distant,evaluation,yes
+tl0045,tl0045_dhaka_ai.jpg,dhaka_ai,train,train:pias,night;glare;dense;distant,evaluation,no
+tl0046,tl0046_dhaka_ai.jpg,dhaka_ai,train,train:Final Train Dataset:blk0004,dense;distant,evaluation,yes
+tl0047,tl0047_dhaka_ai.jpg,dhaka_ai,train,train:Final Train Dataset:blk0004,glare;dense,evaluation,no
+tl0048,tl0048_dhaka_ai.jpg,dhaka_ai,train,train:Final Train Dataset:blk0005,day;sparse,evaluation,no
+tl0049,tl0049_dhaka_ai.jpg,dhaka_ai,train,train:Final Train Dataset:blk0005,day,evaluation,yes
+tl0050,tl0050_dhaka_ai.jpg,dhaka_ai,train,train:Final Train Dataset:blk0000,,evaluation,no
+tl0051,tl0051_dhaka_ai.jpg,dhaka_ai,train,train:Final Train Dataset:blk0006,dense;distant,evaluation,no
+tl0052,tl0052_dhaka_ai.jpg,dhaka_ai,train,train:Final Train Dataset:blk0006,dense;distant,evaluation,no
+tl0053,tl0053_dhaka_ai.jpg,dhaka_ai,train,train:Final Train Dataset:blk0000,,evaluation,no
+tl0054,tl0054_dhaka_ai.jpg,dhaka_ai,train,train:Final Train Dataset:blk0007,night;glare,evaluation,no
+tl0055,tl0055_dhaka_ai.png,dhaka_ai,train,train:Final Train Dataset:blk0007,day;dense;distant,evaluation,no
+tl0056,tl0056_dhaka_ai.png,dhaka_ai,train,train:Final Train Dataset:blk0008,day;dense,evaluation,no
+tl0057,tl0057_dhaka_ai.jpg,dhaka_ai,train,train:Final Train Dataset:blk0008,night;glare;dense,evaluation,no
+tl0058,tl0058_dhaka_ai.jpg,dhaka_ai,train,train:Final Train Dataset:blk0009,night;glare;sparse,evaluation,no
+tl0059,tl0059_dhaka_ai.jpg,dhaka_ai,train,train:Final Train Dataset:blk0009,night;glare;sparse,evaluation,no
+tl0060,tl0060_dhaka_ai.jpg,dhaka_ai,train,train:Final Train Dataset:blk0001,,evaluation,no
+tl0061,tl0061_dhaka_ai.jpg,dhaka_ai,train,train:Final Train Dataset:blk0001,night;sparse,evaluation,no
+tl0062,tl0062_dhaka_ai.jpg,dhaka_ai,train,train:Final Train Dataset:blk0002,day;sparse,evaluation,no
+tl0063,tl0063_dhaka_ai.jpg,dhaka_ai,train,train:Final Train Dataset:blk0002,day;dense;distant,evaluation,no
+tl0064,tl0064_dhaka_ai.jpg,dhaka_ai,train,train:Final Train Dataset:blk0003,dense,evaluation,no
+tl0065,tl0065_dhaka_ai.jpg,dhaka_ai,train,train:Final Train Dataset:blk0003,,evaluation,no
+tl0066,tl0066_dhaka_ai.jpg,dhaka_ai,train,train:asraf,dense,evaluation,no
+tl0067,tl0067_dhaka_ai.jpg,dhaka_ai,train,train:asraf,dense,evaluation,no
+tl0068,tl0068_dhaka_ai.jpg,dhaka_ai,train,train:dipto,day,evaluation,no
+tl0069,tl0069_dhaka_ai.jpg,dhaka_ai,train,train:dipto,night;glare,evaluation,no
+tl0070,tl0070_dhaka_ai.jpg,dhaka_ai,train,train:navid,night;glare;distant,evaluation,yes
+tl0071,tl0071_dhaka_ai.jpg,dhaka_ai,train,train:navid,night;sparse;distant,evaluation,no
+tl0072,tl0072_dhaka_ai.jpg,dhaka_ai,train,train:numan,dense;distant,evaluation,no
+tl0073,tl0073_dhaka_ai.jpg,dhaka_ai,train,train:numan,distant,evaluation,no
+tl0074,tl0074_dhaka_ai.jpg,dhaka_ai,train,train:pias,night;glare,evaluation,no
+tl0075,tl0075_dhaka_ai.jpg,dhaka_ai,train,train:pias,night;glare;sparse;distant,evaluation,yes

@@ -101,7 +101,9 @@ def _render_limitations() -> None:
                     "overlapping images are excluded from its evaluation.",
                     "* Video tracking may assign duplicate or switched IDs, especially during "
                     "occlusion; video crossing totals can therefore be wrong.",
-                    "* Video results are not part of the evaluation and carry no accuracy claim.",
+                    "* Video results are a demonstration, not an evaluation, and carry no "
+                    "count guarantee. No provenance row is required for uploaded clips; "
+                    "sample clips in data/samples/video/ still require PROVENANCE.csv.",
                     "* Results come from pretrained models applied to public Dhaka road "
                     "imagery; model outputs are not ground truth.",
                     "* Some dataset labels and annotation-referenced analyses are provisional "

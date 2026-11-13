@@ -53,6 +53,13 @@ app shows a clearly labelled placeholder panel rather than fake data.
 | Label-free reliability feature table (build_features) | Built (script/library) |
 | Metrics reference with every formula (`docs/metrics.md`) | Built |
 | Provenance-gated ByteTrack video line counting | Built; not evaluated |
+| Video upload: direct mp4/mov/m4v/avi/mkv/webm upload, no provenance required | Built; not evaluated |
+| Video: live line preview, direction naming, presets, time range, frame stride | Built; not evaluated |
+| Video: view check on 3 sample frames | Built |
+| Video: per-class crossing counts, track count, ID fragment count | Built; not evaluated |
+| Video: H.264 re-encode via ffmpeg when available, mp4v fallback | Built |
+| Video: result cache by content hash and settings | Built |
+| Video: partial result on stop | Built |
 | Learned error predictor and reliability score | Planned for Week 3 |
 | Needs review flag | Built; not yet validated |
 
@@ -284,12 +291,15 @@ statistic and only cached detections can be scored.
   `Detector` protocol and covered by the test suite; plus the Reliability tab showing per
   model counts, the count range, and the two H2 agreement measures (count disagreement and
   class-aware box agreement) with a sidebar sliced toggle.
-* **Week 3 (partial):** provenance-gated video counting with a virtual line and ByteTrack is
-  built. Add a row to `data/samples/video/PROVENANCE.csv` with the video filename, source URL,
-  author, licence text, and ISO download date before processing; the app never downloads a
-  clip or model weights. Video results are not evaluated and carry no accuracy claim. The
-  learned error predictor is not built; the Reliability tab reports agreement only and draws
-  no trust verdict.
+* **Week 3 (delivered):** provenance-gated video counting with a virtual line and ByteTrack is
+  built. The Video tab now accepts direct uploads (mp4, mov, m4v, avi, mkv, webm) without a
+  provenance row; the user accepts responsibility via an in-tab notice. Sample clips stored in
+  `data/samples/video/` still require a PROVENANCE.csv row. The tab provides live line preview
+  with direction naming and presets, a time range, a frame stride, a view check on 3 frames, a
+  stop button for partial results, per-class crossing counts, track and fragment counts, an
+  annotated output video (H.264 via ffmpeg when available, mp4v fallback), a crossing CSV with
+  time and class columns, and a result cache keyed by content hash and settings. Video results
+  are a demonstration and are never part of the evaluation.
 * **Week 4 (in progress):** stratified test set build with audit artefacts (expanded to 75
   images under the pre-registered cap rule), the local road scene benchmark runner, the
   ground-truth evaluation module, and the Evaluation tab (scored table, error by condition,

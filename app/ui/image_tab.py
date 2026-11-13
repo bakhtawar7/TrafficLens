@@ -7,11 +7,13 @@ are surfaced as friendly messages; raw tracebacks never reach the user.
 from __future__ import annotations
 
 import hashlib
+import html
 import json
 import time
 from pathlib import Path
 
 import cv2
+import numpy as np
 import pandas as pd
 import streamlit as st
 
@@ -154,6 +156,225 @@ def _render_downloads(result: CountResult, input_filename: str) -> None:
         file_name=export.make_csv_filename(input_filename, payload["timestamp_utc"]),
         mime="text/csv",
         width="stretch",
+    )
+
+
+def _build_density_heatmap(image_bgr: np.ndarray, detections) -> np.ndarray:
+    """Return a BGR image blending the original with a detection-box density heatmap.
+
+    Each detection's bounding box adds a Gaussian-weighted contribution to a heat
+    accumulator. The result is normalised, mapped through the COLORMAP_JET palette,
+    and blended onto the source image at 40% weight. This is a descriptive
+    visualisation only: it shows where detected boxes concentrate, not ground-truth
+    vehicle density or any validated spatial statistic.
+    """
+    h, w = image_bgr.shape[:2]
+    heat = np.zeros((h, w), dtype=np.float32)
+    for d in detections:
+        x0, y0, x1, y1 = d.xyxy
+        x0, y0, x1, y1 = int(max(0, x0)), int(max(0, y0)), int(min(w, x1)), int(min(h, y1))
+        if x1 <= x0 or y1 <= y0:
+            continue
+        bw, bh = x1 - x0, y1 - y0
+        # Gaussian blob centred on the box; sigma scales with the smaller box dimension.
+        sigma_x = max(bw / 4.0, 1.0)
+        sigma_y = max(bh / 4.0, 1.0)
+        cx = (x0 + x1) / 2.0
+        cy = (y0 + y1) / 2.0
+        xs = np.arange(w, dtype=np.float32)
+        ys = np.arange(h, dtype=np.float32)
+        gx = np.exp(-((xs - cx) ** 2) / (2 * sigma_x ** 2))
+        gy = np.exp(-((ys - cy) ** 2) / (2 * sigma_y ** 2))
+        heat += np.outer(gy, gx)
+
+    if heat.max() > 0:
+        heat = (heat / heat.max() * 255).astype(np.uint8)
+    else:
+        heat = heat.astype(np.uint8)
+
+    coloured = cv2.applyColorMap(heat, cv2.COLORMAP_JET)
+    blended = cv2.addWeighted(image_bgr, 0.60, coloured, 0.40, 0)
+    return blended
+
+
+def _render_density_heatmap(image_bgr: np.ndarray, result: CountResult) -> None:
+    """Render the detection density heatmap expander in the Image tab."""
+    with st.expander("Detection density heatmap (descriptive visualisation)"):
+        st.caption(
+            "Descriptive visualisation, not a measurement. The colour overlay shows "
+            "where detected bounding boxes concentrate in this image; it is not a "
+            "calibrated density or a ground-truth spatial analysis. Colour scale: "
+            "blue (low) → green → yellow → red (high)."
+        )
+        if result.detections:
+            heatmap = _build_density_heatmap(image_bgr, result.detections)
+            st.image(_to_rgb(heatmap), width="stretch")
+        else:
+            st.info("No detections to visualise; the heatmap is empty.")
+
+
+def _build_html_report(
+    input_filename: str,
+    image_hash: str,
+    settings_hash: str,
+    result: CountResult,
+    reliability: dict | None,
+    rickshaw_mode: bool,
+    finetuned_status: str,
+    timestamp_utc: str,
+) -> str:
+    """Build a self-contained HTML summary for one run.
+
+    The report lists filename and hash, settings hashes, per-model counts,
+    count range, agreement, flag and validation status, rickshaw mode and
+    contamination note, limitations, and timestamp. No count is expressed as
+    a percentage; no accuracy claim is made.
+    """
+    def esc(value: object) -> str:
+        return html.escape(str(value) if value is not None else "not available")
+
+    rows_html = ""
+    if reliability:
+        low = reliability.get("count_range_min")
+        high = reliability.get("count_range_max")
+        range_str = f"{low}–{high}" if low is not None and high is not None else "not available"
+        agreement_count = reliability.get("agreement_count")
+        agreement_box = reliability.get("agreement_box")
+        flag = reliability.get("flag_status", "not available")
+        predicted_error = reliability.get("predicted_error")
+    else:
+        range_str = "not available"
+        agreement_count = None
+        agreement_box = None
+        flag = "not available"
+        predicted_error = None
+
+    classes_str = ", ".join(result.selected_classes) if result.selected_classes else "not available"
+    model_rows = f"""
+        <tr><td>Model</td><td>{esc(result.model_name)}</td></tr>
+        <tr><td>Total count (selected classes)</td><td>{esc(result.total_count)}</td></tr>
+        <tr><td>Counts by class</td><td>{esc(result.counts_by_class)}</td></tr>
+        <tr><td>Inference time (ms)</td><td>{esc(f'{result.inference_ms:.1f}')}</td></tr>
+    """
+
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>TrafficLens run summary — {esc(input_filename)}</title>
+<style>
+  body {{ font-family: sans-serif; max-width: 760px; margin: 2em auto; color: #222; }}
+  h1 {{ font-size: 1.3em; border-bottom: 1px solid #ccc; padding-bottom: .4em; }}
+  h2 {{ font-size: 1.05em; margin-top: 1.4em; color: #444; }}
+  table {{ border-collapse: collapse; width: 100%; margin-bottom: 1em; }}
+  td {{ border: 1px solid #ccc; padding: .35em .6em; vertical-align: top; }}
+  td:first-child {{ font-weight: bold; width: 46%; background: #f7f7f7; }}
+  .caveat {{ background: #fff8e1; border: 1px solid #ffe082; padding: .6em 1em;
+             border-radius: 4px; font-size: .9em; margin: 1em 0; }}
+  footer {{ font-size: .8em; color: #888; margin-top: 2em; border-top: 1px solid #eee;
+            padding-top: .6em; }}
+</style>
+</head>
+<body>
+<h1>TrafficLens run summary</h1>
+<div class="caveat">
+Results are a pilot on Dhaka imagery. Reference counts are human counts;
+human pass consistency is a mean absolute total-count difference of 1.62 vehicles
+over 13 paired images in 7 scenes (95% scene-bootstrap interval 0.67 to 2.46 vehicles).
+The optional fine-tuned mode is a separate model with its own evaluation and
+contamination status. No count in this report is a percentage of ground truth or
+an accuracy figure. Reliability signals have not been validated against ground truth
+in a pre-registered test.
+</div>
+
+<h2>Image provenance</h2>
+<table>
+  <tr><td>Filename (as uploaded)</td><td>{esc(input_filename)}</td></tr>
+  <tr><td>SHA-256 (image bytes)</td><td>{esc(image_hash)}</td></tr>
+  <tr><td>Timestamp (UTC)</td><td>{esc(timestamp_utc)}</td></tr>
+  <tr><td>Image dimensions (px)</td><td>{esc(result.image_width)} × {esc(result.image_height)}</td></tr>
+</table>
+
+<h2>Settings provenance</h2>
+<table>
+  <tr><td>Settings SHA-256</td><td>{esc(settings_hash)}</td></tr>
+  <tr><td>Selected classes</td><td>{esc(classes_str)}</td></tr>
+  <tr><td>Confidence threshold</td><td>{esc(result.confidence_threshold if hasattr(result, 'confidence_threshold') else 'see settings hash')}</td></tr>
+  <tr><td>Rickshaw-aware mode</td><td>{"On — separate one-class pilot model" if rickshaw_mode else "Off — pretrained models only"}</td></tr>
+</table>
+
+<h2>Detection result</h2>
+<table>
+  {model_rows}
+</table>
+
+<h2>Reliability signals</h2>
+<table>
+  <tr><td>Count range (min–max across models)</td><td>{esc(range_str)}</td></tr>
+  <tr><td>Count agreement score</td><td>{esc(agreement_count)}</td></tr>
+  <tr><td>Box agreement score (IoU 0.5)</td><td>{esc(agreement_box)}</td></tr>
+  <tr><td>Flag status</td><td>{esc(flag)}</td></tr>
+  <tr><td>Predicted error</td><td>{esc(predicted_error)}</td></tr>
+  <tr><td>Validation status</td><td>Not yet validated against ground truth in a pre-registered test.</td></tr>
+</table>
+
+<h2>Fine-tuned model status</h2>
+<table>
+  <tr><td>Mode</td><td>{"Active (see detections above)" if rickshaw_mode else "Not used for this run"}</td></tr>
+  <tr><td>Status</td><td>{esc(finetuned_status)}</td></tr>
+</table>
+
+<h2>Limitations</h2>
+<ul>
+  <li>Occlusion and overlap between vehicles can cause undercounting.</li>
+  <li>Night scenes and glare degrade detection quality.</li>
+  <li>Small and distant vehicles are frequently missed.</li>
+  <li>The pretrained COCO detectors have no rickshaw class and may miss or mislabel
+      local vehicle types.</li>
+  <li>The optional one-class fine-tuned rickshaw pilot is separate, cannot detect other
+      categories, and is not a validated replacement for pretrained counts.</li>
+  <li>Results come from a pilot on Dhaka street imagery; they do not generalise to other
+      cities or scene types without further evaluation.</li>
+  <li>Count ranges and agreement scores are measured between models, not against
+      human ground truth.</li>
+</ul>
+
+<footer>
+Generated by TrafficLens. This report does not contain image bytes or personal data.
+Report timestamp: {esc(timestamp_utc)}.
+</footer>
+</body>
+</html>"""
+
+
+def _render_html_report(
+    input_filename: str,
+    image_bytes: bytes,
+    result: CountResult,
+    settings_hash: str,
+    rickshaw_mode: bool,
+    finetuned_status: str,
+    timestamp_utc: str,
+) -> None:
+    """Render the HTML report download button in the Image tab."""
+    image_hash = hashlib.sha256(image_bytes).hexdigest()
+    report_html = _build_html_report(
+        input_filename=input_filename,
+        image_hash=image_hash,
+        settings_hash=settings_hash,
+        result=result,
+        reliability=None,
+        rickshaw_mode=rickshaw_mode,
+        finetuned_status=finetuned_status,
+        timestamp_utc=timestamp_utc,
+    )
+    stem = Path(input_filename).stem
+    st.download_button(
+        "Download run summary (HTML)",
+        data=report_html.encode("utf-8"),
+        file_name=f"trafficlens_summary_{stem}_{timestamp_utc[:10]}.html",
+        mime="text/html",
+        help="A self-contained HTML file with run metadata, counts, and reliability signals. No image bytes are included.",
     )
 
 
@@ -340,6 +561,7 @@ def render(
         st.image(_to_rgb(annotate.annotate(image_bgr, result.detections)), width="stretch")
 
     _render_metrics(result)
+    _render_density_heatmap(image_bgr, result)
     _record_image_history(
         uploaded_file.name,
         data,
@@ -356,6 +578,23 @@ def render(
     st.markdown("**Detections**")
     _render_table(result)
     _render_downloads(result, uploaded_file.name)
+    import hashlib as _hashlib
+    from datetime import datetime, timezone as _tz
+    _settings_hash = (
+        _hashlib.sha256(config.FINAL_SETTINGS_JSON.read_bytes()).hexdigest()
+        if config.FINAL_SETTINGS_JSON.is_file()
+        else "unavailable"
+    )
+    _ts = datetime.now(_tz.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+    _render_html_report(
+        input_filename=uploaded_file.name,
+        image_bytes=data,
+        result=result,
+        settings_hash=_settings_hash,
+        rickshaw_mode=False,
+        finetuned_status="Not used for this run.",
+        timestamp_utc=_ts,
+    )
 
     if get_finetuned_detector is None:
         return

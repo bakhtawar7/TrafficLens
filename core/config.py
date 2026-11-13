@@ -194,6 +194,19 @@ ALLOWED_EXTENSIONS: tuple[str, ...] = (".jpg", ".jpeg", ".png", ".webp")
 MAX_UPLOAD_BYTES: int = 15 * 1024 * 1024  # 15 MB default, configurable at call time
 
 # ---------------------------------------------------------------------------
+# Video upload limits
+# ---------------------------------------------------------------------------
+#: Accepted video container extensions for the upload widget.
+ALLOWED_VIDEO_EXTENSIONS: tuple[str, ...] = (".mp4", ".mov", ".m4v", ".avi", ".mkv", ".webm")
+#: Hard limit for uploaded video files (bytes).  Set to 1000 MB to match the
+#: Streamlit server.maxUploadSize in .streamlit/config.toml.
+MAX_VIDEO_UPLOAD_BYTES: int = 1000 * 1024 * 1024
+#: Default assumed FPS when the container reports 0 or NaN.
+VIDEO_DEFAULT_FPS: float = 25.0
+#: Default processing limit in seconds; the user may raise it in the UI.
+VIDEO_DEFAULT_MAX_SECONDS: float = 60.0
+
+# ---------------------------------------------------------------------------
 # Annotation colours (RGB) keyed by class name. A stable colour per class keeps
 # output consistent between runs.
 # ---------------------------------------------------------------------------

@@ -212,11 +212,14 @@ def test_image_tab_counts_an_uploaded_image(app) -> None:
     counts = metrics_of(app)
     assert counts["Total vehicles"] == "5"
     assert (counts["Car"], counts["Motorcycle"], counts["Bus"], counts["Truck"]) == ("2", "1", "1", "1")
-    assert len(app.image) == 2, "original and annotated image should both render"
-    assert sorted(
+    assert len(app.image) == 3, "original, annotated, and density heatmap images should render"
+    download_labels = sorted(
         button.label for button in app.download_button
         if button.label.startswith("Download ")
-    ) == ["Download CSV", "Download JSON"]
+    )
+    assert "Download CSV" in download_labels
+    assert "Download JSON" in download_labels
+    assert "Download run summary (HTML)" in download_labels
 
 
 def test_history_tab_discloses_local_filename_storage_and_exports(app) -> None:
@@ -251,8 +254,8 @@ def test_finetuned_toggle_is_off_by_default_and_does_not_change_base_counts(app)
     after_toggle = metrics_of(app)
     assert after_toggle["Rickshaw count (fine tuned)"] == "1"
     assert after_toggle["Total vehicles"] == "5"
-    assert len(app.image) == 3, "the fine-tuned visualization is separate from the base image"
-    assert sum(button.label.startswith("Download ") for button in app.download_button) == 4
+    assert len(app.image) == 4, "original, annotated, heatmap, and fine-tuned visualisation should render"
+    assert sum(button.label.startswith("Download ") for button in app.download_button) == 5
 
 
 def test_image_tab_optional_zone_reports_standard_model_counts_and_occupancy(app) -> None:
@@ -553,6 +556,7 @@ def test_evaluation_tab_shows_the_refusal_when_every_row_was_rejected(tmp_path, 
 
     monkeypatch.setattr("core.config.EVALUATION_TABLE_CSV", table)
     monkeypatch.setattr("core.config.EVALUATION_SUMMARY_JSON", summary)
+    monkeypatch.setattr("core.config.HISTORY_DB", tmp_path / "history.db")
     at = AppTest.from_file(APP_ENTRY, default_timeout=120)
     at.run()
     assert not at.exception

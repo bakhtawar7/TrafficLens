@@ -92,6 +92,7 @@ def _render_history_browser() -> None:
         selected_id = st.selectbox(
             "View run details",
             options=[run["id"] for run in runs],
+            key="history_view_run_id",
             format_func=lambda value: next(
                 f"{item['timestamp_utc']} | {item['input_filename']} | {value[:8]}"
                 for item in runs if item["id"] == value

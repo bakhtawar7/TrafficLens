@@ -1,0 +1,168 @@
+{
+  "_note": "PROPOSED mapping for human review, not applied to any detector. Derived from core.dataset.LABEL_TO_CATEGORY. Verify before use.",
+  "dataset_path": "C:\\Users\\bakht\\Downloads\\archive",
+  "target_categories": [
+    "car",
+    "bus",
+    "truck",
+    "motorcycle",
+    "rickshaw",
+    "loader_rickshaw",
+    "other",
+    "ignore"
+  ],
+  "totals": {
+    "classes": 21,
+    "images_with_annotations": 3002,
+    "annotations": 24368
+  },
+  "classes": {
+    "ambulance": {
+      "proposed": "other",
+      "known_mapping": true,
+      "mapping_source": "core.dataset.LABEL_TO_CATEGORY",
+      "images": 69,
+      "annotations": 70
+    },
+    "army vehicle": {
+      "proposed": "other",
+      "known_mapping": true,
+      "mapping_source": "core.dataset.LABEL_TO_CATEGORY",
+      "images": 39,
+      "annotations": 43
+    },
+    "auto rickshaw": {
+      "proposed": "rickshaw",
+      "known_mapping": true,
+      "mapping_source": "core.dataset.LABEL_TO_CATEGORY",
+      "images": 149,
+      "annotations": 372
+    },
+    "bicycle": {
+      "proposed": "other",
+      "known_mapping": true,
+      "mapping_source": "core.dataset.LABEL_TO_CATEGORY",
+      "images": 352,
+      "annotations": 459
+    },
+    "bus": {
+      "proposed": "bus",
+      "known_mapping": true,
+      "mapping_source": "core.dataset.LABEL_TO_CATEGORY",
+      "images": 1558,
+      "annotations": 3340
+    },
+    "car": {
+      "proposed": "car",
+      "known_mapping": true,
+      "mapping_source": "core.dataset.LABEL_TO_CATEGORY",
+      "images": 1621,
+      "annotations": 5476
+    },
+    "garbagevan": {
+      "proposed": "truck",
+      "known_mapping": true,
+      "mapping_source": "core.dataset.LABEL_TO_CATEGORY",
+      "images": 3,
+      "annotations": 3
+    },
+    "human hauler": {
+      "proposed": "loader_rickshaw",
+      "known_mapping": true,
+      "mapping_source": "core.dataset.LABEL_TO_CATEGORY",
+      "images": 128,
+      "annotations": 169
+    },
+    "minibus": {
+      "proposed": "bus",
+      "known_mapping": true,
+      "mapping_source": "core.dataset.LABEL_TO_CATEGORY",
+      "images": 58,
+      "annotations": 95
+    },
+    "minivan": {
+      "proposed": "car",
+      "known_mapping": true,
+      "mapping_source": "core.dataset.LABEL_TO_CATEGORY",
+      "images": 576,
+      "annotations": 935
+    },
+    "motorbike": {
+      "proposed": "motorcycle",
+      "known_mapping": true,
+      "mapping_source": "core.dataset.LABEL_TO_CATEGORY",
+      "images": 1186,
+      "annotations": 2284
+    },
+    "pickup": {
+      "proposed": "truck",
+      "known_mapping": true,
+      "mapping_source": "core.dataset.LABEL_TO_CATEGORY",
+      "images": 793,
+      "annotations": 1225
+    },
+    "policecar": {
+      "proposed": "other",
+      "known_mapping": true,
+      "mapping_source": "core.dataset.LABEL_TO_CATEGORY",
+      "images": 30,
+      "annotations": 32
+    },
+    "rickshaw": {
+      "proposed": "rickshaw",
+      "known_mapping": true,
+      "mapping_source": "core.dataset.LABEL_TO_CATEGORY",
+      "images": 1021,
+      "annotations": 3549
+    },
+    "scooter": {
+      "proposed": "motorcycle",
+      "known_mapping": true,
+      "mapping_source": "core.dataset.LABEL_TO_CATEGORY",
+      "images": 35,
+      "annotations": 38
+    },
+    "suv": {
+      "proposed": "car",
+      "known_mapping": true,
+      "mapping_source": "core.dataset.LABEL_TO_CATEGORY",
+      "images": 539,
+      "annotations": 860
+    },
+    "taxi": {
+      "proposed": "car",
+      "known_mapping": true,
+      "mapping_source": "core.dataset.LABEL_TO_CATEGORY",
+      "images": 52,
+      "annotations": 60
+    },
+    "three wheelers (CNG)": {
+      "proposed": "rickshaw",
+      "known_mapping": true,
+      "mapping_source": "core.dataset.LABEL_TO_CATEGORY",
+      "images": 1170,
+      "annotations": 2990
+    },
+    "truck": {
+      "proposed": "truck",
+      "known_mapping": true,
+      "mapping_source": "core.dataset.LABEL_TO_CATEGORY",
+      "images": 842,
+      "annotations": 1492
+    },
+    "van": {
+      "proposed": "car",
+      "known_mapping": true,
+      "mapping_source": "core.dataset.LABEL_TO_CATEGORY",
+      "images": 449,
+      "annotations": 756
+    },
+    "wheelbarrow": {
+      "proposed": "loader_rickshaw",
+      "known_mapping": true,
+      "mapping_source": "core.dataset.LABEL_TO_CATEGORY",
+      "images": 93,
+      "annotations": 120
+    }
+  }
+}

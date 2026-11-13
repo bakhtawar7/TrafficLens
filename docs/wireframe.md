@@ -116,11 +116,56 @@ the error by condition as a Plotly chart, and the labelling pass agreement.
 
 * The warning that fewer than 30 labelled items exist is surfaced when the summary sets it.
 
-## Video tab (placeholder)
+## Video tab (live)
 
-A single panel headed "Planned for Week 3". It lists the future ByteTrack capabilities:
-clip upload, per frame detection, tracking each vehicle once, unique totals, and playback.
-No data is shown.
+The Video tab accepts direct file uploads (mp4, mov, m4v, avi, mkv, webm up to 1 GB) without
+a provenance row. Sample clips in `data/samples/video/` with a PROVENANCE.csv row appear in
+a dropdown with attribution. No provenance row is required for user-uploaded files; the user
+accepts responsibility via an in-tab notice.
+
+```text
++--------------------------------------------------------------------------+
+| WARNING: Video results are a demonstration, not an evaluation.           |
+| caption: pilot Dhaka imagery; fine-tuned mode not used for video         |
+|                                                                          |
+| [Sample clips dropdown — only clips with PROVENANCE.csv rows]            |
+|   attribution shown when selected                                        |
+|                                                                          |
+| Upload a video file                                                      |
+| info: "Your video is processed on this computer and is not kept..."      |
+| [ File uploader: mp4 mov m4v avi mkv webm, up to 1000 MB ]              |
+| Source or licence note (optional) [                               ]      |
+|                                                                          |
+| caption: resolution × fps × duration                                    |
+|                                                                          |
+| Counting line                                                            |
+| Quick preset [Custom ▾]  Start X [ ] Y [ ]  End X [ ] Y [ ]             |
+| Inbound direction name [Inbound ]  Outbound direction name [Outbound]   |
+| [First frame with counting line overlaid]                                |
+|                                                                          |
+| Processing range and speed                                               |
+| Start (s) [ ]  End (s) [ ]  Frame stride [1 ▾]                          |
+| [ ] Process beyond the default 60 s limit                               |
+|                                                                          |
+| [ Run view check (3 sample frames) ]                                    |
+|   → vehicle counts on 3 frames; warning if all zero                     |
+|                                                                          |
+| [ Process video ]  [ Stop ]                                              |
+| ████████████░░░░ 48/80 frames  12.3 frames/s — ~3 s remaining           |
+|                                                                          |
+| ✓ Processed 80 frames at 10.0 fps.                                      |
+| [Inbound: 2] [Outbound: 1] [Tracks: 3] [ID fragments: 0]               |
+| Crossings by class table                                                 |
+| caption: H.264 / mp4v encoding note                                     |
+| [Video player]                                                           |
+| [ Download annotated video ]  [ Download crossing CSV ]                 |
++--------------------------------------------------------------------------+
+```
+
+* No video bytes are stored in the history database.
+* The result is cached by content hash + settings hash + line + range so download clicks
+  do not reprocess.
+* "Partial" is appended to the success message when the Stop button was used.
 
 ## History tab (live)
 
