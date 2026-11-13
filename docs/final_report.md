@@ -139,10 +139,13 @@ pipeline is designed to avoid using model detections to choose evaluation images
 The labelling protocol defines seven categories: car, bus, truck, motorcycle, rickshaw,
 loader rickshaw, and other. It describes what constitutes a vehicle, partial visibility,
 occlusion, a minimum visible size rule, parked vehicles, and second-pass adjudication.
-The available audited evaluation pack contains 13 images with two human passes. The broader
+The available audited evaluation pack contains 13 evaluation images with two human
+passes. The current `data/testset/LABELS.csv` has 23 Pass 1 rows (10 development items
+and 13 evaluation items) plus 13 Pass 2 rows for the same 13 evaluation items. The
+`benchmark/audited_labels.csv` file mirrors those 26 evaluation-pass records. The broader
 65-image evaluation roster still has 52 items without supplied first-pass audited counts.
-Consequently, the general evaluation results represent the labelled subset, not the entire
-roster.
+Consequently, the general evaluation results represent the 13-image labelled evaluation
+subset, not the entire roster.
 
 ### 4.3 Consistency
 
