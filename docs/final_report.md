@@ -361,3 +361,43 @@ The local database schema, relationships, migration details, and example queries
 
 The screenshot inventory is in `docs/screenshots.md`. No screenshots or demo recording are
 claimed to exist.
+
+## Appendix E. Numeric provenance register
+
+Every numeric project result or sample-size statement used in this report is listed here
+with its source. Counts in this table are aggregate only; no per-image model outputs are
+reproduced.
+
+| Number / quantity | Meaning | Source file |
+| --- | --- | --- |
+| 1.62 vehicles/image | Mean absolute difference between human pass totals across seven categories | `results/eval_labelling_pack/final_evaluation_report.md`; `results/eval_labelling_pack/final_evaluation_summary.json` |
+| 13 images; 7 scenes | Paired human-label sample for pass consistency | `results/eval_labelling_pack/final_evaluation_report.md` |
+| 0.67–2.46 vehicles | 95% scene-bootstrap interval for seven-category pass consistency | `results/eval_labelling_pack/final_evaluation_report.md` |
+| 1.69 vehicles/image; 0.67–2.64 | Covered-class pass consistency mean and interval | `results/eval_labelling_pack/final_evaluation_report.md` |
+| 75 images; 65 evaluation; 10 development | Selected test-set size and partition | `README.md`; `configs/testset_plan.json`; `results/eval_labelling_pack/final_evaluation_summary.json` |
+| 52 images | Evaluation roster items without supplied first-pass audited counts | `results/eval_labelling_pack/final_evaluation_report.md`; `results/eval_labelling_pack/final_evaluation_summary.json` |
+| 13 labelled evaluation images | General pretrained evaluation sample size | `results/eval_labelling_pack/final_evaluation_report.md` |
+| 2,000 resamples; seed 20261028 | Scene-cluster bootstrap configuration | `results/eval_labelling_pack/final_evaluation_summary.json`; `core/config.py` |
+| YOLOv8n MAE 4.00; interval 2.70–5.31 | Standard-mode overall covered-class pilot result | `results/eval_labelling_pack/final_evaluation_report.md` |
+| YOLOv8s MAE 3.00; interval 1.40–4.50 | Standard-mode overall covered-class pilot result | `results/eval_labelling_pack/final_evaluation_report.md` |
+| RT-DETR-L MAE 7.08; interval 4.64–10.45 | Standard-mode overall covered-class pilot result | `results/eval_labelling_pack/final_evaluation_report.md` |
+| YOLOv8n sliced MAE 2.38; interval 1.17–3.67 | Sliced-mode overall covered-class pilot result | `results/eval_labelling_pack/final_evaluation_report.md` |
+| YOLOv8s sliced MAE 2.77; interval 1.33–4.12 | Sliced-mode overall covered-class pilot result | `results/eval_labelling_pack/final_evaluation_report.md` |
+| RT-DETR-L sliced MAE 14.38; interval 5.55–23.44 | Sliced-mode overall covered-class pilot result | `results/eval_labelling_pack/final_evaluation_report.md` |
+| 7 distant images; -3.14; -5.00 to -2.00 | YOLOv8n paired sliced-minus-standard distant-condition MAE difference and interval | `results/eval_labelling_pack/final_evaluation_report.md` |
+| 242 training images | Reproduced fine-tuning training subset size | `docs/rickshaw_model.md` |
+| 49 overlaps; 43 evaluation; 6 development | Fine-tuned model training/test contamination matches and partition | `docs/rickshaw_model.md` |
+| 22 uncontaminated evaluation images | Fine-tuned model remaining evaluation pool after known overlap exclusions | `docs/rickshaw_model.md` |
+| 7 images; 3 scenes | Eligible fine-tuned first-pass audited comparison | `docs/rickshaw_model.md` |
+| Fine-tuned covered-total MAE 6.00; interval 1.50–9.50 | Fine-tuned pilot covered-total error | `docs/rickshaw_model.md` |
+| YOLOv8n covered-total MAE 3.29; interval 1.00–6.00 | Pretrained comparator in the fine-tuned eligible subset | `docs/rickshaw_model.md` |
+| Fine-tuned rickshaw-any MAE 1.86; interval 0.67–3.00 | Fine-tuned pilot rickshaw-any error | `docs/rickshaw_model.md` |
+| YOLOv8n rickshaw-any MAE 2.00; interval 1.00–3.00 | Pretrained comparator for rickshaw-any | `docs/rickshaw_model.md` |
+| +2.71; 0.50–3.67 | Fine-tuned minus YOLOv8n paired covered-total absolute-error difference | `docs/rickshaw_model.md` |
+| 3 pretrained models | Current pretrained detector registry: YOLOv8n, YOLOv8s, RT-DETR-L | `core/config.py`; `README.md` |
+| 7 label categories | Human labelling vocabulary | `docs/labelling_protocol.md` |
+| 12 pixels | Minimum visible vehicle dimension in the labelling protocol | `docs/labelling_protocol.md` |
+| 100 images | Future audited-set target | Project brief in the original task instructions |
+| 20 minutes; 6 tasks; 10 SUS items | Planned usability session structure and questionnaire | `docs/usability_test.md` |
+| 3–5 minutes | Planned demo duration | `docs/demo_script.md` |
+
