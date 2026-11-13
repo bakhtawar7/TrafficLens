@@ -254,3 +254,36 @@ def correction_export_rows(path=None):
         rows = [dict(x) for x in cur.fetchall()]
     return [{**r,"corrected_counts":_decode(r["corrected_counts"],{}),
              "selected_classes":_decode(r["selected_classes"],[])} for r in rows]
+
+
+def correction_comparison(run: dict[str, Any], correction: dict[str, Any]) -> dict[str, Any]:
+    selected = [name for name in run["selected_classes"] if name in config.LABEL_CLASS_NAMES]
+    corrected = correction["corrected_counts"]
+    reference = sum(int(corrected.get(name, 0)) for name in selected)
+    low, high = run.get("count_range_min"), run.get("count_range_max")
+    models = []
+    for item in run.get("model_results", []):
+        prediction = int(item["total_count"])
+        models.append({"model": item["model"], "predicted_total": prediction,
+            "corrected_total": reference, "signed_error": prediction-reference,
+            "inside_stated_range": None if low is None or high is None else int(low)<=reference<=int(high)})
+    return {"selected_classes": selected, "corrected_total": reference, "models": models}
+
+
+def correction_aggregates(path=None) -> dict[str, Any]:
+    queue = review_queue(queue_filter="Reviewed")
+    groups = {"flagged": {"runs": set(), "absolute_errors": []},
+              "unflagged": {"runs": set(), "absolute_errors": []}}
+    for run in queue:
+        correction = run["latest_correction"]
+        if correction is None:
+            continue
+        comparison = correction_comparison(run, correction)
+        status = str(run.get("flag_status") or "not validated").casefold()
+        name = "flagged" if status in {"flagged", "yes", "needs review"} else "unflagged"
+        groups[name]["runs"].add(run["id"])
+        groups[name]["absolute_errors"].extend(abs(m["signed_error"]) for m in comparison["models"])
+    return {name: {"reviewed_runs": len(group["runs"]),
+        "mean_absolute_error_before_correction": (sum(group["absolute_errors"])/len(group["absolute_errors"])
+        if group["absolute_errors"] else None),
+        "model_run_comparisons": len(group["absolute_errors"])} for name, group in groups.items()}
