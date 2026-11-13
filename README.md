@@ -2,12 +2,12 @@
 
 ## Overview
 
-TrafficLens is a vehicle counting system for images and, in later weeks, video. It
-runs pretrained object detectors over a supplied input, filters the results down to
-the vehicle classes of interest, and reports a per class count together with an
-annotated image. The Week 1 scope delivers the counting foundation: a working image
-counter, result exports, a clean dashboard shell, documentation, and scaffolding for a
-local road scene test set.
+TrafficLens is a vehicle-counting system for uploaded images and videos. It runs
+pretrained object detectors over supplied inputs, filters detections to the vehicle
+classes of interest, and produces per-class counts with annotated outputs. The
+application also includes model comparison, sliced inference, reliability measures,
+offline benchmark/evaluation tooling, a learned counting-error predictor, a blind
+review workflow, and local or PostgreSQL-backed run history.
 
 The system deliberately exposes its own uncertainty. Counting is only useful when the
 operator understands how far that count can be trusted, so every screen carries honest
@@ -60,7 +60,7 @@ app shows a clearly labelled placeholder panel rather than fake data.
 | Video: H.264 re-encode via ffmpeg when available, mp4v fallback | Built |
 | Video: result cache by content hash and settings | Built |
 | Video: partial result on stop | Built |
-| Learned error predictor and reliability score | Planned for Week 3 |
+| Learned error predictor and reliability score | Built (script/library; real-data validation gated by audited labels) |
 | Needs review flag | Built; not yet validated |
 
 ## Installation
@@ -392,10 +392,11 @@ statistic and only cached detections can be scored.
   annotated output video (H.264 via ffmpeg when available, mp4v fallback), a crossing CSV with
   time and class columns, and a result cache keyed by content hash and settings. Video results
   are a demonstration and are never part of the evaluation.
-* **Week 4 (in progress):** stratified test set build with audit artefacts (expanded to 75
-  images under the pre-registered cap rule), the local road scene benchmark runner, the
-  ground-truth evaluation module, and the Evaluation tab (scored table, error by condition,
-  labelling pass agreement) are delivered, together with the blind labelling app, settings
-  provenance, and the development read guard that prepare leakage-free tuning. Tuning itself
-  waits for the audited first-pass labels; the needs review flag and SQLite history are
-  still to come.
+* **Week 4 (implementation delivered):** stratified test-set build and audit artefacts
+  (75 images under the pre-registered cap rule), benchmark runner, ground-truth evaluation
+  module, Evaluation tab, blind labelling app, settings provenance, development read guard,
+  learned error-prediction workflow, needs-review flagging, and SQLite run history are
+  implemented. The review workflow and PostgreSQL history backend are also implemented.
+  The remaining work is validation, not feature scaffolding: complete the required audited
+  first-pass labels, run the predictor on the real evaluation set, assess its results, and
+  verify the deployed database and application end to end.
