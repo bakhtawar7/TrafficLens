@@ -127,7 +127,11 @@ No data is shown.
 The local history tab discloses that uploaded filenames are stored and that image bytes
 are not. It provides filename and model filters, a run table, a model-results detail view,
 CSV export, per-run deletion, and clear-history confirmation. SQLite database errors are
-shown without disabling image counting. Human correction review remains planned.
+shown without disabling image counting. The Human review subtab provides a blind queue,
+exact-image re-upload check, seven category count inputs, a reveal step, append-only
+correction save, per-model signed-error and range comparison, a descriptive flagged/
+unflagged aggregate, and correction CSV export. Corrections are user reported, never
+written to `LABELS.csv`, and never used to change a model or setting.
 
 ```text
 +--------------------------------------------------------------------------+

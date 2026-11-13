@@ -6,8 +6,8 @@ human ground truth. Week 1 built ingest, detect, and export. Week 2 extended det
 model registry and sliced inference, built the reliability agreement and threshold sweep with
 their dashboard tab, and built the benchmark and ground-truth evaluation branch. The learned
 error predictor and needs-review decision are now available as an offline, scene-grouped
-evaluation workflow. The SQLite run-history store is available; the human correction review
-loop is not yet implemented.
+evaluation workflow. The SQLite run-history store and blind, append-only user correction
+loop are available.
 
 ## Pipeline diagram
 
@@ -31,7 +31,7 @@ flowchart LR
     end
     subgraph PLANNED[Planned]
         VID[Video tracking ByteTrack<br/>Week 3]
-        REV[Review<br/>inspect flagged runs, Week 4]
+        REV[Blind correction queue<br/>append-only user counts]
     end
 
     ING --> DET --> SWEEP
@@ -66,7 +66,7 @@ flowchart LR
 | Learned error predictor | Built | Predict audited absolute count error from inference-only features with scene-grouped cross-validation. | `core/predictor.py`, `scripts/run_predictor.py` |
 | Video tracking | Planned Week 3 | Count distinct vehicles across a clip with ByteTrack. | future `core/video.py` |
 | Decide | Built | Flag the highest-predicted-error quarter for review and report scene-bootstrap metrics. | `core/predictor.py` |
-| Review | Planned | Let a reviewer enter blind, append-only corrected counts. | `app/ui/history_tab.py` (planned) |
+| Review | Built | Blind, append-only user corrections with reveal and descriptive comparison. | `core/history.py`, `app/ui/history_tab.py` |
 | Export | Built | Serialise a run to JSON and CSV for download. | `core/export.py` |
 
 ## Module map

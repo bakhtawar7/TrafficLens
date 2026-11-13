@@ -345,3 +345,248 @@ def export_rows(path: Path | None = None) -> list[dict[str, Any]]:
             return [dict(row) for row in rows]
     except sqlite3.DatabaseError as error:
         raise HistoryStoreError("History could not be exported from the local database.") from error
+
+
+def _decode_json(value: str | None, fallback: Any) -> Any:
+    if value is None:
+        return fallback
+    try:
+        return json.loads(value)
+    except json.JSONDecodeError as error:
+        raise HistoryStoreError("History contains invalid JSON data and cannot be reviewed.") from error
+
+
+def review_queue(
+    path: Path | None = None,
+    filename_filter: str = "",
+    queue_filter: str = "All",
+) -> list[dict[str, Any]]:
+    """Return reviewable runs, flagged first, with model outputs kept out of the list."""
+    path = _database_path(path)
+    try:
+        migrate(path)
+        with _connect(path) as connection:
+            runs = [
+                dict(row)
+                for row in connection.execute(
+                    """
+                    SELECT r.id, r.timestamp_utc, r.input_filename, r.selected_classes,
+                        r.threshold, r.rickshaw_mode, l.flag_status, l.flag_source,
+                        l.count_range_min, l.count_range_max, l.agreement_count,
+                        l.agreement_box
+                    FROM runs r LEFT JOIN reliability l ON l.run_id = r.id
+                    WHERE r.input_filename LIKE ?
+                    """,
+                    (f"%{filename_filter}%",),
+                )
+            ]
+            for run in runs:
+                run["model_results"] = [
+                    dict(row)
+                    for row in connection.execute(
+                        """
+                        SELECT model, total_count, counts_by_class
+                        FROM model_results WHERE run_id = ? ORDER BY model
+                        """,
+                        (run["id"],),
+                    )
+                ]
+                latest = connection.execute(
+                    """
+                    SELECT id, timestamp_utc, reviewer, corrected_counts, note
+                    FROM corrections WHERE run_id = ? ORDER BY id DESC LIMIT 1
+                    """,
+                    (run["id"],),
+                ).fetchone()
+                run["latest_correction"] = (
+                    None if latest is None else {
+                        **dict(latest),
+                        "corrected_counts": _decode_json(latest["corrected_counts"], {}),
+                    }
+                )
+                run["selected_classes"] = _decode_json(run["selected_classes"], [])
+                for result in run["model_results"]:
+                    result["counts_by_class"] = _decode_json(result["counts_by_class"], {})
+
+        for run in runs:
+            status = str(run.get("flag_status") or "not validated").casefold()
+            run["queue_group"] = (
+                "flagged" if status in {"flagged", "yes", "needs review"} else "other"
+            )
+            totals = [int(result["total_count"]) for result in run["model_results"]]
+            run["disagreement_span"] = (
+                max(totals) - min(totals) if len(totals) > 1 else 0
+            )
+            run["review_order_label"] = (
+                "by model disagreement"
+                if status in {"not validated", "unvalidated", ""}
+                else "flagged first"
+            )
+        runs.sort(
+            key=lambda run: (
+                run["queue_group"] != "flagged",
+                -run["disagreement_span"]
+                if run["review_order_label"] == "by model disagreement"
+                else 0,
+                run["timestamp_utc"],
+                run["id"],
+            )
+        )
+        if queue_filter == "Unreviewed":
+            runs = [run for run in runs if run["latest_correction"] is None]
+        elif queue_filter == "Reviewed":
+            runs = [run for run in runs if run["latest_correction"] is not None]
+        return runs
+    except HistoryStoreError:
+        raise
+    except sqlite3.DatabaseError as error:
+        raise HistoryStoreError("The human review queue could not be read.") from error
+
+
+def save_correction(
+    run_id: str,
+    corrected_counts: dict[str, int],
+    reviewer: str,
+    note: str = "",
+    path: Path | None = None,
+) -> int:
+    """Append one complete user correction; never update an earlier correction."""
+    path = _database_path(path)
+    expected = set(config.LABEL_CLASS_NAMES)
+    if set(corrected_counts) != expected:
+        raise ValueError("A correction must provide all seven project vehicle categories.")
+    if any(
+        isinstance(value, bool) or not isinstance(value, int) or value < 0
+        for value in corrected_counts.values()
+    ):
+        raise ValueError("Corrected counts must be non-negative whole numbers.")
+    if not reviewer.strip():
+        raise ValueError("Enter a reviewer name or anonymous reviewer label.")
+    try:
+        migrate(path)
+        with _connect(path) as connection:
+            cursor = connection.execute(
+                """
+                INSERT INTO corrections (
+                    run_id, timestamp_utc, reviewer, corrected_counts, note
+                ) VALUES (?, ?, ?, ?, ?)
+                """,
+                (
+                    run_id,
+                    _utc_now(),
+                    reviewer.strip(),
+                    json.dumps(corrected_counts, separators=(",", ":"), sort_keys=True),
+                    note.strip(),
+                ),
+            )
+            return int(cursor.lastrowid)
+    except sqlite3.IntegrityError as error:
+        raise HistoryStoreError("The selected run does not exist; correction was not saved.") from error
+    except (sqlite3.DatabaseError, OSError) as error:
+        raise HistoryStoreError("The correction could not be appended to local history.") from error
+
+
+def correction_comparison(run: dict[str, Any], correction: dict[str, Any]) -> dict[str, Any]:
+    """Compare stored model counts with one correction over its selected categories."""
+    selected = [
+        name for name in run["selected_classes"]
+        if name in config.LABEL_CLASS_NAMES
+    ]
+    reference = sum(int(correction["corrected_counts"].get(name, 0)) for name in selected)
+    models = []
+    low, high = run.get("count_range_min"), run.get("count_range_max")
+    for model in run.get("model_results", []):
+        prediction = int(model["total_count"])
+        models.append({
+            "model": model["model"],
+            "predicted_total": prediction,
+            "corrected_total": reference,
+            "signed_error": prediction - reference,
+            "inside_stated_range": (
+                None if low is None or high is None
+                else int(low) <= reference <= int(high)
+            ),
+        })
+    return {
+        "selected_classes": selected,
+        "corrected_total": reference,
+        "models": models,
+    }
+
+
+def correction_aggregates(path: Path | None = None) -> dict[str, Any]:
+    """Summarize absolute pre-review model-total errors against latest corrections."""
+    queue = review_queue(path=path, queue_filter="Reviewed")
+    groups: dict[str, dict[str, Any]] = {
+        "flagged": {"runs": set(), "absolute_errors": []},
+        "unflagged": {"runs": set(), "absolute_errors": []},
+    }
+    for run in queue:
+        correction = run["latest_correction"]
+        if correction is None:
+            continue
+        comparison = correction_comparison(run, correction)
+        status = str(run.get("flag_status") or "not validated").casefold()
+        group_name = (
+            "flagged" if status in {"flagged", "yes", "needs review"} else "unflagged"
+        )
+        group = groups[group_name]
+        group["runs"].add(run["id"])
+        group["absolute_errors"].extend(
+            abs(model["signed_error"]) for model in comparison["models"]
+        )
+    return {
+        group_name: {
+            "reviewed_runs": len(values["runs"]),
+            "mean_absolute_error_before_correction": (
+                sum(values["absolute_errors"]) / len(values["absolute_errors"])
+                if values["absolute_errors"] else None
+            ),
+            "model_run_comparisons": len(values["absolute_errors"]),
+        }
+        for group_name, values in groups.items()
+    }
+
+
+def correction_export_rows(path: Path | None = None) -> list[dict[str, Any]]:
+    """Export every appended human correction, one row per correction."""
+    path = _database_path(path)
+    try:
+        migrate(path)
+        with _connect(path) as connection:
+            rows = connection.execute(
+                """
+                SELECT c.id AS correction_id, c.run_id, c.timestamp_utc,
+                    c.reviewer, c.corrected_counts, c.note, r.input_filename,
+                    r.image_sha256, r.mode, r.rickshaw_mode, r.selected_classes
+                FROM corrections c JOIN runs r ON r.id = c.run_id
+                ORDER BY c.id
+                """
+            ).fetchall()
+        return [
+            {
+                **dict(row),
+                "corrected_counts": _decode_json(row["corrected_counts"], {}),
+                "selected_classes": _decode_json(row["selected_classes"], []),
+            }
+            for row in rows
+        ]
+    except (sqlite3.DatabaseError, HistoryStoreError) as error:
+        raise HistoryStoreError("User corrections could not be exported.") from error
+
+
+def blind_review_rows(queue: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Make safe pre-reveal queue summaries without model counts or count range."""
+    return [
+        {
+            "Run ID": run["id"],
+            "Timestamp (UTC)": run["timestamp_utc"],
+            "Filename": run["input_filename"],
+            "Queue group": run["queue_group"],
+            "Order": run["review_order_label"],
+            "Review status": (
+                "reviewed" if run["latest_correction"] is not None else "not reviewed"
+            ),
+        }
+        for run in queue
+    ]

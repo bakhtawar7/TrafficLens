@@ -137,7 +137,7 @@ def metrics_of(app) -> dict[str, str]:
 def test_shell_renders_the_five_week_one_tabs(app) -> None:
     app.run()
     assert not app.exception
-    assert [tab.label for tab in app.tabs] == TAB_LABELS
+    assert [tab.label for tab in app.tabs[:5]] == TAB_LABELS
     assert app.title[0].value == "TrafficLens"
 
 
@@ -288,6 +288,33 @@ def test_confidence_slider_is_passed_through_to_the_detector(app) -> None:
     app.sidebar.slider[0].set_value(0.85).run()
     assert FakeYolo.thresholds[-1] == pytest.approx(0.85)
     assert metrics_of(app)["Total vehicles"] == "1"
+
+
+def test_rapid_threshold_changes_use_the_latest_value(app) -> None:
+    uploaded(app)
+    slider = app.sidebar.slider[0]
+    for threshold in (0.55, 0.90, 0.15):
+        slider.set_value(threshold).run()
+    assert FakeYolo.thresholds[-1] == pytest.approx(0.15)
+    assert metrics_of(app)["Total vehicles"] == "5"
+
+
+def test_no_selected_classes_shows_actionable_message_without_inference(app) -> None:
+    uploaded(app)
+    app.sidebar.multiselect[0].set_value([]).run()
+    assert any("Select at least one vehicle class" in item.value for item in app.warning)
+    assert FakeYolo.thresholds == [config.DEFAULT_CONFIDENCE]
+
+
+def test_repeated_rickshaw_toggle_does_not_change_base_metrics(app) -> None:
+    uploaded(app)
+    base = metrics_of(app)
+    toggle = next(item for item in app.toggle if item.label == "Rickshaw aware mode (fine tuned)")
+    for value in (True, False, True, False):
+        toggle.set_value(value).run()
+        current = metrics_of(app)
+        assert current["Total vehicles"] == base["Total vehicles"]
+        assert current["Car"] == base["Car"]
 
 
 def test_image_tab_reports_an_empty_file_without_detecting(app) -> None:

@@ -36,6 +36,7 @@ def _run_models(image_bgr, detectors, selected_classes, threshold, sliced):
     families_by_model: dict[str, str] = {}
     raw_by_model: dict[str, list] = {}
     inference_ms_by_model: dict[str, float] = {}
+    failures: list[tuple[str, str]] = []
     frozen = settings.load_settings(config.FINAL_SETTINGS_JSON)
     model_settings = frozen.get("models", {})
     tile_settings = frozen.get("sliced_tiles", {})
@@ -51,28 +52,32 @@ def _run_models(image_bgr, detectors, selected_classes, threshold, sliced):
         input_size = model_config.get("input_size")
         nms_iou = model_config.get("nms_iou") if model_config.get("uses_nms") else None
         started = time.perf_counter()
-        raw_standard = model.detect(
-            image_bgr,
-            min(config.THRESHOLD_SWEEP),
-            input_size=input_size,
-            nms_iou=nms_iou,
-        )
-        raw_by_model[model_key] = raw_standard
-        if sliced:
-            runner = detector.SlicedDetector(
-                model,
-                tile_size=int(tile_settings.get("tile_size", config.SLICE_TILE_SIZE)),
-                overlap_ratio=float(tile_settings.get("overlap_ratio", config.SLICE_OVERLAP_RATIO)),
-                iou_threshold=float(tile_settings.get("iou_threshold", config.SLICE_IOU_THRESHOLD)),
+        try:
+            raw_standard = model.detect(
+                image_bgr,
+                min(config.THRESHOLD_SWEEP),
                 input_size=input_size,
                 nms_iou=nms_iou,
             )
-            displayed = runner.detect(image_bgr, threshold)
-        else:
-            displayed = [
-                detection for detection in raw_standard
-                if detection.confidence >= threshold
-            ]
+            if sliced:
+                runner = detector.SlicedDetector(
+                    model,
+                    tile_size=int(tile_settings.get("tile_size", config.SLICE_TILE_SIZE)),
+                    overlap_ratio=float(tile_settings.get("overlap_ratio", config.SLICE_OVERLAP_RATIO)),
+                    iou_threshold=float(tile_settings.get("iou_threshold", config.SLICE_IOU_THRESHOLD)),
+                    input_size=input_size,
+                    nms_iou=nms_iou,
+                )
+                displayed = runner.detect(image_bgr, threshold)
+            else:
+                displayed = [
+                    detection for detection in raw_standard
+                    if detection.confidence >= threshold
+                ]
+        except Exception as error:
+            failures.append((model.name, f"{type(error).__name__}: {error}"))
+            continue
+        raw_by_model[model_key] = raw_standard
         inference_ms_by_model[model.name] = (time.perf_counter() - started) * 1000.0
         filtered = counting.filter_by_classes(displayed, selected_classes)
         counts = counting.count_by_class(filtered, selected_classes)
@@ -81,7 +86,14 @@ def _run_models(image_bgr, detectors, selected_classes, threshold, sliced):
         row = {"Model": model.name, "Total": len(filtered)}
         row.update({name: counts[name] for name in selected_classes})
         rows.append(row)
-    return rows, detections_by_model, families_by_model, raw_by_model, inference_ms_by_model
+    return (
+        rows,
+        detections_by_model,
+        families_by_model,
+        raw_by_model,
+        inference_ms_by_model,
+        failures,
+    )
 
 
 def _render_needs_review(feature_row: dict) -> dict:
@@ -312,14 +324,32 @@ def render(uploaded_file, selected_classes, confidence_threshold, sliced, get_de
 
     try:
         detectors = list(get_detectors())
-        rows, detections_by_model, families_by_model, raw_by_model, inference_ms_by_model = _run_models(
+        (
+            rows,
+            detections_by_model,
+            families_by_model,
+            raw_by_model,
+            inference_ms_by_model,
+            model_failures,
+        ) = _run_models(
             image_bgr, detectors, selected_classes, float(confidence_threshold), sliced
         )
-    except Exception:
+    except Exception as error:
         st.error(
-            "The comparison models could not run on this image. This can happen if a "
-            "model's weights are unavailable. Please check the network and try again."
+            f"No pretrained comparison model could run ({error}). Weights may be missing, "
+            "corrupt, or interrupted during download. Check the model files or network "
+            "access, then retry."
         )
+        return
+    if model_failures:
+        details = "; ".join(f"{name} ({reason})" for name, reason in model_failures)
+        st.warning(
+            f"Unavailable pretrained models were omitted: {details}. The table and "
+            "agreement below use only models that ran; restore the missing weights to "
+            "compare the full pretrained set."
+        )
+    if not rows:
+        st.error("No pretrained comparison models returned results. Check weights and retry.")
         return
 
     mode = "sliced (tiled) inference" if sliced else "standard full-frame inference"

@@ -108,6 +108,33 @@ def _record_image_history(
         )
 
 
+def _count_with_pretrained_fallback(
+    image_bgr,
+    candidates,
+    selected_classes: list[str],
+    confidence_threshold: float,
+) -> tuple[CountResult, list[tuple[str, str]]]:
+    """Try the requested pretrained detector, then remaining pretrained models."""
+    failures: list[tuple[str, str]] = []
+    seen: set[str] = set()
+    for model in candidates:
+        if model.name in seen:
+            continue
+        seen.add(model.name)
+        try:
+            result = counting.count_vehicles(
+                image_bgr, model, selected_classes, confidence_threshold
+            )
+            return result, failures
+        except Exception as error:
+            failures.append((model.name, f"{type(error).__name__}: {error}"))
+    details = "; ".join(f"{name}: {reason}" for name, reason in failures)
+    raise RuntimeError(
+        "No pretrained detector completed inference. "
+        + (details or "No pretrained detectors were available.")
+    )
+
+
 def _render_downloads(result: CountResult, input_filename: str) -> None:
     """Add the JSON and CSV download buttons for this run."""
     payload = export.build_payload(
@@ -278,12 +305,26 @@ def render(
         return
 
     try:
-        result = counting.count_vehicles(image_bgr, get_detector(), selected_classes, confidence_threshold)
-    except Exception:
+        preferred = get_detector()
+        candidates = [preferred]
+        fallback_models = get_comparison_detectors()
+        preferred_names = {preferred.name}
+        candidates.extend(model for model in fallback_models if model.name not in preferred_names)
+        result, fallback_failures = _count_with_pretrained_fallback(
+            image_bgr, candidates, selected_classes, confidence_threshold
+        )
+        if fallback_failures:
+            failed = "; ".join(f"{name} ({reason})" for name, reason in fallback_failures)
+            st.warning(
+                f"Some pretrained weights or inference paths were unavailable: {failed}. "
+                f"Using {result.model_name} for this image; check those model files or "
+                "network access to restore the preferred model."
+            )
+    except Exception as error:
         st.error(
-            "The pretrained detector could not run on this image. Its weights may be "
-            "missing, corrupt, or still downloading. Check the network and model file, "
-            "then retry; no count was produced."
+            f"No pretrained detector could run on this image ({error}). Weights may be "
+            "missing, corrupt, or interrupted during download. Check network access and "
+            "the model files, then retry; no count was produced."
         )
         return
 

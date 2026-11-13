@@ -125,3 +125,127 @@ def test_clear_history_removes_runs_and_dependent_rows(tmp_path):
         assert connection.execute("SELECT COUNT(*) FROM model_results").fetchone()[0] == 0
         assert connection.execute("SELECT COUNT(*) FROM reliability").fetchone()[0] == 0
         assert connection.execute("SELECT COUNT(*) FROM corrections").fetchone()[0] == 0
+
+
+def _queued_run(
+    path,
+    image_hash,
+    timestamp,
+    status,
+    counts,
+    corrected_car=None,
+):
+    row = _run(image_hash=image_hash)
+    row["timestamp_utc"] = timestamp
+    results = [
+        {
+            "model": model,
+            "weights_sha256": None,
+            "total_count": total,
+            "counts_by_class": {"car": total, "truck": 0},
+            "inference_ms": 1.0,
+        }
+        for model, total in counts
+    ]
+    written = history.record_run(
+        row,
+        results,
+        {
+            "flag_status": status,
+            "count_range_min": min(total for _, total in counts),
+            "count_range_max": max(total for _, total in counts),
+        },
+        path=path,
+    )
+    if corrected_car is not None:
+        history.save_correction(
+            written.run_id,
+            {
+                name: corrected_car if name == "car" else 0
+                for name in history.config.LABEL_CLASS_NAMES
+            },
+            "anonymous",
+            path=path,
+        )
+    return written.run_id
+
+
+def test_review_queue_orders_flagged_then_unvalidated_by_disagreement_and_is_blind(tmp_path):
+    database = tmp_path / "history.db"
+    unvalidated_small = _queued_run(
+        database, "image-small", "2026-01-01T00:00:00Z", "not validated",
+        [("A", 3), ("B", 4)],
+    )
+    unvalidated_large = _queued_run(
+        database, "image-large", "2026-01-02T00:00:00Z", "not validated",
+        [("A", 1), ("B", 8)],
+    )
+    flagged = _queued_run(
+        database, "image-flagged", "2026-01-03T00:00:00Z", "flagged",
+        [("A", 4), ("B", 5)],
+    )
+
+    queue = history.review_queue(database)
+    assert [run["id"] for run in queue] == [
+        flagged,
+        unvalidated_large,
+        unvalidated_small,
+    ]
+    assert queue[1]["review_order_label"] == "by model disagreement"
+    safe_rows = history.blind_review_rows(queue)
+    assert not any("model_results" in row or "counts_by_class" in row for row in safe_rows)
+    assert not any("count_range_min" in row for row in safe_rows)
+
+
+def test_corrections_are_append_only_latest_is_shown_and_labels_are_untouched(
+    tmp_path, monkeypatch
+):
+    database = tmp_path / "history.db"
+    labels = tmp_path / "LABELS.csv"
+    labels.write_text("item_id,car\nitem1,7\n", encoding="utf-8")
+    before = labels.read_bytes()
+    monkeypatch.setattr(history.config, "LABELS_CSV", labels)
+    run_id = _queued_run(
+        database, "append-only", "2026-01-01T00:00:00Z", "not flagged",
+        [("YOLOv8n", 4)],
+    )
+    first_counts = {name: 0 for name in history.config.LABEL_CLASS_NAMES}
+    first_counts["car"] = 2
+    second_counts = dict(first_counts)
+    second_counts["car"] = 3
+
+    history.save_correction(run_id, first_counts, "reviewer", "first", database)
+    history.save_correction(run_id, second_counts, "reviewer", "second", database)
+
+    run = history.get_run(run_id, database)
+    assert run is not None
+    assert len(run["corrections"]) == 2
+    latest = history.review_queue(database)[0]["latest_correction"]
+    assert latest["corrected_counts"] == second_counts
+    assert labels.read_bytes() == before
+
+
+def test_correction_comparison_and_aggregate_error_math(tmp_path):
+    database = tmp_path / "history.db"
+    flagged_id = _queued_run(
+        database, "flagged-math", "2026-01-01T00:00:00Z", "flagged",
+        [("YOLOv8n", 3), ("YOLOv8s", 4)], corrected_car=3,
+    )
+    unflagged_id = _queued_run(
+        database, "unflagged-math", "2026-01-02T00:00:00Z", "not flagged",
+        [("YOLOv8n", 5)], corrected_car=2,
+    )
+
+    queue = {run["id"]: run for run in history.review_queue(database)}
+    comparison = history.correction_comparison(
+        queue[flagged_id], queue[flagged_id]["latest_correction"]
+    )
+    assert [row["signed_error"] for row in comparison["models"]] == [0, 1]
+    assert all(row["inside_stated_range"] for row in comparison["models"])
+    aggregates = history.correction_aggregates(database)
+    assert aggregates["flagged"]["reviewed_runs"] == 1
+    assert aggregates["flagged"]["mean_absolute_error_before_correction"] == 0.5
+    assert aggregates["unflagged"]["reviewed_runs"] == 1
+    assert aggregates["unflagged"]["mean_absolute_error_before_correction"] == 3.0
+    assert history.correction_export_rows(database)[0]["corrected_counts"]["car"] == 3
+    assert unflagged_id in queue

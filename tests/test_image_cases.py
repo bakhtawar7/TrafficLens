@@ -46,6 +46,28 @@ def _exif_rotated_jpeg() -> bytes:
     return buffer.getvalue()
 
 
+def _cmyk_jpeg() -> bytes:
+    image = Image.new("CMYK", (12, 8), (0, 64, 128, 16))
+    buffer = BytesIO()
+    image.save(buffer, format="JPEG")
+    return buffer.getvalue()
+
+
+def _animated_gif() -> bytes:
+    first = Image.new("RGB", (8, 8), (10, 20, 30))
+    second = Image.new("RGB", (8, 8), (30, 20, 10))
+    buffer = BytesIO()
+    first.save(
+        buffer,
+        format="GIF",
+        save_all=True,
+        append_images=[second],
+        duration=100,
+        loop=0,
+    )
+    return buffer.getvalue()
+
+
 @pytest.mark.parametrize(
     ("filename", "extension"),
     [("image.jpg", ".jpg"), ("image.png", ".png"), ("image.webp", ".webp")],
@@ -74,6 +96,22 @@ def test_png_with_alpha_decodes_as_three_channel_bgr() -> None:
 def test_jpeg_exif_rotation_is_applied_during_decode() -> None:
     image = validation.decode_image(_exif_rotated_jpeg())
     assert image.shape == (48, 32, 3)
+
+
+def test_cmyk_jpeg_decodes_to_bgr() -> None:
+    image = validation.decode_image(_cmyk_jpeg())
+    assert image.shape == (8, 12, 3)
+    assert image.dtype == np.uint8
+
+
+def test_animated_gif_is_rejected_with_supported_type_list() -> None:
+    with pytest.raises(UnsupportedFileTypeError, match="Accepted types"):
+        validation.validate_image_input("animation.gif", _animated_gif())
+
+
+def test_unicode_filename_is_validated_without_path_assumptions() -> None:
+    data = _encoded_image(".png")
+    validation.validate_image_input("交通_دھاکہ_🚲.png", data)
 
 
 def test_corrupt_image_is_rejected_after_extension_validation() -> None:

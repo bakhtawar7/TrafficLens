@@ -100,5 +100,10 @@ WHERE c.id = (
 );
 ```
 
-History is machine-local and is not ground truth. Human corrections, when added, are
-user-reported review data and are not written to `LABELS.csv`.
+History is machine-local and is not ground truth. Corrections are appended, not updated;
+the interface displays the latest correction while retaining prior entries. They are
+user-reported review data and are not written to `LABELS.csv`, nor used to update model
+weights or inference settings. Review starts blind: outputs and the stored count range
+are withheld until the reviewer has entered counts and requests reveal. The review queue
+shows flagged runs first; where a run has no validated flag it explicitly uses model
+disagreement (stored count-range width) for ordering, then older runs first.

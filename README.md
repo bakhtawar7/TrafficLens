@@ -49,11 +49,11 @@ app shows a clearly labelled placeholder panel rather than fake data.
 | Signed error, bias, and scene-level cluster bootstrap intervals | Built (script/library) |
 | Blind manual count audit app (label_app) with atomic saves | Built (script/library) |
 | Local run history with SQLite, filters, details, CSV export, and deletion | Built |
+| Blind review queue with append-only user corrections and CSV export | Built |
 | Label-free reliability feature table (build_features) | Built (script/library) |
 | Metrics reference with every formula (`docs/metrics.md`) | Built |
 | Provenance-gated ByteTrack video line counting | Built; not evaluated |
 | Learned error predictor and reliability score | Planned for Week 3 |
-| Blind review queue with append-only human corrections | Planned |
 | Needs review flag | Built; not yet validated |
 
 ## Installation
