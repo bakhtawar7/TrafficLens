@@ -24,6 +24,11 @@ __pycache__/
 build/
 dist/
 
+# Environment secrets
+.env
+.env.*
+!.env.example
+
 # Streamlit
 .streamlit/secrets.toml
 
