@@ -266,6 +266,39 @@ def test_summary_model_mae_targets_and_labeller(workspace):
     assert lab["identical_fraction"] == pytest.approx(0.5)
 
 
+def test_evaluate_reports_metrics_with_and_without_adjudicated_rows(workspace):
+    with workspace["labels"].open(encoding="utf-8", newline="") as handle:
+        reader = csv.DictReader(handle)
+        rows = list(reader)
+        original_fields = list(reader.fieldnames)
+    extra_fields = ["adjudicated", *(f"original_{name}" for name in config.LABEL_CLASS_NAMES)]
+    for row in rows:
+        row.update({field: "" for field in extra_fields})
+        if ev.normalise_item_id(row["item_id"]) == 2 and row["labeller_pass"] == "1":
+            row["adjudicated"] = "yes"
+            for name in config.LABEL_CLASS_NAMES:
+                row[f"original_{name}"] = row[name]
+            row["original_car"] = "5"
+    with workspace["labels"].open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=[*original_fields, *extra_fields])
+        writer.writeheader()
+        writer.writerows(rows)
+
+    summary = ev.evaluate(
+        labels_csv=workspace["labels"], sources_csv=workspace["sources"],
+        plan_json=workspace["plan"], detections_jsonl=workspace["dets"],
+        table_out=workspace["table"], summary_out=workspace["summary"],
+        write=False,
+    )
+
+    adjudication = summary["adjudication"]
+    assert adjudication["adjudicated_rows"] == 1
+    assert adjudication["preserved_values"][0]["original"]["car"] == 5
+    assert adjudication["preserved_values"][0]["corrected"]["car"] == 4
+    assert adjudication["with_adjudicated"]["model_mae"]["YOLOv8n"]["covered"]["mae"] == 0
+    assert adjudication["without_adjudicated"]["model_mae"]["YOLOv8n"]["covered"]["mae"] == pytest.approx(0.5)
+
+
 def test_summary_warns_below_thirty_and_records_counts(workspace):
     summary = ev.evaluate(
         labels_csv=workspace["labels"], sources_csv=workspace["sources"],

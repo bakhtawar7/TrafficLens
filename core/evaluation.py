@@ -148,6 +148,68 @@ def load_labels(
     return items
 
 
+def load_adjudications(path: Path) -> dict[int, dict[str, dict[str, int]]]:
+    """Load corrected and preserved original counts from explicitly adjudicated rows.
+
+    An adjudicated row stores corrected counts in the regular class columns and
+    the pre-adjudication values in ``original_<class>`` columns. Requiring both
+    values prevents adjudication from silently discarding the submitted label.
+    """
+    records: dict[int, dict[str, dict[str, int]]] = {}
+    with Path(path).open("r", encoding="utf-8", newline="") as handle:
+        for row in csv.DictReader(handle):
+            if str(row.get("adjudicated", "")).strip().lower() != "yes":
+                continue
+            item = normalise_item_id(row.get("item_id", ""))
+            if item is None:
+                continue
+            pass_number = _int_or_none(row.get("labeller_pass"))
+            if pass_number not in (None, 1):
+                raise ValueError(
+                    f"adjudicated row for {dataset.format_item_id(item)} must be pass 1"
+                )
+            if item in records:
+                raise ValueError(f"multiple adjudicated rows found for {dataset.format_item_id(item)}")
+            original = {
+                name: _int_or_none(row.get(f"original_{name}"))
+                for name in config.LABEL_CLASS_NAMES
+            }
+            corrected = {name: _int_or_none(row.get(name)) for name in config.LABEL_CLASS_NAMES}
+            if any(value is None for value in original.values()):
+                raise ValueError(
+                    f"adjudicated row for {dataset.format_item_id(item)} must preserve "
+                    "every category in original_<category> columns"
+                )
+            if any(value is None for value in corrected.values()):
+                raise ValueError(
+                    f"adjudicated row for {dataset.format_item_id(item)} must contain "
+                    "every corrected category count"
+                )
+            records[item] = {
+                "original": {name: int(value) for name, value in original.items()},
+                "corrected": {name: int(value) for name, value in corrected.items()},
+            }
+    return records
+
+
+def restore_original_labels(
+    labels: dict[int, dict[str, dict[str, int] | None]],
+    adjudications: dict[int, dict[str, dict[str, int]]],
+) -> dict[int, dict[str, dict[str, int] | None]]:
+    """Copy loaded labels and restore original values for an unadjudicated comparison."""
+    original_labels = {
+        item: dict(passes)
+        for item, passes in labels.items()
+    }
+    for item, record in adjudications.items():
+        if item not in original_labels or original_labels[item].get("pass1") is None:
+            raise ValueError(
+                f"adjudicated row for {dataset.format_item_id(item)} has no first-pass label"
+            )
+        original_labels[item]["pass1"] = dict(record["original"])
+    return original_labels
+
+
 def unverified_label_rows(path: Path) -> list[str]:
     """Return the canonical ids of LABELS.csv rows whose notes mark them unverified.
 
@@ -290,6 +352,82 @@ def cluster_bootstrap_ci(
     lower = means[int(0.025 * samples)]
     upper = means[min(int(0.975 * samples), samples - 1)]
     return (round(lower, 4), round(upper, 4))
+
+
+def labeller_pass_statistics(
+    labels: dict[int, dict[str, dict[str, int] | None]],
+    scenes: dict[int, str] | None = None,
+    excluded: set[int] | None = None,
+    samples: int = 2000,
+) -> dict[str, Any]:
+    """Compare pass 2 with pass 1 by category and covered total.
+
+    Differences are signed (pass 2 minus pass 1); the reported bootstrap
+    intervals are scene-cluster intervals over the signed and absolute means.
+    """
+    scenes = scenes or {}
+    excluded = excluded or set()
+    both = [
+        (item, data)
+        for item, data in labels.items()
+        if data.get("pass1") is not None
+        and data.get("pass2") is not None
+        and item not in excluded
+    ]
+    category_differences: dict[str, list[int]] = {
+        name: [] for name in config.LABEL_CLASS_NAMES
+    }
+    covered_differences: list[int] = []
+    clusters: list[str] = []
+    item_differences: list[dict[str, Any]] = []
+    for item, data in sorted(both):
+        first = data["pass1"]
+        second = data["pass2"]
+        differences = {
+            name: second.get(name, 0) - first.get(name, 0)
+            for name in config.LABEL_CLASS_NAMES
+        }
+        covered_difference = covered_total(second) - covered_total(first)
+        for name, difference in differences.items():
+            category_differences[name].append(difference)
+        covered_differences.append(covered_difference)
+        scene = scenes.get(item, f"#{dataset.format_item_id(item)}")
+        clusters.append(scene)
+        item_differences.append({
+            "item_id": dataset.format_item_id(item),
+            "scene": scene,
+            "categories": differences,
+            "covered_total_difference": covered_difference,
+        })
+
+    def describe(differences: list[int], cluster_ids: list[str]) -> dict[str, Any]:
+        absolute = [abs(value) for value in differences]
+        return {
+            "n": len(differences),
+            "mean_difference": round(statistics.fmean(differences), 4) if differences else None,
+            "mean_difference_ci95": cluster_bootstrap_ci(
+                differences, cluster_ids, samples
+            ),
+            "mean_absolute_difference": round(statistics.fmean(absolute), 4) if absolute else None,
+            "mean_absolute_difference_ci95": cluster_bootstrap_ci(
+                absolute, cluster_ids, samples
+            ),
+            "exact_match_fraction": (
+                round(sum(value == 0 for value in differences) / len(differences), 4)
+                if differences else None
+            ),
+        }
+
+    per_category = {
+        name: describe(values, clusters)
+        for name, values in category_differences.items()
+    }
+    return {
+        "items_both_passes": len(both),
+        "per_category": per_category,
+        "covered_total": describe(covered_differences, clusters),
+        "items": item_differences,
+    }
 
 
 def error_stats(
@@ -557,6 +695,9 @@ def summarise(
         "covered_ci95": cluster_bootstrap_ci(covered_differences, labeller_clusters, bootstrap_samples),
         "all_vehicles_mean_abs_difference": round(statistics.fmean(all_differences), 4) if all_differences else None,
         "identical_fraction": round(sum(1 for d in covered_differences if d == 0) / len(covered_differences), 4) if covered_differences else None,
+        "difference_detail": labeller_pass_statistics(
+            labels, scenes=scenes, excluded=excluded, samples=bootstrap_samples
+        ),
     }
 
     warning = None
@@ -647,6 +788,7 @@ def evaluate(
         model_confidence if settings_json is not None else confidence,
         selected_settings["settings_sha256"] if settings_json is not None else None,
     )
+    adjudications = load_adjudications(labels_path)
     rows, missing = build_rows(labels, conditions, cache, excluded, sliced_model_key, scenes)
     # Flag exploratory conditions on the rows before anything is written or summarised.
     annotate_exploratory(rows)
@@ -655,6 +797,59 @@ def evaluate(
                         scenes=scenes)
     summary["settings"].update(selected_settings)
     summary["settings"]["model_confidence"] = model_confidence
+    evaluated_adjudications = {
+        item: record
+        for item, record in adjudications.items()
+        if item not in excluded and labels.get(item, {}).get("pass1") is not None
+    }
+    inconsistent_adjudications = [
+        item for item, record in evaluated_adjudications.items()
+        if labels[item]["pass1"] != record["corrected"]
+    ]
+    if inconsistent_adjudications:
+        formatted = ", ".join(
+            dataset.format_item_id(item) for item in sorted(inconsistent_adjudications)
+        )
+        raise ValueError(
+            "adjudicated corrected counts must match the first-pass category columns: "
+            + formatted
+        )
+    labels_without_adjudications = restore_original_labels(labels, evaluated_adjudications)
+    if evaluated_adjudications:
+        rows_without_adjudications, missing_without_adjudications = build_rows(
+            labels_without_adjudications, conditions, cache, excluded, sliced_model_key, scenes
+        )
+        annotate_exploratory(rows_without_adjudications)
+        summary_without_adjudications = summarise(
+            labels_without_adjudications,
+            conditions,
+            rows_without_adjudications,
+            missing_without_adjudications,
+            excluded,
+            confidence,
+            sliced_model_key,
+            bootstrap_samples,
+            scenes=scenes,
+        )
+    else:
+        summary_without_adjudications = summary
+    comparable_fields = ("items", "model_mae", "condition_mae", "condition_detail", "labeller_passes")
+    summary["adjudication"] = {
+        "adjudicated_rows": len(adjudications),
+        "evaluation_adjudicated_rows": len(evaluated_adjudications),
+        "preserved_values": [
+            {
+                "item_id": dataset.format_item_id(item),
+                "original": record["original"],
+                "corrected": record["corrected"],
+            }
+            for item, record in sorted(adjudications.items())
+        ],
+        "with_adjudicated": {key: summary[key] for key in comparable_fields},
+        "without_adjudicated": {
+            key: summary_without_adjudications[key] for key in comparable_fields
+        },
+    }
     if refused:
         print(
             f"REFUSED {len(refused)} LABELS row(s) whose notes record the counts as auto "

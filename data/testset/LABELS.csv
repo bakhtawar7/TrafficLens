@@ -9,3 +9,29 @@ tl0018,26,1,0,6,0,0,0,1,"auto rickshaws counted as rickshaw; tangas counted as o
 tl0023,0,3,0,1,1,0,0,1,auto rickshaws counted as rickshaw; tangas counted as other; bicycles counted as other; bikes mean motorcycles
 tl0031,7,3,0,0,9,0,0,1,auto rickshaws counted as rickshaw; tangas counted as other; bicycles counted as other; bikes mean motorcycles
 tl0039,1,0,0,3,0,0,2,1,auto rickshaws counted as rickshaw; tangas counted as other; bicycles counted as other; bikes mean motorcycles
+tl0007,5,4,0,9,0,0,2,1,first pass; category rules per Category decisions in docs/labelling_protocol.md
+tl0008,4,1,2,2,3,0,3,1,first pass; category rules per Category decisions in docs/labelling_protocol.md
+tl0022,0,8,1,0,0,0,1,1,first pass; category rules per Category decisions in docs/labelling_protocol.md
+tl0029,4,4,1,2,1,0,0,1,first pass; category rules per Category decisions in docs/labelling_protocol.md
+tl0035,0,0,2,0,2,0,0,1,first pass; category rules per Category decisions in docs/labelling_protocol.md
+tl0036,0,0,1,0,3,0,0,1,first pass; category rules per Category decisions in docs/labelling_protocol.md
+tl0038,2,0,0,4,2,0,2,1,first pass; category rules per Category decisions in docs/labelling_protocol.md
+tl0043,10,1,1,3,1,0,0,1,first pass; category rules per Category decisions in docs/labelling_protocol.md
+tl0044,1,1,0,2,1,0,0,1,first pass; category rules per Category decisions in docs/labelling_protocol.md
+tl0046,10,1,0,4,9,0,5,1,first pass; category rules per Category decisions in docs/labelling_protocol.md
+tl0049,2,3,0,1,0,0,1,1,first pass; category rules per Category decisions in docs/labelling_protocol.md
+tl0070,12,1,0,0,4,0,0,1,first pass; category rules per Category decisions in docs/labelling_protocol.md
+tl0075,0,0,1,0,1,0,0,1,first pass; category rules per Category decisions in docs/labelling_protocol.md
+tl0007,5,3,0,3,0,0,2,2,"second pass, counted blind; categories not listed were recorded as zero; category rules per Category decisions in docs/labelling_protocol.md"
+tl0008,4,1,2,2,3,0,2,2,"second pass, counted blind; categories not listed were recorded as zero; category rules per Category decisions in docs/labelling_protocol.md"
+tl0022,0,8,0,0,0,0,1,2,"second pass, counted blind; categories not listed were recorded as zero; category rules per Category decisions in docs/labelling_protocol.md"
+tl0029,5,3,1,2,1,0,1,2,"second pass, counted blind; categories not listed were recorded as zero; category rules per Category decisions in docs/labelling_protocol.md"
+tl0035,0,0,2,0,2,0,0,2,"second pass, counted blind; categories not listed were recorded as zero; category rules per Category decisions in docs/labelling_protocol.md"
+tl0036,0,0,1,0,3,0,0,2,"second pass, counted blind; categories not listed were recorded as zero; category rules per Category decisions in docs/labelling_protocol.md"
+tl0038,0,0,0,4,2,0,2,2,"second pass, counted blind; categories not listed were recorded as zero; category rules per Category decisions in docs/labelling_protocol.md"
+tl0043,12,1,1,3,1,0,0,2,"second pass, counted blind; categories not listed were recorded as zero; category rules per Category decisions in docs/labelling_protocol.md"
+tl0044,0,1,0,2,1,0,0,2,"second pass, counted blind; categories not listed were recorded as zero; category rules per Category decisions in docs/labelling_protocol.md"
+tl0046,11,0,0,0,10,0,6,2,"second pass, counted blind; categories not listed were recorded as zero; category rules per Category decisions in docs/labelling_protocol.md"
+tl0049,2,3,0,0,1,0,2,2,"second pass, counted blind; categories not listed were recorded as zero; category rules per Category decisions in docs/labelling_protocol.md"
+tl0070,16,1,0,0,3,0,0,2,"second pass, counted blind; categories not listed were recorded as zero; category rules per Category decisions in docs/labelling_protocol.md"
+tl0075,0,0,1,0,1,0,0,2,"second pass, counted blind; categories not listed were recorded as zero; category rules per Category decisions in docs/labelling_protocol.md"
