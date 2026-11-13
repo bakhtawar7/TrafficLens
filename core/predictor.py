@@ -151,6 +151,40 @@ def _ridge_predict(
     return np.maximum(0.0, x_test @ weights + y_mean)
 
 
+def _ridge_deployment(
+    x: np.ndarray, y: np.ndarray, columns: list[str]
+) -> dict[str, Any]:
+    """Fit the frozen ridge form on all audited rows for later image scoring."""
+    medians = np.zeros(x.shape[1], dtype=float)
+    for column in range(x.shape[1]):
+        present = x[:, column][np.isfinite(x[:, column])]
+        medians[column] = float(np.median(present)) if len(present) else 0.0
+    filled = np.where(np.isfinite(x), x, medians)
+    means = filled.mean(axis=0)
+    scales = filled.std(axis=0)
+    scales[scales == 0] = 1.0
+    standardised = (filled - means) / scales
+    target_mean = float(y.mean())
+    coefficients = np.linalg.solve(
+        standardised.T @ standardised + RIDGE_ALPHA * np.eye(standardised.shape[1]),
+        standardised.T @ (y - target_mean),
+    )
+    return {
+        "feature_columns": columns,
+        "imputation_medians": medians.tolist(),
+        "means": means.tolist(),
+        "scales": scales.tolist(),
+        "coefficients": coefficients.tolist(),
+        "intercept": target_mean,
+    }
+
+
+def _top_quartile_threshold(values: np.ndarray, fraction: float) -> float:
+    """Score cutoff at the bottom of the deterministic highest-score fraction."""
+    count = max(1, int(math.ceil(len(values) * fraction)))
+    return float(np.sort(values)[-count])
+
+
 def _best_split(
     x: np.ndarray, residuals: np.ndarray, min_leaf: int = 2
 ) -> tuple[int, float] | None:
@@ -479,6 +513,7 @@ def evaluate_rows(
         and h1_rho_difference["low"] > 0
     )
     h1_capture_met = ridge_worst20["recall"] > confidence_worst20["recall"]
+    h1_supported = h1_margin_met and h1_capture_met
 
     cross = np.asarray([row.values.get("cross_family_count_disagreement", np.nan) for row in rows], dtype=float)
     within = np.asarray([row.values.get("within_family_count_disagreement", np.nan) for row in rows], dtype=float)
@@ -515,9 +550,33 @@ def evaluate_rows(
             "validation_scenes": sorted({scenes[index] for index in test}),
         })
 
+    confidence_columns = list(CONFIDENCE_COLUMNS)
     return {
         "sample_size": len(rows),
         "exploratory": len(rows) < 60,
+        "flag_policy": {
+            "rule": "flag the quarter of images with the highest predicted error",
+            "fallback_baseline": "mean_confidence",
+        },
+        "deployment": {
+            "flag_fraction": PRIMARY_FLAG_FRACTION,
+            "models": {
+                "ridge": {
+                    **_ridge_deployment(x, actual, columns),
+                    "flag_threshold": _top_quartile_threshold(
+                        predictions["ridge"], PRIMARY_FLAG_FRACTION
+                    ),
+                },
+                "mean_confidence": {
+                    **_ridge_deployment(
+                        _confidence_matrix(x, columns), actual, confidence_columns
+                    ),
+                    "flag_threshold": _top_quartile_threshold(
+                        predictions["mean_confidence"], PRIMARY_FLAG_FRACTION
+                    ),
+                },
+            },
+        },
         "validation": {
             "method": "deterministic, size-balanced scene-grouped cross-validation",
             "folds": len(folds),
@@ -536,6 +595,7 @@ def evaluate_rows(
         "hypotheses": {
             "H1": {
                 "primary_model": "ridge",
+                "verdict": "supported" if h1_supported else "not supported",
                 "ridge_minus_mean_confidence_spearman": h1_rho_difference,
                 "ridge_worst_20_percent_capture": ridge_worst20,
                 "mean_confidence_worst_20_percent_capture": confidence_worst20,

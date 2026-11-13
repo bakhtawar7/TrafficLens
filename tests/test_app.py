@@ -10,6 +10,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import cv2
+import json
 import numpy as np
 import pytest
 
@@ -70,7 +71,7 @@ class FakeModel:
     def warmup(self) -> None:
         pass
 
-    def detect(self, image, confidence_threshold: float) -> list[Detection]:
+    def detect(self, image, confidence_threshold: float, **kwargs) -> list[Detection]:
         self.calls += 1
         return [d for d in self._detections if d.confidence >= confidence_threshold]
 
@@ -103,6 +104,14 @@ def app(monkeypatch, tmp_path):
     # override them explicitly.
     monkeypatch.setattr("core.config.EVALUATION_TABLE_CSV", tmp_path / "missing_table.csv")
     monkeypatch.setattr("core.config.EVALUATION_SUMMARY_JSON", tmp_path / "missing_summary.json")
+    monkeypatch.setattr(
+        "app.ui.reliability_tab.PREDICTOR_REPORT_PATH",
+        tmp_path / "missing_predictor_report.json",
+    )
+    monkeypatch.setattr(
+        "app.ui.reliability_tab.WEEK3_SUMMARY_PATH",
+        tmp_path / "missing_week3_summary.md",
+    )
     return AppTest.from_file(APP_ENTRY, default_timeout=120)
 
 
@@ -260,6 +269,125 @@ def test_reliability_sliced_toggle_runs_without_error(app) -> None:
     counts = metrics_of(app)
     # A 320x240 frame fits in one 640 tile, so tiled counts match the standard run.
     assert counts["Count range"] == "3-5"
+
+
+def _stored_predictor_report(verdict: str, exploratory: bool = False) -> dict:
+    columns = ["yolov8n_mean_confidence", "yolov8s_mean_confidence", "rtdetr-l_mean_confidence"]
+    model = {
+        "feature_columns": columns,
+        "imputation_medians": [0.5, 0.5, 0.5],
+        "means": [0.5, 0.5, 0.5],
+        "scales": [0.2, 0.2, 0.2],
+        "coefficients": [1.0, 0.5, -0.25],
+        "intercept": 1.0,
+        "flag_threshold": 0.5,
+    }
+    validation_metrics = {
+        "primary_rule": {"precision": 0.6, "recall": 0.75},
+        "scene_bootstrap_95ci": {
+            "precision": {"low": 0.4, "high": 0.8},
+            "recall": {"low": 0.5, "high": 0.9},
+        },
+    }
+    return {
+        "sample_size": 40,
+        "exploratory": exploratory,
+        "audited_label_readiness": {"evaluation_audited": 40},
+        "hypotheses": {"H1": {"verdict": verdict}},
+        "flag_policy": {"fallback_baseline": "mean_confidence"},
+        "deployment": {
+            "flag_fraction": 0.25,
+            "models": {"ridge": model, "mean_confidence": model},
+        },
+        "models": {
+            "ridge": {"needs_review": validation_metrics},
+            "mean_confidence": {"needs_review": validation_metrics},
+        },
+    }
+
+
+def test_reliability_without_predictor_shows_only_unvalidated_message(app) -> None:
+    from app.ui.reliability_tab import reliability_prediction
+
+    uploaded(app)
+    assert any(reliability_prediction.UNVALIDATED_MESSAGE == item.value for item in app.info)
+    assert "Predicted counting error" not in metrics_of(app)
+    assert "Needs review flag" not in metrics_of(app)
+    all_text = "\n".join(
+        [item.value for item in app.markdown]
+        + [item.value for item in app.caption]
+        + [item.value for item in app.info]
+    )
+    assert "Top contributing features" not in all_text
+
+
+@pytest.mark.parametrize(
+    ("verdict", "expected_source"),
+    [
+        ("supported", "learned ridge predictor"),
+        ("not supported", "simple `mean_confidence` baseline"),
+        ("inconclusive", "simple `mean_confidence` baseline"),
+    ],
+)
+def test_reliability_flag_source_follows_stored_h1_verdict(
+    app, tmp_path, monkeypatch, verdict, expected_source
+) -> None:
+    from app.ui import reliability_tab
+
+    report_path = tmp_path / "predictor_report.json"
+    report_path.write_text(json.dumps(_stored_predictor_report(verdict)), encoding="utf-8")
+    monkeypatch.setattr(reliability_tab, "PREDICTOR_REPORT_PATH", report_path)
+
+    uploaded(app)
+
+    assert not app.exception
+    labels = metrics_of(app)
+    assert labels["Predicted counting error"].endswith("vehicles")
+    assert labels["Needs review flag"] == "Yes"
+    captions = "\n".join(item.value for item in app.caption)
+    assert expected_source in captions
+    assert f"H1: {verdict}" in captions
+    assert "Audited images: 40" in captions
+    assert "Precision: 0.600 (95% scene interval 0.400 to 0.800)" in captions
+    assert "Recall: 0.750 (95% scene interval 0.500 to 0.900)" in captions
+    assert "estimated from 40 audited images on Dhaka street imagery; it may not transfer to other scenes." in captions
+    assert "guarantee" not in captions.lower()
+    assert "accuracy" not in captions.lower()
+    assert any("Top contributing features" in item.value for item in app.markdown)
+
+
+def test_reliability_flag_status_reports_exploratory_result(app, tmp_path, monkeypatch) -> None:
+    from app.ui import reliability_tab
+
+    report_path = tmp_path / "predictor_report.json"
+    report_path.write_text(
+        json.dumps(_stored_predictor_report("supported", exploratory=True)),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(reliability_tab, "PREDICTOR_REPORT_PATH", report_path)
+
+    uploaded(app)
+
+    assert not app.exception
+    assert any("Exploratory: yes" in item.value for item in app.caption)
+
+
+def test_reliability_does_not_show_flag_when_h1_verdict_is_missing(app, tmp_path, monkeypatch) -> None:
+    from app.ui import reliability_tab
+
+    report = _stored_predictor_report("supported")
+    report["hypotheses"] = {}
+    report_path = tmp_path / "predictor_report.json"
+    report_path.write_text(json.dumps(report), encoding="utf-8")
+    monkeypatch.setattr(reliability_tab, "PREDICTOR_REPORT_PATH", report_path)
+
+    uploaded(app)
+
+    from app.ui.reliability_tab import reliability_prediction
+
+    assert any(reliability_prediction.UNVALIDATED_MESSAGE == item.value for item in app.info)
+    assert "Predicted counting error" not in metrics_of(app)
+    assert "Needs review flag" not in metrics_of(app)
 
 
 # ---------------------------------------------------------------------------

@@ -15,33 +15,118 @@ from __future__ import annotations
 import pandas as pd
 import streamlit as st
 
-from core import counting, detector, reliability, validation
+from core import config, counting, detector, features, reliability, reliability_prediction, settings, validation
 from core.reliability import ReliabilityReport
+
+PREDICTOR_REPORT_PATH = config.RESULTS_DIR / "predictor_report.json"
+WEEK3_SUMMARY_PATH = config.RESULTS_DIR / "week3_summary.md"
 
 
 def _run_models(image_bgr, detectors, selected_classes, threshold, sliced):
-    """Detect with every model once and return display rows plus the raw results.
+    """Run frozen standard inference for features and the selected mode for display.
 
     Returns:
-        ``(rows, detections_by_model, families_by_model)`` where ``rows`` is one
-        per-model record for the counts table, and the two mappings feed
-        :func:`core.reliability.build_reliability_report`. Keys are the base
-        model names, so the report reads the same in standard and sliced mode.
+        Rows, selected-mode detections, family names, and raw standard detections
+        keyed by registry model id for :func:`core.features.image_features`.
     """
     rows: list[dict] = []
     detections_by_model: dict[str, list] = {}
     families_by_model: dict[str, str] = {}
+    raw_by_model: dict[str, list] = {}
+    frozen = settings.load_settings(config.FINAL_SETTINGS_JSON)
+    model_settings = frozen.get("models", {})
+    tile_settings = frozen.get("sliced_tiles", {})
     for model in detectors:
-        runner = detector.SlicedDetector(model) if sliced else model
-        raw = runner.detect(image_bgr, threshold)
-        filtered = counting.filter_by_classes(raw, selected_classes)
+        model_key = next(
+            (key for key, spec in config.MODEL_REGISTRY.items() if spec.display_name == model.name),
+            None,
+        )
+        if model_key is None:
+            raise ValueError(f"unregistered reliability model: {model.name}")
+        model_config = model_settings.get(model_key, {})
+        input_size = model_config.get("input_size")
+        nms_iou = model_config.get("nms_iou") if model_config.get("uses_nms") else None
+        raw_standard = model.detect(
+            image_bgr,
+            min(config.THRESHOLD_SWEEP),
+            input_size=input_size,
+            nms_iou=nms_iou,
+        )
+        raw_by_model[model_key] = raw_standard
+        if sliced:
+            runner = detector.SlicedDetector(
+                model,
+                tile_size=int(tile_settings.get("tile_size", config.SLICE_TILE_SIZE)),
+                overlap_ratio=float(tile_settings.get("overlap_ratio", config.SLICE_OVERLAP_RATIO)),
+                iou_threshold=float(tile_settings.get("iou_threshold", config.SLICE_IOU_THRESHOLD)),
+                input_size=input_size,
+                nms_iou=nms_iou,
+            )
+            displayed = runner.detect(image_bgr, threshold)
+        else:
+            displayed = [
+                detection for detection in raw_standard
+                if detection.confidence >= threshold
+            ]
+        filtered = counting.filter_by_classes(displayed, selected_classes)
         counts = counting.count_by_class(filtered, selected_classes)
         detections_by_model[model.name] = filtered
         families_by_model[model.name] = getattr(model, "family", "other")
         row = {"Model": model.name, "Total": len(filtered)}
         row.update({name: counts[name] for name in selected_classes})
         rows.append(row)
-    return rows, detections_by_model, families_by_model
+    return rows, detections_by_model, families_by_model, raw_by_model
+
+
+def _render_needs_review(feature_row: dict) -> None:
+    """Render a stored validated flag, or the exact unvalidated message."""
+    configuration = reliability_prediction.load_flag_configuration(
+        PREDICTOR_REPORT_PATH, WEEK3_SUMMARY_PATH
+    )
+    if configuration is None:
+        st.info(reliability_prediction.UNVALIDATED_MESSAGE)
+        return
+    prediction = reliability_prediction.score_features(feature_row, configuration)
+    if prediction is None:
+        st.info(reliability_prediction.UNVALIDATED_MESSAGE)
+        return
+
+    st.markdown("**Needs review**")
+    st.metric("Predicted counting error", f"{prediction['predicted_error']:.2f} vehicles")
+    st.metric("Needs review flag", "Yes" if prediction["flagged"] else "No")
+    if configuration["verdict"] == "supported":
+        st.caption(
+            "Source: learned ridge predictor, using the pre-registered highest-predicted-error "
+            "quarter rule."
+        )
+    else:
+        st.caption(
+            f"Source: simple `{configuration['source']}` baseline named in the stored results; "
+            "the highest-predicted-error quarter rule is applied."
+        )
+
+    precision = configuration.get("precision")
+    recall = configuration.get("recall")
+    precision_value = "not available" if precision is None else f"{float(precision):.3f}"
+    recall_value = "not available" if recall is None else f"{float(recall):.3f}"
+    intervals = configuration["intervals"]
+    status = (
+        f"H1: {configuration['verdict']} | Audited images: {configuration['audited_images']} | "
+        f"Exploratory: {'yes' if configuration['exploratory'] else 'no'} | "
+        f"Precision: {precision_value} (95% scene interval "
+        f"{reliability_prediction.format_interval(intervals, 'precision')}) | "
+        f"Recall: {recall_value} (95% scene interval "
+        f"{reliability_prediction.format_interval(intervals, 'recall')})"
+    )
+    st.caption(status)
+    st.caption(
+        f"estimated from {configuration['audited_images']} audited images on Dhaka street "
+        "imagery; it may not transfer to other scenes."
+    )
+    st.caption("Estimated signal only; review the image yourself.")
+    st.markdown("Top contributing features")
+    for item in prediction["top_features"]:
+        st.write(f"- {item['feature']}: {item['contribution']:+.3f}")
 
 
 def _render_counts(rows: list[dict], selected_classes: list[str]) -> None:
@@ -113,6 +198,10 @@ def render(uploaded_file, selected_classes, confidence_threshold, sliced, get_de
     )
 
     if uploaded_file is None:
+        if reliability_prediction.load_flag_configuration(
+            PREDICTOR_REPORT_PATH, WEEK3_SUMMARY_PATH
+        ) is None:
+            st.info(reliability_prediction.UNVALIDATED_MESSAGE)
         st.info("Upload a JPG, JPEG, PNG, or WEBP image in the sidebar to compare the models.")
         return
     if not selected_classes:
@@ -132,7 +221,7 @@ def render(uploaded_file, selected_classes, confidence_threshold, sliced, get_de
 
     try:
         detectors = list(get_detectors())
-        rows, detections_by_model, families_by_model = _run_models(
+        rows, detections_by_model, families_by_model, raw_by_model = _run_models(
             image_bgr, detectors, selected_classes, float(confidence_threshold), sliced
         )
     except Exception:
@@ -154,3 +243,7 @@ def render(uploaded_file, selected_classes, confidence_threshold, sliced, get_de
         selected_classes=list(selected_classes),
     )
     _render_agreement(built)
+    feature_row = features.image_features(
+        raw_by_model, image_bgr, confidence=config.DEFAULT_CONFIDENCE
+    )
+    _render_needs_review(feature_row)
