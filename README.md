@@ -116,7 +116,9 @@ counting; the UI reports a warning.
 
 The Human review queue is blind by default. A reviewer re-uploads the exact image (SHA-256
 must match), enters the seven category counts, and then reveals the model comparison.
-Corrections are append-only user-reported records. They are never written to
+Each saved correction is appended as a new user-reported record; earlier corrections are
+not edited in place. This is not an immutable audit log: deleting a run or clearing local
+history also removes its dependent corrections. Corrections are never written to
 `data/testset/LABELS.csv` and never update model weights or inference settings.
 
 See `docs/database_schema.md` for the schema and `docs/usability_test.md` for the
