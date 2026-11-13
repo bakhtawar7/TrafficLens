@@ -34,6 +34,34 @@ every higher threshold `t` by filtering that single run: keep detections with
   before derivation, so a derived higher threshold can undercount versus a direct run. On
   such frames the direct run is the reference.
 
+## Optional image-zone metrics (`core/zones.py`)
+
+The Image tab optionally accepts a polygon whose vertices are entered as image-pixel
+`x,y` coordinates, one vertex per line. Coordinates must be finite, within the image,
+and form a valid polygon with non-zero area. A detection is counted in the zone when its
+box centre is covered by the polygon, including a centre exactly on its boundary. Counts
+are by the selected vehicle classes and are calculated separately for each registered
+model in standard (full-frame) mode at the selected confidence threshold.
+
+Zone occupancy is the area of the union of selected vehicle boxes intersected with the
+zone, divided by polygon area. Overlapping boxes therefore cover their shared area once.
+The occupancy calculation includes any portion of a detected box inside the polygon,
+even when that box's centre is outside; the separate in-zone vehicle count uses centre
+membership.
+
+Passenger-car-unit values are displayed only when
+`configs/pcu_weights.json` supplies a numeric weight for every counted vehicle category,
+along with a non-empty source citation and retrieval date. The expected keys are
+`category_weights`, `source_citation`, and `retrieval_date`; a null or missing category
+weight suppresses PCU output and leaves the raw per-model counts visible. TrafficLens
+does not supply or infer weights.
+
+The optional `configs/congestion_thresholds.json` contains an
+`occupancy_threshold` from 0 to 1 and a non-empty `justification`. When present, each
+model's occupancy is compared with that threshold and the output is labelled
+**indicative and not calibrated against ground truth**. No threshold is supplied by
+TrafficLens. If the file is absent, only occupancy is shown.
+
 ### Ranges
 
 Three different ranges are reported; they are not interchangeable.

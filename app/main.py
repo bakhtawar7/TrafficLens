@@ -111,7 +111,10 @@ def main() -> None:
         ["Image", "Video", "Reliability", "Evaluation", "History"]
     )
     with tab_image:
-        image_tab.render(uploaded_file, selected_classes, confidence_threshold, get_detector)
+        image_tab.render(
+            uploaded_file, selected_classes, confidence_threshold,
+            get_detector, get_reliability_detectors,
+        )
     with tab_video:
         video_tab.render()
     with tab_reliability:

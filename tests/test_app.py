@@ -210,6 +210,23 @@ def test_image_tab_counts_an_uploaded_image(app) -> None:
     assert sorted(button.label for button in app.download_button) == ["Download CSV", "Download JSON"]
 
 
+def test_image_tab_optional_zone_reports_standard_model_counts_and_occupancy(app) -> None:
+    uploaded(app)
+    next(widget for widget in app.checkbox if widget.label == "Define an analysis zone").set_value(True)
+    app.run()
+    next(widget for widget in app.text_area if widget.label == "Zone polygon coordinates (x,y per line)").set_value(
+        "0,0\n100,0\n100,100\n0,100"
+    )
+    app.run()
+
+    assert not app.exception
+    table = next(element for element in app.dataframe if "Vehicles in zone" in element.value.columns)
+    assert set(table.value["Model"]) == {"YOLOv8n", "YOLOv8s", "RT-DETR-L"}
+    occupancy = [float(value.rstrip("%")) for value in table.value["Occupancy"]]
+    assert all(0 < value < 100 for value in occupancy)
+    assert any("PCU needs a cited source" in element.value for element in app.info)
+
+
 def test_class_selection_narrows_the_count(app) -> None:
     uploaded(app)
     app.sidebar.multiselect[0].set_value(["car"]).run()

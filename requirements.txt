@@ -13,4 +13,5 @@ trackers>=2.7.0
 pandas>=2.0.0
 plotly>=5.20.0
 pillow>=10.2.0
+shapely>=2.0
 pytest>=8.0.0

@@ -37,6 +37,8 @@ TAG_CUTOFFS_JSON: Path = CONFIGS_DIR / "tag_cutoffs.json"
 #: evaluator hash this file into results/summary.json so runs stay auditable.
 DEFAULT_SETTINGS_JSON: Path = CONFIGS_DIR / "default_settings.json"
 FINAL_SETTINGS_JSON: Path = CONFIGS_DIR / "final_settings.json"
+PCU_WEIGHTS_JSON: Path = CONFIGS_DIR / "pcu_weights.json"
+CONGESTION_THRESHOLDS_JSON: Path = CONFIGS_DIR / "congestion_thresholds.json"
 
 # Generated curation outputs, never written back into the source dataset.
 RESULTS_DIR: Path = PROJECT_ROOT / "results"

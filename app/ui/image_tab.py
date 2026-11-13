@@ -10,7 +10,7 @@ import cv2
 import pandas as pd
 import streamlit as st
 
-from core import annotate, counting, export, validation
+from core import annotate, config, counting, export, validation, zones
 from core.counting import CountResult
 
 
@@ -67,7 +67,121 @@ def _render_downloads(result: CountResult, input_filename: str) -> None:
     )
 
 
-def render(uploaded_file, selected_classes, confidence_threshold, get_detector) -> None:
+def _render_zone_analysis(
+    image_bgr,
+    result: CountResult,
+    selected_classes: list[str],
+    confidence_threshold: float,
+    get_detector,
+    get_comparison_detectors,
+) -> None:
+    if not st.checkbox(
+        "Define an analysis zone",
+        help="Enter polygon vertices as image-pixel x,y coordinates, one vertex per line.",
+    ):
+        return
+
+    st.caption(
+        "Coordinates use the uploaded image's pixel dimensions. "
+        "The polygon must be inside the image."
+    )
+    coordinates = st.text_area(
+        "Zone polygon coordinates (x,y per line)",
+        placeholder="20,20\n300,20\n300,200\n20,200",
+        key="zone_polygon_coordinates",
+    )
+    if not coordinates.strip():
+        st.info("Enter at least three polygon vertices to calculate zone metrics.")
+        return
+    try:
+        polygon = zones.parse_polygon_coordinates(
+            coordinates, image_bgr.shape[1], image_bgr.shape[0]
+        )
+    except ValueError as error:
+        st.warning(str(error))
+        return
+
+    try:
+        weights, pcu_message, pcu_source = zones.load_pcu_weights()
+    except zones.ZoneConfigurationError as error:
+        weights, pcu_message, pcu_source = None, None, None
+        st.error(str(error))
+    try:
+        occupancy_threshold, threshold_justification, _ = zones.load_occupancy_threshold()
+    except zones.ZoneConfigurationError as error:
+        occupancy_threshold, threshold_justification = None, None
+        st.error(str(error))
+
+    primary_name = getattr(get_detector(), "name", "YOLOv8n")
+    if primary_name not in {spec.display_name for spec in config.MODEL_REGISTRY.values()}:
+        primary_name = "YOLOv8n"
+    model_detections = {primary_name: result.detections}
+    comparison_models = get_comparison_detectors()
+    for model in comparison_models:
+        if model.name == primary_name:
+            continue
+        try:
+            model_detections[model.name] = [
+                detection
+                for detection in model.detect(image_bgr, confidence_threshold)
+                if detection.class_name in selected_classes
+            ]
+        except Exception as error:
+            st.error(f"Could not calculate zone metrics for {model.name}: {error}")
+            return
+
+    table: list[dict[str, object]] = []
+    for model_name, detections in model_detections.items():
+        summary = zones.summarize_zone(detections, polygon, selected_classes)
+        row: dict[str, object] = {
+            "Model": model_name,
+            "Vehicles in zone": summary["vehicle_count"],
+            "Occupancy": f"{summary['occupancy']:.1%}",
+        }
+        row.update({
+            f"{name.capitalize()} in zone": count
+            for name, count in summary["counts_by_class"].items()
+        })
+        if weights is not None:
+            row["PCU in zone"] = round(
+                sum(
+                    summary["counts_by_class"][name] * weights[name]
+                    for name in selected_classes
+                ),
+                3,
+            )
+        if occupancy_threshold is not None:
+            row["Congestion indicator"] = (
+                "At or above configured threshold"
+                if summary["occupancy"] >= occupancy_threshold
+                else "Below configured threshold"
+            )
+        table.append(row)
+
+    st.markdown("**Standard-mode zone metrics by model**")
+    st.dataframe(pd.DataFrame(table), width="stretch", hide_index=True)
+    if weights is None and pcu_message:
+        st.info(pcu_message)
+    if pcu_source is not None:
+        st.caption(f"PCU weight source: {pcu_source}")
+    if occupancy_threshold is not None:
+        st.caption(
+            "Congestion indicator: indicative and not calibrated against ground truth. "
+            f"Configured justification: {threshold_justification}"
+        )
+    st.caption(
+        "In-zone vehicle counts use box centres; occupancy is the union area of "
+        "vehicle boxes clipped to the zone."
+    )
+
+
+def render(
+    uploaded_file,
+    selected_classes,
+    confidence_threshold,
+    get_detector,
+    get_comparison_detectors,
+) -> None:
     """Render the Image tab for the current sidebar selections.
 
     Args:
@@ -75,6 +189,7 @@ def render(uploaded_file, selected_classes, confidence_threshold, get_detector) 
         selected_classes: Vehicle class names to count.
         confidence_threshold: Slider value for the detector.
         get_detector: Callable returning the cached detector instance.
+        get_comparison_detectors: Callable returning standard-mode model detectors.
     """
     if uploaded_file is None:
         st.info("Upload a JPG, JPEG, PNG, or WEBP image in the sidebar to begin counting.")
@@ -116,6 +231,10 @@ def render(uploaded_file, selected_classes, confidence_threshold, get_detector) 
         st.image(_to_rgb(annotate.annotate(image_bgr, result.detections)), width="stretch")
 
     _render_metrics(result)
+    _render_zone_analysis(
+        image_bgr, result, selected_classes, confidence_threshold,
+        get_detector, get_comparison_detectors,
+    )
     st.markdown("**Detections**")
     _render_table(result)
     _render_downloads(result, uploaded_file.name)
