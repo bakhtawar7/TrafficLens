@@ -108,10 +108,12 @@ are marked exploratory.
 
 ### 3.4 History and human review
 
-SQLite stores run metadata, model results, reliability metadata, and append-only corrections.
-Foreign keys and indexes support dependent-row cleanup and lookups. Image bytes are not
-stored. A run is deduplicated by image hash, settings hash, selected classes, threshold,
-rickshaw mode, and inference mode.
+SQLite stores run metadata, model results, reliability metadata, and corrections. Each
+correction save inserts a new row rather than editing an earlier correction; however, this
+is not an immutable audit log because deleting a run or clearing local history cascades to
+its dependent corrections. Foreign keys and indexes support dependent-row cleanup and
+lookups. Image bytes are not stored. A run is deduplicated by image hash, settings hash,
+selected classes, threshold, rickshaw mode, and inference mode.
 
 The review queue is blind-first. A reviewer must re-upload the exact image with a matching
 SHA-256, enter seven category counts, and then reveal model results. Corrections are
