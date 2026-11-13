@@ -1,6 +1,6 @@
 """TrafficLens Streamlit entry point.
 
-Builds the sidebar controls, the five tab shell, and the persistent limitations note,
+Builds the sidebar controls, the four tab shell, and the persistent limitations note,
 then delegates each tab to its renderer. The detector is cached with
 ``st.cache_resource`` so moving the confidence slider never reloads the model.
 
@@ -21,7 +21,7 @@ if str(ROOT) not in sys.path:
 import streamlit as st
 
 from core import dataset, evaluation
-from app.ui import evaluation_tab, history_tab, image_tab, reliability_tab, video_tab
+from app.ui import history_tab, image_tab, reliability_tab, video_tab
 from core import config, detector
 from core.detector import YoloDetector
 
@@ -190,8 +190,8 @@ def main() -> None:
     uploaded_file, selected_classes, confidence_threshold, sliced = _render_sidebar()
     _render_limitations()
 
-    tab_image, tab_video, tab_reliability, tab_evaluation, tab_history = st.tabs(
-        ["Image", "Video", "Reliability", "Evaluation", "History"]
+    tab_image, tab_video, tab_reliability, tab_history = st.tabs(
+        ["Image", "Video", "Reliability", "History"]
     )
     with tab_image:
         image_tab.render(
@@ -205,8 +205,6 @@ def main() -> None:
             uploaded_file, selected_classes, confidence_threshold, sliced,
             get_reliability_detectors,
         )
-    with tab_evaluation:
-        evaluation_tab.render()
     with tab_history:
         history_tab.render()
 
