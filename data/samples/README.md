@@ -16,6 +16,8 @@ Maintain a manifest with filename, source URL, author, licence text, download da
 selection reason, and whether the image is from the development or a separate demo pool.
 Do not include evaluation images or expose per-image evaluation model counts in a demo.
 
-Once the sample set exists, run `python scripts/warm_cache.py` before the demo. The script
-warms all pretrained registry models and the separate fine-tuned rickshaw model. It does not
-change settings or evaluation artefacts.
+A small public Streamlit image-counting demo does not require this curated sample folder;
+viewers can upload their own non-sensitive, appropriately licensed images. Do not run the
+warm-cache script as part of deployment preparation: it targets all pretrained registry
+models and the separate fine-tuned rickshaw model, not just the lightweight YOLOv8n demo
+path. Any future cache-warming run requires approved samples and separate owner approval.
