@@ -277,23 +277,22 @@ statistic and only cached detections can be scored.
 
 ## Roadmap
 
-* **Week 1 (delivered):** image counter, exports, validation, dashboard shell,
-  documentation, test set scaffold.
-* **Week 2 (delivered):** model registry with three pretrained detectors, warmup and load
-  timing, threshold sweep, detector comparison, and sliced inference, all behind one
-  `Detector` protocol and covered by the test suite; plus the Reliability tab showing per
-  model counts, the count range, and the two H2 agreement measures (count disagreement and
-  class-aware box agreement) with a sidebar sliced toggle.
-* **Week 3 (partial):** provenance-gated video counting with a virtual line and ByteTrack is
-  built. Add a row to `data/samples/video/PROVENANCE.csv` with the video filename, source URL,
-  author, licence text, and ISO download date before processing; the app never downloads a
-  clip or model weights. Video results are not evaluated and carry no accuracy claim. The
-  learned error predictor is not built; the Reliability tab reports agreement only and draws
-  no trust verdict.
-* **Week 4 (in progress):** stratified test set build with audit artefacts (expanded to 75
-  images under the pre-registered cap rule), the local road scene benchmark runner, the
-  ground-truth evaluation module, and the Evaluation tab (scored table, error by condition,
-  labelling pass agreement) are delivered, together with the blind labelling app, settings
-  provenance, and the development read guard that prepare leakage-free tuning. Tuning itself
-  waits for the audited first-pass labels; the needs review flag and SQLite history are
-  still to come.
+* **Week 1 (delivered):** image counting, exports, validation, dashboard shell,
+  documentation, and test-set scaffolding.
+* **Week 2 (delivered):** three pretrained detectors behind one `Detector` protocol,
+  warmup/load timing, threshold sweeps, detector comparison, sliced inference, and the
+  Reliability tab's count-range and H2 agreement measures.
+* **Week 3 (partial):** provenance-gated video counting with a virtual line and ByteTrack
+  is implemented, but video has not been evaluated and carries no accuracy claim. Add a
+  row to `data/samples/video/PROVENANCE.csv` before processing any clip. The learned
+  error predictor is not implemented; reliability signals do not establish trust.
+* **Week 4 (delivered with evaluation caveats):** the 75-image stratified test set,
+  benchmark runner, settings provenance, development-only tuning guard, frozen settings,
+  evaluation pipeline, blind labelling/adjudication workflow, and Evaluation tab are
+  implemented. Evaluation claims remain limited by the available human-labelled sample,
+  scene coverage, and the explicitly documented pilot scope.
+* **Week 5 (implemented pilot):** SQLite run history, the blind review queue, append-only
+  user corrections, correction comparisons, and CSV exports are implemented. Corrections
+  remain user-reported review data: they do not update `LABELS.csv`, model weights, or
+  inference settings. The needs-review flag remains unvalidated, and the learned error
+  predictor remains unimplemented.
