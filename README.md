@@ -2,297 +2,193 @@
 
 ## Overview
 
-TrafficLens is a vehicle counting system for images and, in later weeks, video. It
-runs pretrained object detectors over a supplied input, filters the results down to
-the vehicle classes of interest, and reports a per class count together with an
-annotated image. The Week 1 scope delivers the counting foundation: a working image
-counter, result exports, a clean dashboard shell, documentation, and scaffolding for a
-local road scene test set.
+TrafficLens is a Streamlit prototype for counting vehicles in road-scene images. It runs
+pretrained object detectors, filters detections to selected vehicle classes, annotates the
+image, and reports per-class and total counts. Additional workflows compare detector
+outputs, evaluate cached detections against human labels, keep local run history, and support
+a blind-first human correction loop. A separate video prototype counts virtual-line crossings.
 
-The system deliberately exposes its own uncertainty. Counting is only useful when the
-operator understands how far that count can be trusted, so every screen carries honest
-limitations and later weeks add reliability scoring on top of the raw count.
+**Evidence boundary:** results come from a pilot on Dhaka imagery. Reference counts are
+human counts; the documented consistency estimate is a mean absolute pass difference of
+1.62 vehicles (95% scene-bootstrap interval 0.67–2.46; 13 paired images across 7 scenes).
+The optional fine-tuned rickshaw mode is a separate one-class model with its own evaluation
+and contamination exclusions. It does not replace the pretrained multi-class detectors.
+H1 and H2 are not tested under the pre-registered evidence rules; H3 and H4 are descriptive
+only. Video has not been evaluated against labelled video ground truth.
 
-## Features
-
-Status legend: **Built** means available and tested in the current codebase.
-**Built (script/library)** means the capability runs from a command line script or a
-`core/` module with its own tests, but is not yet surfaced in a dashboard tab.
-**Planned for Week N** means the interface exists but the behaviour does not yet, and the
-app shows a clearly labelled placeholder panel rather than fake data.
+## Features and status
 
 | Feature | Status |
 | --- | --- |
-| Image vehicle counting (default YOLOv8n) | Built |
-| Per class counts (car, motorcycle, bus, truck) | Built |
-| Confidence threshold control (0.05 to 0.95) | Built |
-| Annotated image output | Built |
-| JSON and CSV export | Built |
-| Input validation with clear errors | Built |
-| Archive indexing, screening, and review sheets | Built |
-| Dataset cleaning with logged drops (unreadable, unannotated, near duplicates) | Built |
-| Quartile condition tagging with cut offs pinned before sampling | Built |
-| Seeded stratified test set build with audit overlays and sampling plan | Built |
-| Dashboard shell with custom theme | Built |
-| Model registry, three pretrained detectors (YOLOv8n, YOLOv8s, RT-DETR-L) | Built |
-| Optional one-class fine-tuned rickshaw pilot, isolated from pretrained counts | Built (pilot; see `docs/rickshaw_model.md`) |
-| Sliced (tiled) inference with class-aware merge | Built |
-| H2 agreement measures (count disagreement, class-aware box agreement) | Built |
-| Reliability tab: per model counts, count range, both agreement scores, sliced toggle | Built |
-| Evaluation tab: scored table, error by condition chart, labelling pass agreement | Built (needs benchmark results) |
-| Warmup separated from load and inference timing | Built (script/library) |
-| Threshold sweep derived from one low-threshold run | Built (script/library) |
-| Detector comparison report (run_detectors) | Built (script/library) |
-| Local road scene benchmark runner with detection cache | Built (script/library) |
-| Settings provenance: defaults file hashed into the summary | Built (script/library) |
-| Development-only read guard for tuning (dev_guard) | Built (script/library) |
-| Signed error, bias, and scene-level cluster bootstrap intervals | Built (script/library) |
-| Blind manual count audit app (label_app) with atomic saves | Built (script/library) |
-| Local run history with SQLite, filters, details, CSV export, and deletion | Built |
-| Blind review queue with append-only user corrections and CSV export | Built |
-| Label-free reliability feature table (build_features) | Built (script/library) |
-| Metrics reference with every formula (`docs/metrics.md`) | Built |
-| Provenance-gated ByteTrack video line counting | Built; not evaluated |
-| Learned error predictor and reliability score | Planned for Week 3 |
-| Needs review flag | Built; not yet validated |
+| Image upload, validation, decode, annotated count | Built |
+| Per-class counts and JSON/CSV export | Built |
+| Three pretrained detectors (YOLOv8n, YOLOv8s, RT-DETR-L) | Built |
+| Sliced/tiled inference | Built |
+| Reliability tab: model disagreement, box agreement, count range | Built; agreement is not correctness |
+| Human-reference evaluation pipeline and dashboard | Built; pilot evidence only |
+| Local SQLite run history and CSV export | Built |
+| Blind-first review queue and append-only user corrections | Built |
+| Optional fine-tuned rickshaw detector | Pilot; separate evaluation and contamination exclusions |
+| Learned error predictor and needs-review flag | Experimental workflow; user-facing flag remains not validated unless validated configuration is available |
+| Video virtual-line counting with ByteTrack | Prototype; not evaluated |
+| Formal usability findings | Pending participant sessions |
+| Density heatmap and HTML summary report | Skipped; Part E gate requires completed A–D and passing tests |
 
 ## Installation
 
-TrafficLens targets Python 3.10 or newer. Its standard counting and reliability workflows
-use pretrained models; an optional, separate one-class rickshaw pilot is available in the
-Image tab. That experimental model does not replace pretrained counts or reliability
-signals. See `docs/rickshaw_model.md` for its provenance, contamination, and pilot limits.
-Create a clean virtual environment and install the pinned requirements.
+TrafficLens targets Python 3.10 or newer. Create a virtual environment from the project
+root.
+
+**Windows PowerShell**
 
 ```powershell
-python -m venv .venv
+py -3.10 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 
-The pretrained weights download automatically on first use and are cached in the project
-directory: `yolov8n.pt` and `yolov8s.pt` for the YOLO detectors and `rtdetr-l.pt` for
-RT-DETR-L. They are excluded from version control by `.gitignore`. The dashboard uses
-YOLOv8n; the comparison and benchmark scripts exercise all three.
+**Linux / macOS**
 
-## Running the app
+```bash
+python3.10 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+```
 
-From the project root:
+The current `requirements.txt` specifies minimum versions, not an exact reproducible
+environment lock. No constraints file of test-passing versions is supplied because the
+full suite has not been run in this work session. Runtime compatibility should be confirmed
+in a clean environment before submission.
 
-```powershell
+## Run
+
+From the repository root:
+
+```bash
 streamlit run app/main.py
 ```
 
-The browser opens the dashboard on `http://localhost:8501`. Upload an image, choose the
-classes to count, adjust the confidence slider, and the Image tab shows the annotated
-result, the counts, and the export downloads. The off-by-default **Rickshaw aware mode
-(fine tuned)** toggle runs the separate one-class pilot; it uses a distinct rickshaw box
-colour and exports its model name and weights hash. It cannot detect the other vehicle
-classes and does not change pretrained counts, ranges, agreement scores, or flags.
-The History tab stores run metadata, filenames, hashes, counts, and comparison signals in
-the ignored local `data/history.db`; it never stores image bytes. See
-`docs/database_schema.md` for the schema. History is local to this checkout and is not
-ground truth.
+Open the local Streamlit URL shown in the terminal. Upload a supported image, select vehicle
+classes, and adjust the confidence threshold. The Image tab displays the original and
+annotated image, count metrics, detections, and downloads.
+
+The optional **Rickshaw aware mode (fine tuned)** toggle runs a separate one-class rickshaw
+detector. It does not detect the other vehicle categories and does not alter pretrained
+counts, ranges, reliability comparisons, or evaluation. Its source-data licence/citation
+metadata remains unresolved; see `docs/rickshaw_model.md`.
+
+The Video tab requires a provenance record in `data/samples/video/PROVENANCE.csv`. It uses
+local weights and does not download videos or model weights. Video crossings are not part
+of the evaluation and carry no accuracy claim.
+
+## Configuration and data
+
+- `configs/default_settings.json`: standard per-model inference configuration used by the
+  benchmark runner unless overridden.
+- `configs/final_settings.json`: frozen settings used by the final application paths.
+- `configs/finetuned_settings.json`: separate fine-tuned detector inference settings.
+- `configs/class_mapping.json`: proposed dataset-to-category mapping for review; it is
+  not an approved detector mapping.
+- `configs/tag_cutoffs.json` and `configs/testset_plan.json`: condition cut-offs and
+  seeded test-set selection metadata.
+- `data/testset/SOURCES.csv`: image provenance, split, scene, and condition tags.
+- `data/testset/LABELS.csv`: human ground truth. Do not replace it with annotation-derived
+  draft counts.
+- `data/history.db`: local SQLite run history, ignored by Git. Image bytes are not stored.
+- Model weights and generated result caches are not intended for version control.
+
+The source inventory records the dataset licence as unverified. The benchmark metadata
+package notes the licence inconsistency across mirrors (CC0 1.0 versus GNU GPL 2.0); confirm
+the original source terms before redistribution. The licence for project-authored annotations
+is still a placeholder.
+
+## Run history and human review
+
+The History tab stores filenames, image hashes, dimensions, settings hashes, counts, and
+reliability metadata locally. It provides filters, run details, CSV export, deletion, and
+clear-history confirmation. A locked or unwritable history store should not block image
+counting; the UI reports a warning.
+
+The Human review queue is blind by default. A reviewer re-uploads the exact image (SHA-256
+must match), enters the seven category counts, and then reveals the model comparison.
+Corrections are append-only user-reported records. They are never written to
+`data/testset/LABELS.csv` and never update model weights or inference settings.
+
+See `docs/database_schema.md` for the schema and `docs/usability_test.md` for the
+first-time usability session protocol.
+
+## Evaluation and pilot results
+
+The project test set contains 75 Dhaka images: 65 evaluation and 10 development items,
+selected using the frozen seeded plan. Human pass consistency is documented for 13 paired
+images across 7 scenes: mean absolute total-count difference 1.62 vehicles, with a 95%
+scene-bootstrap interval of 0.67–2.46. This is a human-label consistency statistic, not
+model performance.
+
+The optional fine-tuned rickshaw model has a separate pilot evaluation. Its documented
+training selection overlaps 49 of 75 test images; known overlaps are excluded from its
+evaluation figures. Only 7 uncontaminated evaluation images across 3 scenes have eligible
+first-pass labels for its audited-count comparison. The checkpoint is a one-class detector
+and cannot distinguish loader rickshaws. Its data licence and citation remain unresolved.
+See `docs/rickshaw_model.md` for its separately reported results and limitations.
+
+The hypotheses retain their registered evidence labels: H1 and H2 are **not tested**;
+H3 and H4 are **descriptive only**. Model disagreement is not ground truth, and a difference
+is not an improvement unless the relevant interval excludes zero.
 
 ## Project structure
 
 ```text
-trafficlens/
-  app/            Streamlit entry point and per tab renderers
-    main.py       Application entry point
-    ui/           Tab renderers (image, video, reliability, evaluation, history)
-  core/           Detector registry, counting, annotation, export, validation, dataset,
-                  curation, reliability (sweep and agreement), evaluation, settings
-                  provenance, development read guard, label free features, config
-  configs/        Reviewed class mapping, quartile tag cut offs, sampling plan (seed,
-                  subsets), default model settings
-  data/           Test set media (the 75 curated images are versioned), inventory and logs
-  docs/           Problem statement, hypotheses, protocol, architecture, wireframe
-  results/        Generated artefacts (curation log, overlays, audit sheet, raw detection
-                  cache, evaluation table, summary, feature table); untracked
-  scripts/        Indexing, cleaning, tagging, test set build, expansion and checks, tag
-                  proposals, review sheets, blind labelling app (label_app), detector
-                  comparison (run_detectors), benchmark runner (run_benchmark), feature
-                  table (build_features)
-  tests/          pytest suite
-  .streamlit/     Theme configuration
-  requirements.txt
-  README.md
+app/                 Streamlit entry point and tab renderers
+core/                validation, detectors, counting, reliability, evaluation, history
+configs/             frozen settings, mappings, cut-offs and selection plan
+data/testset/        curated test images and source/label metadata
+data/samples/video/  video provenance template
+benchmark/           image-free pilot annotation metadata package
+docs/                problem, scope, metrics, architecture, protocol and reports
+scripts/             curation, benchmark, evaluation and analysis workflows
+tests/               automated test suite
+results/              generated evaluation artefacts (not committed)
+requirements.txt      runtime and test dependency floors
 ```
 
-## Test set
+## Useful commands
 
-`data/testset/` holds the local road scene benchmark: 75 Dhaka street images (65
-evaluation, 10 development) drawn by a seeded, stratified, byte-for-byte reproducible
-selection. The chosen images are committed, so a fresh clone can be checked and scored
-without the archive. TrafficLens never fabricates or downloads footage; the media comes
-from an annotated archive supplied by the operator, whose usage rights are recorded as
-UNVERIFIED until confirmed.
-`docs/test_set_guide.md` states the collection rules, `docs/labelling_protocol.md` states
-the counting rules, and `docs/testset_workflow.md` states the mechanics.
-
-The build is a three stage pipeline; every stage reads the archive and writes only inside
-this project, and running any stage twice with the same inputs gives identical output:
-
-```powershell
-python scripts/clean_dataset.py --source "C:/path/to/archive"          # drop unreadable, unannotated, and near duplicate images
-python scripts/tag_dataset.py --source "C:/path/to/archive"            # quartile cut offs, written before any sampling
-python scripts/build_testset.py --source "C:/path/to/archive" --apply  # seeded draw, copies images, writes artefacts
-python scripts/check_testset.py                                        # validate the folder
+```bash
+python scripts/check_testset.py
+python scripts/run_benchmark.py --dev
+python scripts/run_benchmark.py --evaluation-only
+python scripts/run_predictor.py
+pytest
 ```
 
-What the pipeline guarantees, and where each result lives:
-
-* Sampling quotas, all stored in `core/config.py` with seed 20261028: the original build
-  targeted 45 images, at least 8 per condition tag, at least 15 carrying a rickshaw or CNG
-  annotation, and at most 3 per apparent scene. The target of 60 was not reachable under
-  that scene cap for this archive; the build reports shortfalls honestly and pads nothing.
-* `scripts/expand_testset.py` then grew the set from 45 to 75 items under a pre-registered
-  cap rule: take the smallest per-scene cap in {3, 4, 5} that yields at least 100 evaluation
-  images with at least 15 per tag; no cap qualified, so cap 5 was used for the maximum
-  feasible 65 evaluation images, with the shortfall reported and nothing padded. The
-  expansion is append-only: the original 45 items and the same 10 development images are
-  preserved verbatim, selection reuses the frozen seed and cut offs, and no model detection
-  enters any selection decision. Evaluation per tag after expansion: day 22, night 19,
-  glare 19, dense 32, sparse 16, distant 21, with 283 rickshaw or CNG boxes across 54 images.
-* `configs/tag_cutoffs.json`: the quartile cut offs proposed from the cleaned pool, fixed
-  before any sampling happens.
-* `configs/testset_plan.json`: the full draw, the 10 image development subset, and the
-  seeded random 20 percent (13 items) marked for a second labelling pass.
-* `data/testset/SOURCES.csv`: provenance per item (dataset, split, scene, source, licence,
-  url, condition tags), plus `tag_source` and `tag_confirmed` recording how each tag was
-  assigned and whether the labeller has confirmed it.
-* `scripts/tag_proposal.py` handles items the frozen cut-offs left tagless: it recomputes
-  the screening features, re-applies the same cut-offs without changing them, writes only
-  the tags the rule supports (a mid-band image may honestly carry none), and records
-  `tag_source` as `auto_proposed` with review images under `results/tag_review/`.
-  `scripts/check_testset.py` accepts these rows while printing how many tags remain
-  unconfirmed.
-* `data/testset/annotation_counts.csv`: counts derived from the archive annotations only,
-  never from a detector; they are a draft for the labeller, not ground truth.
-* `results/audit_overlays/` and `results/audit_sheet.csv`: every chosen image with its
-  annotation boxes drawn, and a counting sheet whose `my_` columns are blank for the
-  labeller. Both are generated outputs and stay untracked.
-* `LABELS.csv` is human ground truth and the build never writes it. The auto derived draft
-  that once filled it described a different, earlier selection, so it now sits in the
-  untracked `results/draft_auto_labels.csv` and `LABELS.csv` is a header only scaffold
-  waiting for the first labelling pass. The evaluator refuses any row whose notes still
-  record the counts as auto derived, so no error statistic can be built from unverified
-  numbers.
-* `scripts/label_app.py` is the blind counting app for the labelling passes: it shows the
-  image only, never a model detection or count, saves each row atomically with a
-  timestamped backup, requires explicit confirmation before overwriting a saved row, and
-  lets the labeller confirm condition tags after counting.
-
-The older manual workflow (`select_testset.py`, `make_review_sheet.py`, `apply_review.py`)
-remains available for hand picking a different archive, but rerunning it would overwrite
-the current `SOURCES.csv` and `LABELS.csv`.
-
-## Detector comparison and benchmark
-
-Week 2 added a model registry, sliced inference, the reliability agreement measures, and the
-ground-truth evaluation; Week 4 added settings provenance and the development read guard on
-top. Each piece is a `core/` module with its own tests and runs from a command line script.
-The pieces are:
-
-* `core.detector.build_detector(key)` returns any registry model behind one `Detector`
-  protocol, with weights load time and warmup reported separately from inference time.
-  `SlicedDetector` wraps any detector in overlapping-tile inference merged with
-  class-aware non-max suppression.
-* `core.reliability` sweeps one low-threshold run to derive higher thresholds by
-  confidence filtering, and computes the H2 agreement measures (normalised per class
-  count disagreement and class-aware box agreement at IoU 0.5).
-* `core.evaluation` joins `LABELS.csv`, `SOURCES.csv`, and the detection cache to score
-  covered and all-vehicle ground truth, excluding the development subset. It reports mean
-  absolute error, signed error and bias, undercount/overcount/exact tallies, and mean
-  relative error; every interval is a scene-level cluster bootstrap, and any condition
-  with fewer than 15 evaluation images is marked exploratory.
-* `core.settings` loads the settings file a run was produced under (default
-  `configs/default_settings.json`, which records the current per-model confidence, input
-  size, sliced mode, tile settings, and NMS IoU). The benchmark stamps every cached entry
-  with the file's SHA-256 plus the input size and NMS fields, and the evaluator records the
-  same provenance in `results/summary.json`, so every statistic stays traceable to its
-  configuration. The loader only reads; it selects nothing.
-* `core.dev_guard` is the leakage guard for tuning: it returns only the seeded development
-  subset ids and raises `DevelopmentOnlyError` before any bytes are read when code asks for
-  a non-development image.
-* `core.features` computes label-free reliability features per image from the cached
-  standard-mode detections and the pixels alone: confidence statistics, threshold
-  sensitivity, the H2 agreement pairs and family aggregates, scene statistics, and box
-  geometry. `scripts/build_features.py` writes `results/features.csv` stamped with the
-  settings hash, reuses the table until that hash changes, and prints only aggregate
-  summaries (feature means, ranges, missing counts). It reads no label or annotation file,
-  so the table can be built before labelling and cannot leak a label into a feature.
-* `docs/metrics.md` defines every reported formula (the three ranges, both agreement scores,
-  mean absolute and signed error, bias, relative error, and the cluster bootstrap interval)
-  so each number is reproducible.
-
-On the dashboard, the Reliability tab shows per model counts, the count range, and both
-agreement values for the uploaded image, with a sidebar toggle to switch the models between
-full-frame and sliced inference; every figure is labelled as measured from the models, with no
-verdict about trust. The Evaluation tab shows the scored table, error by condition as a chart,
-and the labelling pass agreement when `results/evaluation_table.csv` exists, and keeps its
-placeholder otherwise.
-
-```powershell
-python scripts/run_detectors.py                     # per-image counts and timings, all three detectors
-python scripts/run_benchmark.py --dev               # cache raw detections for the development subset
-python scripts/run_benchmark.py                     # full test set, standard and sliced modes
-python scripts/run_benchmark.py --settings configs/default_settings.json   # explicit settings file
-python scripts/tune_on_dev.py                       # guarded coarse grid and frozen final settings
-python scripts/run_benchmark.py --evaluation-only --settings configs/final_settings.json --configured-confidence
-python -c "from core.config import FINAL_SETTINGS_JSON; from core.evaluation import evaluate; evaluate(settings_json=FINAL_SETTINGS_JSON)"
-```
-
-The benchmark writes one line per (image, model, mode) to `results/raw_detections.jsonl`
-and skips entries already cached for the selected settings fingerprint, so reruns only do
-the missing work. `scripts/tune_on_dev.py` evaluates standard inference only on the guarded
-development images, writes its per-setting metrics to `results/tune_dev_table.csv`, and
-selects a read-only `configs/final_settings.json`. Pass that file to the evaluation-only
-benchmark and evaluator to keep the final cache and `results/summary.json` tied to the
-frozen settings hash. The sliced benchmark arm reuses the selected model settings with
-the default tile configuration. A missing settings file stops a run rather than letting
-it proceed without provenance.
-Evaluation over that cache produces `results/evaluation_table.csv` and `results/summary.json`;
-run the full benchmark first, because the development subset is excluded from every reported
-statistic and only cached detections can be scored.
+The commands above are documented entry points; they have not been executed as part of the
+current documentation-only work. Do not interpret this list as a passing test report.
 
 ## Limitations
 
-* Occlusion and overlap between vehicles cause undercounting.
-* Night scenes and glare degrade detection quality.
-* Small and distant vehicles are frequently missed.
-* The pretrained COCO detectors have no rickshaw class and may miss or mislabel local
-  vehicle types. The optional one-class fine-tuned rickshaw pilot is separate, cannot
-  detect other categories, and is not a validated replacement.
-* Video tracking may assign duplicate or switched IDs. Occlusion can interrupt or merge
-  tracks, so virtual-line inbound/outbound counts are not guaranteed to match unique vehicles.
-  Video results are outside the evaluation and carry no accuracy claim.
-* Dashboard counts come from pretrained models and are not yet checked against ground
-  truth in the app; `core.evaluation` computes that comparison offline, but its numbers
-  are only as good as the human labelling pass they depend on.
-* The test set counts derived from archive annotations still require a human labelling
-  pass, and the licence of the supplied archive is unverified.
+- The evidence is a small pilot on Dhaka imagery and may not transfer to other cities,
+  cameras, weather, or traffic conditions.
+- Human reference counts have measurable pass-to-pass variation.
+- The selected test set is limited in size and scene coverage.
+- Pretrained COCO models do not have dedicated rickshaw or loader-rickshaw classes.
+- The fine-tuned detector is a separate one-class pilot with known contamination exclusions
+  and unresolved dataset licensing/citation.
+- Reliability agreement describes model consistency, not correctness.
+- H1 and H2 are not tested; H3 and H4 are descriptive only.
+- Video tracking can produce duplicate or switched IDs under occlusion and is not evaluated.
+- The first-time usability protocol has not yet been run; findings are pending.
 
 ## Roadmap
 
-* **Week 1 (delivered):** image counting, exports, validation, dashboard shell,
-  documentation, and test-set scaffolding.
-* **Week 2 (delivered):** three pretrained detectors behind one `Detector` protocol,
-  warmup/load timing, threshold sweeps, detector comparison, sliced inference, and the
-  Reliability tab's count-range and H2 agreement measures.
-* **Week 3 (partial):** provenance-gated video counting with a virtual line and ByteTrack
-  is implemented, but video has not been evaluated and carries no accuracy claim. Add a
-  row to `data/samples/video/PROVENANCE.csv` before processing any clip. The learned
-  error predictor is not implemented; reliability signals do not establish trust.
-* **Week 4 (delivered with evaluation caveats):** the 75-image stratified test set,
-  benchmark runner, settings provenance, development-only tuning guard, frozen settings,
-  evaluation pipeline, blind labelling/adjudication workflow, and Evaluation tab are
-  implemented. Evaluation claims remain limited by the available human-labelled sample,
-  scene coverage, and the explicitly documented pilot scope.
-* **Week 5 (implemented pilot):** SQLite run history, the blind review queue, append-only
-  user corrections, correction comparisons, and CSV exports are implemented. Corrections
-  remain user-reported review data: they do not update `LABELS.csv`, model weights, or
-  inference settings. The needs-review flag remains unvalidated, and the learned error
-  predictor remains unimplemented.
+1. Complete the manual defect review and run the requested regression/full test suites when
+   authorized.
+2. Conduct the 20-minute first-time usability sessions and report only observed results.
+3. Confirm source dataset and annotation licences before any redistribution.
+4. Extend the audited human-labelled set to at least 100 images and broaden scene coverage.
+5. Test H1 and H2 under their pre-registered rules; conduct verified box-level analysis.
+6. Evaluate video against annotated video ground truth.
+7. Revisit optional heatmap and HTML report extras only after Parts A–D are complete and
+   tests pass.
