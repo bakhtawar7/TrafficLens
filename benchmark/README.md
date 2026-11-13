@@ -42,8 +42,11 @@ seeded selection details. Consult the plan and `docs/test_set_guide.md` before r
 
 ## Human labelling
 
-The audited labels included here are the available pass-1 and pass-2 records from the
-evaluation labelling pack. The labelling protocol defines seven categories: car, bus,
+`audited_labels.csv` contains 26 records: Pass 1 and Pass 2 for each of the 13
+evaluation items with audited human counts. These records match the corresponding rows
+in `data/testset/LABELS.csv`. That source file also contains 10 additional Pass 1 rows
+for the development subset; those development rows are not included in this package's
+audited evaluation subset. The labelling protocol defines seven categories: car, bus,
 truck, motorcycle, rickshaw, loader rickshaw, and other. It specifies partial visibility,
 occlusion, a minimum visible dimension rule, parked vehicles, and second-pass adjudication.
 
