@@ -93,7 +93,9 @@ of the evaluation and carry no accuracy claim.
   not an approved detector mapping.
 - `configs/tag_cutoffs.json` and `configs/testset_plan.json`: condition cut-offs and
   seeded test-set selection metadata.
-- `data/testset/SOURCES.csv`: image provenance, split, scene, and condition tags.
+- `data/testset/SOURCES.csv`: image provenance, original archive split, scene, and condition
+  tags. The separate `configs/testset_plan.json` defines the 10-item development subset;
+  the other 65 selected items are the evaluation roster.
 - `data/testset/LABELS.csv`: manually recorded human counts (23 Pass 1 rows: 10
   development and 13 evaluation; plus 13 Pass 2 rows for the same evaluation items).
   Do not replace these with annotation-derived draft counts.
