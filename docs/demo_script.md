@@ -20,7 +20,7 @@ validated configuration is unavailable.
 | 1:05–1:35 | Reliability status | Show the reliability tab. If the current state is not validated, say exactly that. Explain that agreement is between models, not ground truth. |
 | 1:35–2:05 | High-disagreement case | Use an approved dense or difficult sample with known model disagreement. Do not show evaluation-image per-item results in a public demo. |
 | 2:05–2:40 | Rickshaw-aware mode | Use a licensed rickshaw scene. Explain that the fine-tuned detector is one-class and separate; it does not replace pretrained multi-class counts. Mention separate evaluation and contamination exclusions. |
-| 2:40–3:25 | Human correction | Open a flagged run, re-upload the exact image, enter reviewer counts while blind, reveal, and save the append-only correction. Explain that this does not alter LABELS.csv or model settings. |
+| 2:40–3:25 | Human correction | Select a run in the blind review queue, re-upload the exact image, enter reviewer counts while blind, reveal, and save a correction. Explain that each save appends a record but the run can still be deleted from local history; this does not alter LABELS.csv or model settings. |
 | 3:25–3:50 | History | Show stored filename/hash metadata, filters, details and CSV export. Explain that image bytes are not stored. |
 | 3:50–4:20 | Limitations | Highlight small Dhaka pilot, human label variation, local vehicle class limitations, separate fine-tuned model, and unevaluated video. |
 
