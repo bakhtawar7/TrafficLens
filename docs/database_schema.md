@@ -1,7 +1,9 @@
-# Local run history database
+# Run history database
 
-TrafficLens stores local image-run metadata in `data/history.db`. SQLite foreign keys
-are enabled for every connection. Uploaded image bytes are never stored. Original
+TrafficLens stores image-run metadata without storing uploaded image bytes. Local
+development uses SQLite at `data/history.db`; when `DATABASE_URL` is configured, the
+application uses the PostgreSQL backend instead (for example, Neon in a deployed
+environment). SQLite foreign keys are enabled for every local connection. Original
 filenames are retained so a user can recognize a run; this is stated in the History
 tab. Results are a pilot on Dhaka imagery. The current human pass-consistency summary
 is a mean absolute total-count difference of 1.62 vehicles over 13 paired images in 7
@@ -10,7 +12,7 @@ detector has a separate pilot evaluation; 49 of 75 test images overlap training 
 are excluded from its evaluation. The database is gitignored, including its write-ahead
 log files.
 
-The schema is managed by `core.history.migrate`. The migration version is stored in
+The SQLite schema is managed by `core.history.migrate`; the PostgreSQL schema is initialized by `core.postgres_history.migrate`. The migration version is stored in
 `schema_version`; migrations are applied in ascending order. If the file is corrupt,
 locked, or unwritable, the UI reports that history is unavailable while leaving image
 counting available.
@@ -100,7 +102,7 @@ WHERE c.id = (
 );
 ```
 
-History is machine-local and is not ground truth. Corrections are appended, not updated;
+History is operational run metadata and is not ground truth. With SQLite it is machine-local; with PostgreSQL it is stored in the configured database. Corrections are appended, not updated;
 the interface displays the latest correction while retaining prior entries. They are
 user-reported review data and are not written to `LABELS.csv`, nor used to update model
 weights or inference settings. Review starts blind: outputs and the stored count range
