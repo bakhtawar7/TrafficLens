@@ -68,7 +68,7 @@ Pass 1 vs Pass 2 agreement (13 paired items): mean absolute difference in covere
 ## Caveats, surprises, and unverifiable items
 
 - This is not a complete 65-image final evaluation: 52 evaluation images have no supplied Pass 1 audited count. Results represent only the 13 labelled images and should not be generalized to the entire selected evaluation set.
-- The supplied audited Pass 1 and Pass 2 counts are kept in the evaluation pack and were not merged into `data/testset/LABELS.csv`.
+- The supplied audited Pass 1 and Pass 2 counts are present in `data/testset/LABELS.csv`; the evaluation pack retains a matching copy for this 13-image audited evaluation subset. The source label file also contains 10 development-subset Pass 1 rows, which are not included in the evaluation metrics.
 - **The earlier draft figure of 134 undercounted vehicles came from unverified labels and must not be cited.**
 - The evaluator's legacy all-vehicles helper excludes `other`; the seven-category audited total is also shown explicitly.
 - The images directory contains 10 image(s) outside the selected audit roster; they were excluded by using the roster.
