@@ -36,8 +36,8 @@ trafficlens_*.csv
 results/
 
 # Raw footage and collected media (kept out of version control). The curated test set
-# images are the deliberate exception: all 45 are versioned so a fresh clone can be
-# audited and scored without access to the private archive (overlays stay excluded).
+# images are the deliberate exception: all 75 selected images are versioned so a fresh
+# clone can be audited and scored without access to the private archive (overlays stay excluded).
 data/testset/clips/*
 data/samples/*
 !data/testset/images/.gitkeep
