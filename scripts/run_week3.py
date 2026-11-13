@@ -1,8 +1,11 @@
-"""Run the readiness-gated Week 3 analysis pipeline.
+"""Run the readiness-gated Week 3 analysis pipeline or its cache-only pilot.
 
 The pipeline intentionally does not repair labels or download models/data. It checks
 audited first-pass coverage and the test-set checker before running evaluation,
 prediction, H3, and the failure gallery in that order.
+
+The separate ``--pilot`` path requires ten audited evaluation first passes and uses
+only cached detections matching the frozen final settings.
 """
 from __future__ import annotations
 
@@ -11,6 +14,8 @@ import csv
 import hashlib
 import json
 import math
+import os
+import statistics
 import subprocess
 import sys
 import tempfile
@@ -24,9 +29,10 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from core import config, curation, dataset, evaluation, settings  # noqa: E402
+from core import config, counting, curation, dataset, evaluation, reliability, settings  # noqa: E402
 
 MIN_EVALUATION_LABELS = 30
+MIN_PILOT_EVALUATION_LABELS = 10
 GALLERY_SIZE = 12
 BOOTSTRAP_SAMPLES = 2000
 STANDARD_COLORS = {
@@ -147,6 +153,443 @@ def readiness_issues(
     if missing:
         return missing
     return []
+
+
+def _pilot_labels(path: Path) -> dict[int, dict[str, dict[str, int] | None]]:
+    """Load only complete, verified first- and second-pass pilot labels."""
+    labels: dict[int, dict[str, dict[str, int] | None]] = {}
+    for row in _read_csv(path):
+        item = dataset.parse_item_number(row.get("item_id", ""))
+        if item is None or evaluation.is_unverified_note(row.get("notes", "")):
+            continue
+        pass_value = (row.get("labeller_pass") or "").strip()
+        slot = "pass2" if pass_value in {"2", "2.0"} else "pass1"
+        if slot == "pass1" and pass_value not in {"", "1", "1.0"}:
+            continue
+        if not _has_complete_counts(row):
+            continue
+        labels.setdefault(item, {"pass1": None, "pass2": None})[slot] = {
+            name: int(row[name]) for name in config.LABEL_CLASS_NAMES
+        }
+    return labels
+
+
+def _format_pilot_interval(interval: tuple[float | None, float | None]) -> str:
+    lower, upper = interval
+    if lower is None or upper is None:
+        return "not available"
+    return f"[{lower:.2f}, {upper:.2f}]"
+
+
+def _pilot_model_rows(
+    item_ids: set[int],
+    labels: dict[int, dict[str, dict[str, int] | None]],
+    cache: dict[tuple[int, str, str], list[Any]],
+    scenes: dict[int, str],
+    mode: str,
+    reference: str,
+) -> dict[str, dict[str, Any]]:
+    """Summarize each model on its own available cached, labelled images."""
+    reports: dict[str, dict[str, Any]] = {}
+    for model in config.MODEL_REGISTRY:
+        pairs: list[tuple[int, int]] = []
+        clusters: list[str] = []
+        for item in sorted(item_ids):
+            truth_counts = labels[item].get(reference)
+            detections = cache.get((item, model, mode))
+            if truth_counts is None or detections is None:
+                continue
+            predicted_counts = counting.count_by_class(
+                detections, list(config.TARGET_CLASS_NAMES)
+            )
+            pairs.append((
+                evaluation.covered_total(predicted_counts),
+                evaluation.covered_total(truth_counts),
+            ))
+            clusters.append(scenes.get(item, f"#{dataset.format_item_id(item)}"))
+        stats = evaluation.error_stats(pairs, clusters, BOOTSTRAP_SAMPLES)
+        signed = [prediction - truth for prediction, truth in pairs]
+        reports[model] = {
+            "stats": stats,
+            "signed_ci": evaluation.cluster_bootstrap_ci(
+                signed, clusters, BOOTSTRAP_SAMPLES
+            ),
+            "scenes": len(set(clusters)),
+        }
+    return reports
+
+def _build_pilot_summary(
+    labels_path: Path,
+    sources_path: Path,
+    plan_path: Path,
+    settings_path: Path,
+    cache_path: Path,
+) -> tuple[str, dict[str, Any]]:
+    """Build an isolated pilot report using only existing frozen-settings cache rows."""
+    labels = _pilot_labels(labels_path)
+    sources = _read_csv(sources_path)
+    dev_ids = evaluation.load_development_ids(plan_path)
+    image_ids = {
+        item
+        for row in sources
+        if (item := dataset.parse_item_number(row.get("item_id", ""))) is not None
+        and (
+            not Path(row.get("filename", "")).suffix
+            or Path(row.get("filename", "")).suffix.lower() in _IMAGE_SUFFIXES
+        )
+    }
+    eval_ids = image_ids - dev_ids
+    labelled_eval = {
+        item for item in eval_ids
+        if labels.get(item, {}).get("pass1") is not None
+    }
+    if len(labelled_eval) < MIN_PILOT_EVALUATION_LABELS:
+        raise ValueError(
+            f"Pilot requires at least {MIN_PILOT_EVALUATION_LABELS} complete audited "
+            f"evaluation first-pass labels; found {len(labelled_eval)}."
+        )
+
+    frozen = settings.settings_record(settings_path)
+    confidence = {
+        name: float(record.get("confidence", config.DEFAULT_CONFIDENCE))
+        for name, record in frozen["models"].items()
+    }
+    cache = evaluation.load_detection_cache(
+        cache_path, confidence, frozen["settings_sha256"]
+    )
+    scenes = evaluation.load_scenes(sources_path)
+    labelled_dev = {
+        item for item in dev_ids & image_ids
+        if labels.get(item, {}).get("pass1") is not None
+    }
+    main_rows = _pilot_model_rows(
+        labelled_eval, labels, cache, scenes, "standard", "pass1"
+    )
+    second_rows = _pilot_model_rows(
+        {item for item in labelled_eval if labels[item].get("pass2") is not None},
+        labels, cache, scenes, "standard", "pass2",
+    )
+    dev_rows = _pilot_model_rows(
+        labelled_dev, labels, cache, scenes, "standard", "pass1"
+    )
+
+    conditions = evaluation.load_conditions(sources_path)
+    condition_counts: dict[str, int] = {}
+    for item in labelled_eval:
+        for tag in (value.strip() for value in conditions.get(item, "").split(";")):
+            if tag:
+                condition_counts[tag] = condition_counts.get(tag, 0) + 1
+
+    consistency = evaluation.labeller_pass_statistics(
+        labels, scenes, excluded=dev_ids, samples=BOOTSTRAP_SAMPLES
+    )["covered_total"]
+
+    model_names = {
+        model: config.MODEL_REGISTRY[model].display_name
+        for model in config.MODEL_REGISTRY
+    }
+    standard_tables = []
+    for model, report in main_rows.items():
+        stats = report["stats"]
+        standard_tables.append(
+            f"| {model_names[model]} | {stats['n']} | {report['scenes']} | "
+            f"{stats['mae'] if stats['mae'] is not None else 'n/a'} "
+            f"{_format_pilot_interval(stats['ci95'])} | "
+            f"{stats['bias'] if stats['bias'] is not None else 'n/a'} "
+            f"{_format_pilot_interval(report['signed_ci'])} | "
+            f"{stats['undercounted']} | {stats['overcounted']} | {stats['exact']} |"
+        )
+    second_tables = []
+    for model, report in second_rows.items():
+        stats = report["stats"]
+        second_tables.append(
+            f"| {model_names[model]} | {stats['n']} | {stats['mae'] if stats['mae'] is not None else 'n/a'} "
+            f"{_format_pilot_interval(stats['ci95'])} | "
+            f"{stats['bias'] if stats['bias'] is not None else 'n/a'} "
+            f"{_format_pilot_interval(report['signed_ci'])} |"
+        )
+    dev_tables = []
+    for model, report in dev_rows.items():
+        stats = report["stats"]
+        dev_tables.append(
+            f"| {model_names[model]} | {stats['n']} | {report['scenes']} | "
+            f"{stats['mae'] if stats['mae'] is not None else 'n/a'} "
+            f"{_format_pilot_interval(stats['ci95'])} | "
+            f"{stats['bias'] if stats['bias'] is not None else 'n/a'} "
+            f"{_format_pilot_interval(report['signed_ci'])} | "
+            f"{stats['undercounted']} | {stats['overcounted']} | {stats['exact']} |"
+        )
+
+    rickshaw_groups = {
+        "none": lambda count: count == 0,
+        "one or two": lambda count: 1 <= count <= 2,
+        "three or more": lambda count: count >= 3,
+    }
+    h3_lines: list[str] = []
+    for group_name, predicate in rickshaw_groups.items():
+        items = [
+            item for item in sorted(labelled_eval)
+            if predicate(labels[item]["pass1"]["rickshaw"])
+        ]
+        for model in config.MODEL_REGISTRY:
+            errors = []
+            for item in items:
+                detections = cache.get((item, model, "standard"))
+                if detections is None:
+                    continue
+                prediction = counting.count_by_class(
+                    detections, list(config.TARGET_CLASS_NAMES)
+                )
+                errors.append(
+                    evaluation.covered_total(prediction)
+                    - evaluation.covered_total(labels[item]["pass1"])
+                )
+            mean_error = statistics.fmean(errors) if errors else None
+            h3_lines.append(
+                f"| {group_name} | {model_names[model]} | {len(errors)} | "
+                f"{mean_error:.2f} |" if mean_error is not None else
+                f"| {group_name} | {model_names[model]} | 0 | n/a |"
+            )
+
+    distant_items = {
+        item for item in labelled_eval
+        if "distant" in {tag.strip() for tag in conditions.get(item, "").split(";")}
+    }
+    selected_model = config.DEFAULT_MODEL_NAME
+    standard_errors: list[float] = []
+    sliced_errors: list[float] = []
+    distant_clusters: list[str] = []
+    for item in sorted(distant_items):
+        standard = cache.get((item, selected_model, "standard"))
+        sliced = cache.get((item, selected_model, "sliced"))
+        if standard is None or sliced is None:
+            continue
+        truth = evaluation.covered_total(labels[item]["pass1"])
+        standard_count = evaluation.covered_total(counting.count_by_class(
+            standard, list(config.TARGET_CLASS_NAMES)
+        ))
+        sliced_count = evaluation.covered_total(counting.count_by_class(
+            sliced, list(config.TARGET_CLASS_NAMES)
+        ))
+        standard_errors.append(abs(standard_count - truth))
+        sliced_errors.append(abs(sliced_count - truth))
+        distant_clusters.append(scenes.get(item, f"#{dataset.format_item_id(item)}"))
+    if len(distant_items) < 3:
+        h4_text = "Not tested: fewer than 3 distant images."
+    else:
+        differences = [
+            standard - sliced
+            for standard, sliced in zip(standard_errors, sliced_errors)
+        ]
+        h4_ci = evaluation.cluster_bootstrap_ci(
+            differences, distant_clusters, BOOTSTRAP_SAMPLES
+        )
+        h4_text = (
+            f"Descriptive only: {selected_model} standard mean absolute error "
+            f"{statistics.fmean(standard_errors):.2f}; sliced "
+            f"{statistics.fmean(sliced_errors):.2f}; paired standard-minus-sliced "
+            f"difference {statistics.fmean(differences):.2f} "
+            f"{_format_pilot_interval(h4_ci)} (n={len(differences)} cached pairs from "
+            f"{len(distant_items)} labelled distant images)."
+        ) if differences else (
+            f"Descriptive only: no paired cached results available among "
+            f"{len(distant_items)} labelled distant images."
+        )
+
+    common_items = [
+        item for item in sorted(labelled_eval)
+        if all((item, model, "standard") in cache for model in config.MODEL_REGISTRY)
+    ]
+    disagreement: dict[int, float] = {}
+    true_errors: dict[int, float] = {}
+    for item in common_items:
+        by_model = {
+            model_names[model]: cache[(item, model, "standard")]
+            for model in config.MODEL_REGISTRY
+        }
+        family_by_name = {
+            model_names[model]: config.MODEL_REGISTRY[model].family
+            for model in config.MODEL_REGISTRY
+        }
+        agreement = reliability.build_reliability_report(
+            by_model, family_by_name, config.DEFAULT_CONFIDENCE
+        )
+        cross = agreement.cross_family
+        if cross is None:
+            continue
+        disagreement[item] = cross.count_disagreement
+        totals = [
+            evaluation.covered_total(counting.count_by_class(
+                cache[(item, model, "standard")], list(config.TARGET_CLASS_NAMES)
+            ))
+            for model in config.MODEL_REGISTRY
+        ]
+        truth = evaluation.covered_total(labels[item]["pass1"])
+        true_errors[item] = abs(statistics.median(totals) - truth)
+    if disagreement:
+        flagged_count = max(1, math.ceil(len(disagreement) / 4))
+        flagged = set(sorted(disagreement, key=lambda item: (-disagreement[item], item))[:flagged_count])
+        unflagged = set(disagreement) - flagged
+        flagged_mean = statistics.fmean(true_errors[item] for item in flagged)
+        unflagged_mean = (
+            statistics.fmean(true_errors[item] for item in unflagged)
+            if unflagged else None
+        )
+        flag_text = (
+            f"Unvalidated; descriptive association on a pilot sample; not evidence that "
+            f"disagreement predicts error. Highest-disagreement quarter: {len(flagged)} "
+            f"flagged of {len(disagreement)} common cached images; mean absolute "
+            f"median-model error {flagged_mean:.2f} flagged (n={len(flagged)}) versus "
+            f"{unflagged_mean:.2f} unflagged (n={len(unflagged)})."
+            if unflagged_mean is not None else
+            f"Unvalidated; descriptive association on a pilot sample; not evidence that "
+            f"disagreement predicts error. Highest-disagreement quarter: {len(flagged)} "
+            f"flagged of {len(disagreement)} common cached images; mean absolute "
+            f"median-model error {flagged_mean:.2f} flagged (n={len(flagged)}); no "
+            "unflagged comparison is available."
+        )
+    else:
+        flag_text = (
+            "Unvalidated; descriptive association on a pilot sample; not evidence that "
+            "disagreement predicts error. No common cached images are available."
+        )
+
+    conditions_table = "\n".join(
+        f"| {tag} | {count} |" for tag, count in sorted(condition_counts.items())
+    ) or "| none | 0 |"
+    h1_h2 = (
+        f"Not tested: {len(labelled_eval)} audited evaluation images, minimum 30 required."
+    )
+    consistency_text = (
+        f"n={consistency['n']}, mean absolute covered difference "
+        f"{consistency['mean_absolute_difference'] if consistency['mean_absolute_difference'] is not None else 'n/a'} "
+        f"{_format_pilot_interval(consistency['mean_absolute_difference_ci95'])}."
+    )
+    second_pass_text = "\n".join(second_tables) or "| No second-pass rows | 0 | n/a | n/a | n/a |"
+    development_text = "\n".join(dev_tables) or (
+        "| No development rows with cached detections | 0 | 0 | n/a | n/a | 0 | 0 | 0 |"
+    )
+    markdown = f"""# Week 3 Pilot Evaluation
+
+Pilot analysis using first-pass counts as the pre-registered reference. Frozen settings SHA-256: `{frozen['settings_sha256']}`. Existing cached detections only; no inference or tuning was run, and the predictor was not run. There are {len(labelled_eval)} audited evaluation first-pass images; standard-cache coverage varies by model, as shown below. {len(labelled_eval) - len(common_items)} evaluation images lack a complete standard cache across all three models.
+
+## Main evaluation results
+
+All rows are pilot results; `n` and scene counts are per model. Mean absolute and signed errors include scene-level bootstrap 95% intervals.
+
+| Model | n images | n scenes | Mean absolute error [95% interval] | Mean signed error [95% interval] | Undercounted | Overcounted | Exact |
+|---|---:|---:|---:|---:|---:|---:|---:|
+{chr(10).join(standard_tables)}
+
+### Second-pass sensitivity analysis
+
+Second-pass counts are used as the reference only for items that have a second pass. Pilot results; sample sizes are per model.
+
+| Model | n images | Mean absolute error [95% interval] | Mean signed error [95% interval] |
+|---|---:|---:|---:|
+{second_pass_text}
+
+### Condition counts
+
+Descriptive counts of labelled evaluation images by condition tag; images may carry multiple tags.
+
+| Condition tag | Images |
+|---|---:|
+{conditions_table}
+
+## Development set: settings were tuned here, results are optimistic
+
+Separate descriptive results; development images are not pooled with evaluation results.
+
+| Model | n images | n scenes | Mean absolute error [95% interval] | Mean signed error [95% interval] | Undercounted | Overcounted | Exact |
+|---|---:|---:|---:|---:|---:|---:|---:|
+{development_text}
+
+## Labeller consistency
+
+{consistency_text} Model errors below this level cannot be distinguished from labelling noise.
+
+## Hypotheses
+
+- H1: {h1_h2}
+- H2: {h1_h2}
+- H3: Descriptive only. Signed covered error (model covered total minus first-pass covered total) grouped by first-pass rickshaw count:
+
+| Rickshaw group | Model | n images | Mean signed covered error |
+|---|---|---:|---:|
+{chr(10).join(h3_lines)}
+
+This is not a confusion analysis; the models have no rickshaw class.
+- H4: {h4_text}
+
+## Needs-review flag
+
+{flag_text}
+"""
+    aggregate = {
+        "labelled_evaluation": len(labelled_eval),
+        "common_cached_evaluation": len(common_items),
+        "main": main_rows,
+        "second_pass": second_rows,
+        "development": dev_rows,
+        "flagged_n": len(flagged) if disagreement else 0,
+        "flagged_mean_error": flagged_mean if disagreement else None,
+        "unflagged_n": len(unflagged) if disagreement else 0,
+        "unflagged_mean_error": unflagged_mean if disagreement else None,
+        "h4_n": len(standard_errors),
+        "h4_status": h4_text,
+    }
+    return markdown, aggregate
+
+
+def _run_pilot(args: argparse.Namespace) -> int:
+    if not config.FINAL_SETTINGS_JSON.is_file():
+        print(f"Pilot stopped: frozen settings file missing: {config.FINAL_SETTINGS_JSON}")
+        return 1
+    try:
+        report, aggregate = _build_pilot_summary(
+            args.labels, args.sources, args.plan, config.FINAL_SETTINGS_JSON,
+            config.RAW_DETECTIONS_JSONL,
+        )
+        output = config.RESULTS_DIR / "week3_summary.md"
+        output.parent.mkdir(parents=True, exist_ok=True)
+        temporary: Path | None = None
+        try:
+            with tempfile.NamedTemporaryFile(
+                "w", encoding="utf-8", newline="", dir=output.parent,
+                prefix=".week3_summary.", suffix=".tmp", delete=False,
+            ) as handle:
+                temporary = Path(handle.name)
+                handle.write(report)
+                handle.flush()
+                os.fsync(handle.fileno())
+            os.replace(temporary, output)
+        finally:
+            if temporary is not None and temporary.exists():
+                temporary.unlink()
+    except (OSError, ValueError, KeyError, json.JSONDecodeError) as error:
+        print(f"ERROR: pilot evaluation failed: {error}")
+        return 1
+    print(f"Wrote pilot report: {output}")
+    print(
+        f"Pilot sample: {aggregate['labelled_evaluation']} audited evaluation images; "
+        f"{aggregate['common_cached_evaluation']} have all three standard model caches."
+    )
+    for model, report in aggregate["main"].items():
+        stats = report["stats"]
+        print(
+            f"{config.MODEL_REGISTRY[model].display_name}: n={stats['n']}, "
+            f"MAE={stats['mae']}, signed error={stats['bias']}."
+        )
+    if aggregate["flagged_n"]:
+        print(
+            f"Descriptive flag comparison: flagged n={aggregate['flagged_n']}, "
+            f"mean error={aggregate['flagged_mean_error']}; unflagged "
+            f"n={aggregate['unflagged_n']}, mean error={aggregate['unflagged_mean_error']}."
+        )
+    if aggregate["h4_n"]:
+        print(f"H4 paired cached sample: n={aggregate['h4_n']}.")
+    return 0
 
 
 def _run_command(command: list[str], description: str) -> bool:
@@ -429,6 +872,403 @@ def create_failure_gallery(
     }
 
 
+def select_failure_cases(
+    absolute_errors: dict[str, float],
+    disagreements: dict[str, float],
+    consistency: float,
+    max_error_cases: int = 12,
+    max_disagreement_cases: int = 5,
+) -> dict[str, list[str]]:
+    """Apply the registered consistency threshold and top-disagreement limits."""
+    if not math.isfinite(consistency) or consistency < 0:
+        raise ValueError("labeller consistency must be a finite non-negative value")
+    error_items = sorted(
+        (
+            item for item, error in absolute_errors.items()
+            if math.isfinite(error) and error > consistency
+        ),
+        key=lambda item: (-absolute_errors[item], item),
+    )
+    disagreement_items = sorted(
+        (
+            item for item, value in disagreements.items()
+            if math.isfinite(value)
+        ),
+        key=lambda item: (-disagreements[item], item),
+    )
+    return {
+        "error": error_items[:max_error_cases],
+        "disagreement": disagreement_items[:max_disagreement_cases],
+    }
+
+
+_FAILURE_CAUSES = (
+    "occlusion",
+    "distant or small",
+    "night or glare",
+    "local vehicle type",
+    "annotation or labelling issue",
+    "dense overlap",
+    "other",
+)
+
+
+def create_pilot_failure_cases(
+    labels_path: Path = config.LABELS_CSV,
+    sources_path: Path = config.SOURCES_CSV,
+    plan_path: Path = config.TESTSET_PLAN_JSON,
+    settings_path: Path = config.FINAL_SETTINGS_JSON,
+    cache_path: Path = config.RAW_DETECTIONS_JSONL,
+    images_dir: Path = config.TESTSET_IMAGES_DIR,
+    output_dir: Path = config.RESULTS_DIR / "failures",
+    report_path: Path = ROOT / "docs" / "failure_cases.md",
+) -> dict[str, Any]:
+    """Write selected pilot failure figures and a human-review report."""
+    labels = _pilot_labels(labels_path)
+    source_rows = _read_csv(sources_path)
+    sources = {
+        item: row for row in source_rows
+        if (item := dataset.parse_item_number(row.get("item_id", ""))) is not None
+    }
+    image_ids = {
+        item for item, row in sources.items()
+        if not Path(row.get("filename", "")).suffix
+        or Path(row.get("filename", "")).suffix.lower() in _IMAGE_SUFFIXES
+    }
+    development = evaluation.load_development_ids(plan_path)
+    evaluation_ids = image_ids - development
+    labelled_ids = {
+        item for item in evaluation_ids
+        if labels.get(item, {}).get("pass1") is not None
+    }
+    if len(labelled_ids) < MIN_PILOT_EVALUATION_LABELS:
+        raise ValueError(
+            "Failure analysis requires at least 10 audited evaluation first-pass labels; "
+            f"found {len(labelled_ids)}."
+        )
+
+    frozen = settings.settings_record(settings_path)
+    confidence = {
+        model: float(record.get("confidence", config.DEFAULT_CONFIDENCE))
+        for model, record in frozen["models"].items()
+    }
+    cached_entries = _load_matching_cache(cache_path, frozen["settings_sha256"])
+    image_paths = _item_paths(images_dir)
+    valid_entries: dict[tuple[int, str], list[dict[str, Any]]] = {}
+    model_counts: dict[str, dict[int, dict[str, int]]] = {}
+    model_mae: dict[str, float] = {}
+    model_sample_size: dict[str, int] = {}
+    for model in config.MODEL_REGISTRY:
+        item_counts: dict[int, dict[str, int]] = {}
+        for item in labelled_ids:
+            path = image_paths.get(dataset.format_item_id(item))
+            entry = cached_entries.get((dataset.format_item_id(item), model, "standard"))
+            if (
+                path is None or entry is None
+                or entry.get("image_hash") != _sha256(path)
+            ):
+                continue
+            detections = _filtered_detections(entry, confidence[model])
+            valid_entries[(item, model)] = detections
+            item_counts[item] = {
+                name: sum(
+                    1 for detection in detections
+                    if detection.get("class_name", "").lower() == name
+                )
+                for name in config.TARGET_CLASS_NAMES
+            }
+        model_counts[model] = item_counts
+        model_sample_size[model] = len(item_counts)
+        if item_counts:
+            model_mae[model] = statistics.fmean(
+                abs(
+                    sum(item_counts[item].values())
+                    - evaluation.covered_total(labels[item]["pass1"])
+                )
+                for item in item_counts
+            )
+        else:
+            model_mae[model] = float("inf")
+    eligible_models = [
+        model for model, count in model_sample_size.items()
+        if count >= MIN_PILOT_EVALUATION_LABELS
+    ]
+    if not eligible_models:
+        raise ValueError(
+            "No model has matching frozen-settings detections for at least 10 "
+            "labelled evaluation images."
+        )
+    best_model = min(
+        eligible_models, key=lambda model: (model_mae[model], model)
+    )
+    first_pass_labels = {
+        item: {"pass1": labels[item]["pass1"], "pass2": None}
+        for item in labelled_ids
+    }
+    consistency = evaluation.labeller_pass_statistics(
+        labels,
+        evaluation.load_scenes(sources_path),
+        excluded=development,
+    )["covered_total"]["mean_absolute_difference"]
+    if consistency is None:
+        raise ValueError(
+            "Failure analysis requires at least one evaluation item with two audited passes."
+        )
+    errors = {
+        dataset.format_item_id(item): abs(
+            sum(model_counts[best_model][item].values())
+            - evaluation.covered_total(labels[item]["pass1"])
+        )
+        for item in labelled_ids if item in model_counts[best_model]
+    }
+    disagreements: dict[str, float] = {}
+    for item in labelled_ids:
+        totals = [
+            sum(model_counts[model][item].values())
+            for model in config.MODEL_REGISTRY
+            if item in model_counts[model]
+        ]
+        if len(totals) >= 2:
+            disagreements[dataset.format_item_id(item)] = max(totals) - min(totals)
+    selected = select_failure_cases(errors, disagreements, consistency)
+    error_ids = selected["error"]
+    disagreement_ids = selected["disagreement"]
+    union = list(dict.fromkeys(error_ids + disagreement_ids))
+    if not union:
+        raise ValueError(
+            "No labelled evaluation items met the failure selection criteria."
+        )
+
+    selected_keys = set(union)
+    dataset_boxes, boxes_unavailable = _source_boxes_by_item(
+        selected_keys, image_paths
+    )
+    reviewed_causes = {
+        "tl0007": (
+            "dense overlap",
+            "Several foreground vehicles overlap or are partly occluded in busy traffic.",
+        ),
+        "tl0038": (
+            "distant or small",
+            "The road scene is wide and multiple vehicles appear small in the distance.",
+        ),
+        "tl0022": (
+            "distant or small",
+            "Vehicles are spread across a broad roadway and some are small in the frame.",
+        ),
+        "tl0070": (
+            "dense overlap",
+            "Multiple nearby road users occupy the same busy area and partly overlap.",
+        ),
+        "tl0008": (
+            "distant or small",
+            "Most vehicles are small or far down the roadway.",
+        ),
+        "tl0029": (
+            "distant or small",
+            "The elevated view places many vehicles at a small apparent size.",
+        ),
+        "tl0044": (
+            "distant or small",
+            "Several vehicles are small against the broad road and distant background.",
+        ),
+        "tl0046": (
+            "night or glare",
+            "The dim dusk lighting reduces contrast around some vehicles.",
+        ),
+        "tl0043": (
+            "dense overlap",
+            "Crowded traffic includes vehicles close together and partially occluded.",
+        ),
+    }
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    image_records: list[dict[str, Any]] = []
+    palette = {
+        "dataset": DATASET_COLOR,
+        "yolov8n": STANDARD_COLORS["yolov8n"],
+        "yolov8s": STANDARD_COLORS["yolov8s"],
+        "rtdetr-l": STANDARD_COLORS["rtdetr-l"],
+    }
+    label_names = list(config.LABEL_CLASS_NAMES)
+    for item_id in union:
+        item = dataset.parse_item_number(item_id)
+        path = image_paths.get(item_id)
+        if path is None:
+            raise ValueError(f"selected failure image is missing: {item_id}")
+        source = cv2.imread(str(path), cv2.IMREAD_COLOR)
+        if source is None:
+            raise ValueError(f"could not decode selected failure image: {path}")
+        height, width = source.shape[:2]
+        scale = min(1.0, 1440 / width, 900 / height)
+        if scale < 1:
+            source = cv2.resize(
+                source,
+                (int(width * scale), int(height * scale)),
+                interpolation=cv2.INTER_AREA,
+            )
+        canvas_width = max(1200, source.shape[1])
+        image_x = (canvas_width - source.shape[1]) // 2
+        canvas = np.full((source.shape[0] + 235, canvas_width, 3), 255, dtype=np.uint8)
+        canvas[:source.shape[0], image_x:image_x + source.shape[1]] = source
+
+        if item_id in dataset_boxes:
+            for _category, box in dataset_boxes[item_id]:
+                x0, y0, x1, y1 = box
+                p0 = (image_x + int(x0 * scale), int(y0 * scale))
+                p1 = (image_x + int(x1 * scale), int(y1 * scale))
+                cv2.rectangle(canvas, p0, p1, palette["dataset"], 2)
+
+        labels_for_item = labels[item]["pass1"]
+        counts_for_item: dict[str, dict[str, int]] = {}
+        footer = [
+            (
+                f"{item_id} | audited pass 1: "
+                + ", ".join(f"{name}={labels_for_item[name]}" for name in label_names),
+                (20, 20, 20),
+            ),
+            (
+                "Dataset boxes: source annotations aligned"
+                if item_id in dataset_boxes
+                else "Dataset boxes unavailable: source-image bytes do not match selected copy",
+                palette["dataset"] if item_id in dataset_boxes else (90, 90, 90),
+            ),
+        ]
+        for model in config.MODEL_REGISTRY:
+            detections = valid_entries.get((item, model))
+            if detections is None:
+                footer.append((
+                    f"{config.MODEL_REGISTRY[model].display_name}: cached detections unavailable",
+                    (90, 90, 90),
+                ))
+                continue
+            for detection in detections:
+                x0, y0, x1, y1 = detection["xyxy"]
+                p0 = (image_x + int(float(x0) * scale), int(float(y0) * scale))
+                p1 = (image_x + int(float(x1) * scale), int(float(y1) * scale))
+                cv2.rectangle(canvas, p0, p1, palette[model], 2)
+            counts_for_item[model] = model_counts[model][item]
+            footer.append((
+                f"{config.MODEL_REGISTRY[model].display_name}: "
+                + ", ".join(
+                    f"{name}={counts_for_item[model][name]}"
+                    for name in config.TARGET_CLASS_NAMES
+                ),
+                palette[model],
+            ))
+        for index, (text, color) in enumerate(footer):
+            y = source.shape[0] + 25 + index * 29
+            cv2.putText(
+                canvas, text, (10, y), cv2.FONT_HERSHEY_SIMPLEX, 0.53,
+                color, 1, cv2.LINE_AA,
+            )
+        output_path = output_dir / f"{item_id}.png"
+        if not cv2.imwrite(str(output_path), canvas):
+            raise OSError(f"could not write failure figure: {output_path}")
+        tags = [
+            tag.strip() for tag in (sources[item].get("condition_tags") or "").split(";")
+            if tag.strip()
+        ]
+        cause, explanation = reviewed_causes.get(
+            item_id, ("other", "No specific visual cause was selected.")
+        )
+        image_records.append({
+            "item_id": item_id,
+            "tags": tags,
+            "labels": labels_for_item,
+            "models": counts_for_item,
+            "missing_models": [
+                model for model in config.MODEL_REGISTRY
+                if model not in counts_for_item
+            ],
+            "error_selected": item_id in error_ids,
+            "disagreement_selected": item_id in disagreement_ids,
+            "cause": cause,
+            "explanation": explanation,
+        })
+
+    def label_vector(counts: dict[str, int]) -> str:
+        return ", ".join(f"{name}={counts[name]}" for name in label_names)
+
+    def model_vector(model: str, counts: dict[str, int] | None) -> str:
+        if counts is None:
+            return f"{config.MODEL_REGISTRY[model].display_name}: cache unavailable"
+        return (
+            f"{config.MODEL_REGISTRY[model].display_name}: "
+            + ", ".join(
+                f"{name}={counts[name]}" for name in config.TARGET_CLASS_NAMES
+            )
+        )
+
+    table_rows: list[str] = []
+    for record in image_records:
+        selection_reasons = []
+        if record["error_selected"]:
+            selection_reasons.append("best-model error")
+        if record["disagreement_selected"]:
+            selection_reasons.append("model disagreement")
+        model_text = "<br>".join(
+            model_vector(model, record["models"].get(model))
+            for model in config.MODEL_REGISTRY
+        )
+        table_rows.append(
+            f"| {record['item_id']} | {', '.join(record['tags']) or 'none'} | "
+            f"{', '.join(selection_reasons)} | {label_vector(record['labels'])} | "
+            f"{model_text} | {record['cause']} — unconfirmed | "
+            f"{record['explanation']} Possible labeller miscount; blind recheck requested. |"
+        )
+    cause_counts = {
+        cause: sum(1 for record in image_records if record["cause"] == cause)
+        for cause in _FAILURE_CAUSES
+    }
+    cause_lines = [
+        f"| {cause} | {cause_counts[cause]} |"
+        for cause in _FAILURE_CAUSES
+    ]
+    overlap_count = len(set(error_ids) & set(disagreement_ids))
+    report_path = Path(report_path)
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    report = f"""# Pilot failure cases
+
+Selection used the frozen final settings and existing cached detections only; these images were not used to tune anything. The best model was {config.MODEL_REGISTRY[best_model].display_name}, the lowest-MAE model among those with at least 10 image-hash-matched cached evaluation results. The labeller-consistency threshold was {consistency:.4f} covered vehicles. The first selection contains {len(error_ids)} of up to 12 images whose best-model absolute covered error strictly exceeds that threshold. The separate disagreement selection contains {len(disagreement_ids)} of up to 5 images, ranked by the range between available models' covered totals. {overlap_count} images overlap; {len(union)} unique images are shown.
+
+Causes are judgments from viewing the images and are **unconfirmed** until the labeller confirms them. Possible labeller miscounts are flagged for blind review; a model discrepancy alone does not establish that the label is wrong.
+
+## Important overlay limitations
+
+The available cache has incomplete RT-DETR-L results for selected images; figures mark missing entries rather than generating detections. The source annotation files do not match the selected image copies byte-for-byte, so source boxes are not drawn because their alignment cannot be verified. Each figure states this explicitly. Audited labels and all available model counts are displayed for reference.
+
+## Selected images
+
+| Image id | Condition tags | Selection | Audited pass-1 counts | Model counts (covered classes) | Likely cause | Explanation / review |
+|---|---|---|---|---|---|---|
+{chr(10).join(table_rows)}
+
+## Cause frequency
+
+With this few selected images, this pattern is descriptive only.
+
+| Cause | Images |
+|---|---:|
+{chr(10).join(cause_lines)}
+"""
+    report_path.write_text(report, encoding="utf-8")
+    return {
+        "best_model": best_model,
+        "best_model_sample_size": model_sample_size[best_model],
+        "error_selected_count": len(error_ids),
+        "disagreement_selected_count": len(disagreement_ids),
+        "overlap_count": overlap_count,
+        "image_count": len(union),
+        "source_boxes_aligned_count": len(dataset_boxes),
+        "selected_images_missing_any_model": sum(
+            bool(record["missing_models"]) for record in image_records
+        ),
+        "output_dir": str(output_dir),
+        "report_path": str(report_path),
+    }
+
+
 def _cluster_mean_ci(
     differences: list[float],
     scenes: list[str],
@@ -697,7 +1537,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--labels", type=Path, default=config.LABELS_CSV)
     parser.add_argument("--sources", type=Path, default=config.SOURCES_CSV)
     parser.add_argument("--plan", type=Path, default=config.TESTSET_PLAN_JSON)
+    parser.add_argument(
+        "--pilot", action="store_true",
+        help="write a pilot report from existing frozen-settings cache entries only",
+    )
     args = parser.parse_args(argv)
+
+    if args.pilot:
+        return _run_pilot(args)
 
     missing = readiness_issues(args.labels, args.sources, args.plan)
     if missing:

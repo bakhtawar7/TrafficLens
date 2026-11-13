@@ -8,7 +8,7 @@ import cv2
 import numpy as np
 import pytest
 
-from core import config
+from core import config, settings
 from scripts import run_week3
 
 
@@ -193,3 +193,131 @@ def test_synthetic_failure_gallery_reports_all_audited_and_model_counts(
     assert count_rows[0]["audited_covered_count"] == "1"
     assert count_rows[0]["audited_all_vehicle_count"] == "1"
     assert set(json.loads(count_rows[0]["model_counts_json"]).values()) == {1}
+
+
+def _write_pilot_fixture(tmp_path, evaluation_count=10):
+    labels_path = tmp_path / "LABELS.csv"
+    sources_path = tmp_path / "SOURCES.csv"
+    plan_path = tmp_path / "plan.json"
+    settings_path = tmp_path / "final_settings.json"
+    cache_path = tmp_path / "cache.jsonl"
+    dev_id = evaluation_count + 1
+    with sources_path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(
+            handle, fieldnames=["item_id", "filename", "condition_tags", "scene"]
+        )
+        writer.writeheader()
+        for item in range(1, dev_id + 1):
+            writer.writerow({
+                "item_id": f"tl{item:04d}", "filename": f"tl{item:04d}.jpg",
+                "condition_tags": "day", "scene": f"scene-{item}",
+            })
+    plan_path.write_text(
+        json.dumps({"development_subset": [f"tl{dev_id:04d}"]}),
+        encoding="utf-8",
+    )
+    fields = ["item_id", *config.LABEL_CLASS_NAMES, "labeller_pass", "notes"]
+    with labels_path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fields)
+        writer.writeheader()
+        for item in range(1, dev_id + 1):
+            writer.writerow({
+                "item_id": f"tl{item:04d}",
+                **{name: int(name == "car") for name in config.LABEL_CLASS_NAMES},
+                "car": 10 if item == dev_id else 1,
+                "labeller_pass": 1,
+                "notes": "",
+            })
+    settings_path.write_text(json.dumps({
+        "models": {
+            model: {"confidence": 0.25}
+            for model in config.MODEL_REGISTRY
+        },
+        "sliced_tiles": {},
+    }), encoding="utf-8")
+    settings_hash = settings.settings_sha256(settings_path)
+    with cache_path.open("w", encoding="utf-8") as handle:
+        for item in range(1, dev_id + 1):
+            for model in config.MODEL_REGISTRY:
+                modes = ["standard"]
+                if model == config.DEFAULT_MODEL_NAME:
+                    modes.append("sliced")
+                for mode in modes:
+                    handle.write(json.dumps({
+                        "image": f"tl{item:04d}_synthetic.jpg",
+                        "image_hash": "synthetic",
+                        "settings_sha256": settings_hash,
+                        "model": model,
+                        "mode": mode,
+                        "detections": [{
+                            "class_id": 2, "class_name": "car",
+                            "confidence": 0.9, "xyxy": [1, 1, 8, 8],
+                        }],
+                    }) + "\n")
+    return labels_path, sources_path, plan_path, settings_path, cache_path
+
+
+def test_pilot_refuses_fewer_than_ten_evaluation_labels(
+    tmp_path, monkeypatch, capsys
+):
+    results_dir = tmp_path / "results"
+    monkeypatch.setattr(run_week3.config, "RESULTS_DIR", results_dir)
+    labels, sources, plan, _, _ = _write_pilot_fixture(
+        tmp_path, evaluation_count=9
+    )
+
+    result = run_week3.main([
+        "--pilot", "--labels", str(labels), "--sources", str(sources),
+        "--plan", str(plan),
+    ])
+
+    output = capsys.readouterr().out
+    assert result == 1
+    assert "requires at least 10" in output
+    assert not (results_dir / "week3_summary.md").exists()
+
+
+def test_pilot_keeps_development_results_separate_and_never_runs_predictor(
+    tmp_path,
+):
+    labels, sources, plan, settings_path, cache_path = _write_pilot_fixture(tmp_path)
+
+    report, aggregate = run_week3._build_pilot_summary(
+        labels, sources, plan, settings_path, cache_path
+    )
+
+    assert aggregate["labelled_evaluation"] == 10
+    assert aggregate["main"]["yolov8n"]["stats"]["n"] == 10
+    assert aggregate["main"]["yolov8n"]["stats"]["mae"] == 0
+    assert aggregate["development"]["yolov8n"]["stats"]["n"] == 1
+    assert aggregate["development"]["yolov8n"]["stats"]["mae"] == 9
+    assert "Development set: settings were tuned here, results are optimistic" in report
+    assert "H1: Not tested: 10 audited evaluation images, minimum 30 required." in report
+    assert "H2: Not tested: 10 audited evaluation images, minimum 30 required." in report
+    assert "predictor" in report.lower() and "not run" in report.lower()
+    assert "supported" not in report.lower()
+
+
+def test_failure_case_selection_uses_strict_threshold_limits_and_stable_ties():
+    errors = {
+        f"tl{item:04d}": float(item)
+        for item in range(1, 16)
+    }
+    errors["tl0001"] = 2.0
+    disagreements = {
+        f"tl{item:04d}": float(item)
+        for item in range(1, 9)
+    }
+    disagreements["tl0002"] = disagreements["tl0001"]
+
+    selected = run_week3.select_failure_cases(
+        errors, disagreements, consistency=2.0
+    )
+
+    assert selected["error"] == [
+        f"tl{item:04d}" for item in range(15, 3, -1)
+    ]
+    assert selected["disagreement"] == [
+        "tl0008", "tl0007", "tl0006", "tl0005", "tl0004"
+    ]
+    assert "tl0001" not in selected["error"]
