@@ -1,22 +1,40 @@
 flowchart LR
-    subgraph W1[Week 1 built]
-        ING[Ingest<br/>validate and decode input]
-        DET[Detect<br/>YOLOv8n, class filter, count]
-    end
-    subgraph W3[Week 3 planned]
-        REL[Reliability<br/>learned error predictor]
-        DEC[Decide<br/>needs review flag]
-    end
-    subgraph W4[Week 4 planned]
-        REV[Review<br/>human inspect flagged runs]
-        STO[Store<br/>SQLite history]
-    end
-
-    ING --> DET --> REL --> DEC --> REV --> STO
-    DET --> EXP[Export<br/>JSON and CSV, Week 1]
-    DEC -. feeds .-> REV
-
-    classDef built fill:#16263c,stroke:#f5a623,stroke-width:2px,color:#e9eef5;
-    classDef planned fill:#0e1a2b,stroke:#5b6b7f,stroke-dasharray:4 3,color:#9fb0c0;
-    class ING,DET,EXP built;
-    class REL,DEC,REV,STO planned;
+  subgraph IMAGE[Image workflow]
+    UP[Upload] --> VAL[Validate and decode]
+    VAL --> DET[Pretrained model registry]
+    DET --> CNT[Class filter and count]
+    CNT --> VIEW[Image result and annotations]
+    CNT --> OUT[JSON and CSV export]
+    CNT --> HIST[SQLite run history]
+  end
+  subgraph REL[Reliability workflow]
+    DET --> SWEEP[Threshold sweep]
+    DET --> AGREE[Model count and box agreement]
+    SWEEP --> RELVIEW[Reliability dashboard]
+    AGREE --> RELVIEW
+    RELVIEW --> FLAG[Needs-review status]
+  end
+  subgraph EVAL[Offline evaluation]
+    CACHE[Detection cache] --> SCORE[Compare with human labels]
+    SCORE --> REPORT[Metrics and evaluation artefacts]
+  end
+  DET --> CACHE
+  subgraph REVIEW[Human review]
+    HIST --> QUEUE[Blind-first review queue]
+    QUEUE --> HUMAN[Reviewer enters counts]
+    HUMAN --> REVEAL[Reveal model results]
+    REVEAL --> CORR[Append-only correction]
+    CORR --> HIST
+  end
+  subgraph FINE[Separate optional rickshaw pilot]
+    FDET[Fine-tuned one-class detector] --> FVIEW[Separate rickshaw result]
+  end
+  subgraph VIDEO[Separate video prototype]
+    VUP[Licensed video with provenance] --> TRACK[YOLO and ByteTrack]
+    TRACK --> LINE[Virtual-line crossings]
+    LINE --> VOUT[Annotated video and CSV]
+  end
+  classDef built fill:#16263c,stroke:#f5a623,stroke-width:2px,color:#e9eef5;
+  classDef pilot fill:#28364a,stroke:#d6a34a,stroke-width:1px,color:#e9eef5;
+  class UP,VAL,DET,CNT,VIEW,OUT,HIST,SWEEP,AGREE,RELVIEW,CACHE,SCORE,REPORT,QUEUE,HUMAN,REVEAL,CORR built;
+  class FLAG,FDET,FVIEW,VUP,TRACK,LINE,VOUT pilot;
