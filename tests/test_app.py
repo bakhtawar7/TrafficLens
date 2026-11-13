@@ -21,7 +21,7 @@ from core.detector import Detection  # noqa: E402
 
 APP_ENTRY = str(ROOT / "app" / "main.py")
 
-TAB_LABELS = ["Image", "Video", "Reliability", "Evaluation", "History"]
+TAB_LABELS = ["Image", "Video", "Reliability", "History"]
 
 BASE_DETECTIONS = [
     Detection(2, "car", 0.90, (0.0, 0.0, 40.0, 30.0)),
@@ -187,7 +187,6 @@ def test_video_tab_disclaims_accuracy_and_is_no_longer_a_placeholder(app) -> Non
     app.run()
     messages = [warning.value for warning in app.warning]
     assert not any("Planned for Week 3" in message for message in messages)
-    assert sum("Planned for Week 4" in message for message in messages) == 1
     assert not app.metric
     assert not app.download_button
     # Reliability is no longer a placeholder: it prompts for an upload instead.
@@ -483,84 +482,10 @@ def test_reliability_does_not_show_flag_when_h1_verdict_is_missing(app, tmp_path
 
 
 # ---------------------------------------------------------------------------
-# Evaluation tab
+# Dashboard navigation
 # ---------------------------------------------------------------------------
-def test_evaluation_tab_keeps_placeholder_without_a_table(app) -> None:
+def test_dashboard_has_no_evaluation_tab(app) -> None:
     app.run()
-    assert any("Planned for Week 4" in warning.value for warning in app.warning)
-
-
-def test_evaluation_tab_renders_table_chart_and_agreement(tmp_path, monkeypatch) -> None:
-    import csv as _csv
-    import json
-
-    from streamlit.testing.v1 import AppTest
-
-    from core import evaluation as ev
-
-    table = tmp_path / "evaluation_table.csv"
-    with table.open("w", encoding="utf-8", newline="") as handle:
-        writer = _csv.DictWriter(handle, fieldnames=list(ev.TABLE_COLUMNS))
-        writer.writeheader()
-        writer.writerow({
-            "Item": "tl0011", "Condition": "night", "Ground Truth": 6, "YOLOv8n": 5,
-            "YOLOv8s": 4, "RT-DETR-L": 8, "Sliced Count": 6, "Count Range": "4-8",
-            "Agreement": 0.62, "Actual Error": 1,
-        })
-    summary = tmp_path / "summary.json"
-    summary.write_text(json.dumps({
-        "warning": None,
-        "condition_mae": {"night": {"YOLOv8n": {"mae": 1.0, "ci95": [0.5, 1.5], "n": 3}}},
-        "labeller_passes": {
-            "items_both_passes": 4, "covered_mean_abs_difference": 0.5,
-            "covered_ci95": [0.1, 0.9], "all_vehicles_mean_abs_difference": 0.7,
-            "identical_fraction": 0.5,
-        },
-    }), encoding="utf-8")
-
-    monkeypatch.setattr("core.config.EVALUATION_TABLE_CSV", table)
-    monkeypatch.setattr("core.config.EVALUATION_SUMMARY_JSON", summary)
-    at = AppTest.from_file(APP_ENTRY, default_timeout=120)
-    at.run()
-    assert not at.exception
-    labels = metrics_of(at)
-    assert labels["Items labelled twice"] == "4"
-    assert len(at.dataframe) >= 1, "the evaluation table should render"
-
-
-def test_evaluation_tab_shows_the_refusal_when_every_row_was_rejected(tmp_path, monkeypatch) -> None:
-    """A header only table plus a refusal warning must inform, not crash.
-
-    This is the state the evaluator produces when every LABELS row still carries the
-    unverified auto derived note, so the dashboard must say so rather than show numbers.
-    """
-    import csv as _csv
-    import json
-
-    from streamlit.testing.v1 import AppTest
-
-    from core import evaluation as ev
-
-    table = tmp_path / "evaluation_table.csv"
-    with table.open("w", encoding="utf-8", newline="") as handle:
-        _csv.DictWriter(handle, fieldnames=list(ev.TABLE_COLUMNS)).writeheader()
-    summary = tmp_path / "summary.json"
-    summary.write_text(json.dumps({
-        "warning": "no error statistic computed: all 55 labelled row(s) were refused",
-        "condition_mae": {},
-        "labeller_passes": {"items_both_passes": 0, "covered_mean_abs_difference": None,
-                            "covered_ci95": [None, None], "all_vehicles_mean_abs_difference": None,
-                            "identical_fraction": None},
-        "model_mae": {"YOLOv8n": {"covered": {"mae": None, "ci95": [None, None], "n": 0}}},
-    }), encoding="utf-8")
-
-    monkeypatch.setattr("core.config.EVALUATION_TABLE_CSV", table)
-    monkeypatch.setattr("core.config.EVALUATION_SUMMARY_JSON", summary)
-    monkeypatch.setattr("core.config.HISTORY_DB", tmp_path / "history.db")
-    at = AppTest.from_file(APP_ENTRY, default_timeout=120)
-    at.run()
-    assert not at.exception
-    assert any("no rows yet" in note.value for note in at.info)
-    assert any("refused" in warning.value for warning in at.warning)
-    for frame in at.dataframe:
-        assert frame.value.empty, "nothing should be tabulated when nothing was scored"
+    assert not app.exception
+    assert [tab.label for tab in app.tabs] == TAB_LABELS
+    assert "Evaluation" not in [tab.label for tab in app.tabs]
