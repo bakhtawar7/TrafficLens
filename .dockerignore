@@ -1,0 +1,32 @@
+.git
+.github
+.venv
+venv
+__pycache__
+.pytest_cache
+.mypy_cache
+.ruff_cache
+*.pyc
+
+# Never include local secrets in the image.
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+
+# Local database files; deployed history uses Neon.
+data/history.db
+data/history.db-shm
+data/history.db-wal
+
+# Generated outputs and model artifacts.
+results/
+runs/
+*.pt
+*.onnx
+*.engine
+*.torchscript
+*.trt
+
+.DS_Store
+Thumbs.db
