@@ -97,10 +97,102 @@ result, the counts, and the export downloads. The off-by-default **Rickshaw awar
 (fine tuned)** toggle runs the separate one-class pilot; it uses a distinct rickshaw box
 colour and exports its model name and weights hash. It cannot detect the other vehicle
 classes and does not change pretrained counts, ranges, agreement scores, or flags.
-The History tab stores run metadata, filenames, hashes, counts, and comparison signals in
-the ignored local `data/history.db`; it never stores image bytes. See
-`docs/database_schema.md` for the schema. History is local to this checkout and is not
-ground truth.
+The History tab stores run metadata, filenames, hashes, counts, and comparison signals;
+it never stores image bytes. By default, history is stored in the ignored local
+`data/history.db`. When `DATABASE_URL` is configured, the same history interface uses
+PostgreSQL instead. See `docs/database_schema.md` for the schema. History is not ground
+truth.
+
+## Deploying on Railway
+
+TrafficLens can be deployed as a Docker-based Streamlit service on [Railway](https://railway.com/).
+The repository includes a root-level `Dockerfile` and `.dockerignore`; Railway builds the
+image remotely from the repository, so Docker Desktop is **not required** on your computer.
+
+### Before deploying
+
+1. Push the latest application code, `Dockerfile`, and `.dockerignore` to your GitHub
+   repository.
+2. Create or use a [Neon](https://neon.tech/) PostgreSQL database.
+3. Keep the Neon connection strings private. Do not commit `.env`, paste credentials
+   into source files, or include secrets in screenshots.
+
+### Configure Neon
+
+Create these environment variables in your local `.env` file for migration and local
+testing, and add the corresponding values in Railway's service Variables settings:
+
+- `DATABASE_URL`: Neon **pooled** connection string. The application uses this at runtime.
+- `DIRECT_DATABASE_URL`: Neon **direct** connection string. Keep this for schema
+  administration and migration workflows that require a direct connection.
+
+Use the connection strings provided by Neon and retain `sslmode=require`. Do not use the
+example placeholders in `.env.example` as real credentials. The application currently
+uses `DATABASE_URL` to select PostgreSQL history; without it, history falls back to local
+SQLite.
+
+### Preserve and migrate existing SQLite history
+
+If you already have history in `data/history.db`, migrate it before switching the live
+application to Neon:
+
+```powershell
+# Activate the project's virtual environment first, then set DATABASE_URL in .env.
+python scripts/migrate_history_to_neon.py
+```
+
+The migration script creates a timestamped SQLite backup beside the source database,
+copies the history tables to Neon, and verifies that the source records are represented.
+It does not delete or modify the original SQLite database. Compare the reported source
+and Neon row totals and keep both the original database and backup until you have
+confirmed the deployed History tab. The migration script reads `DATABASE_URL`; it does
+not require `DIRECT_DATABASE_URL`.
+
+### Deploy from GitHub
+
+1. Sign in to [Railway](https://railway.com/) and create a new project.
+2. Choose **Deploy from GitHub repo** and select `bakhtawar7/TrafficLens`.
+3. Select the branch you want to deploy (normally `main`).
+4. Railway should detect the repository's root `Dockerfile` and build the image.
+5. Add `DATABASE_URL` and `DIRECT_DATABASE_URL` in the service's Variables settings.
+6. Deploy and inspect the build and runtime logs.
+
+The Dockerfile starts Streamlit on `0.0.0.0` and uses Railway's injected `PORT`
+environment variable (falling back to `8501` for local Docker runs). No separate
+start command is needed while using this Dockerfile.
+
+### Model weights and persistent storage
+
+TrafficLens downloads pretrained detector weights the first time a model is used.
+The Dockerfile directs Ultralytics and PyTorch caches to `/data/ultralytics` and
+`/data/torch`. Railway containers have an ephemeral filesystem by default; if you want
+those downloaded weights and caches to survive redeployments, attach a Railway Volume
+mounted at `/data`. Without a volume, the application can download the weights again
+after a new deployment or container replacement.
+
+The local SQLite file is excluded from the Docker build context. For a deployed service,
+configure Neon through `DATABASE_URL` so run history is stored outside the container.
+Uploaded files and other files written to the container filesystem should also be treated
+as temporary unless stored on a persistent volume or external storage.
+
+### Verify the deployment
+
+After Railway reports a successful deployment:
+
+1. Generate a public domain for the service in Railway's Networking settings.
+2. Open the domain and confirm that the Streamlit dashboard loads.
+3. Upload a small test image and run vehicle counting.
+4. Confirm that the annotated result and exports work.
+5. Open the History tab and confirm that a new run is saved.
+6. If history is missing or the app fails to start, inspect Railway's deploy and runtime
+   logs and verify the environment variable names and values.
+
+For local container testing, install Docker Desktop (optional), then build and run:
+
+```bash
+docker build -t trafficlens .
+docker run --rm -p 8501:8501 --env-file .env trafficlens
+```
 
 ## Project structure
 
