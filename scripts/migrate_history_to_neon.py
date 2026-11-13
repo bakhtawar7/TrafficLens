@@ -92,10 +92,31 @@ def main() -> int:
             cur.execute("SELECT COUNT(*) FROM corrections")
             target_corrections = cur.fetchone()[0]
 
+            # Verify all source parent IDs and child row totals are represented.
+            source_run_ids = [row[0] for row in rows["runs"]]
+            cur.execute("SELECT COUNT(*) FROM runs WHERE id = ANY(%s)",
+                        (source_run_ids or ["__no_source_runs__"],))
+            verified_runs = cur.fetchone()[0]
+            cur.execute("SELECT COUNT(*) FROM model_results WHERE run_id = ANY(%s)",
+                        (source_run_ids or ["__no_source_runs__"],))
+            verified_models = cur.fetchone()[0]
+            cur.execute("SELECT COUNT(*) FROM reliability WHERE run_id = ANY(%s)",
+                        (source_run_ids or ["__no_source_runs__"],))
+            verified_reliability = cur.fetchone()[0]
+            source_correction_ids = [row[0] for row in rows["corrections"]]
+            cur.execute("SELECT COUNT(*) FROM corrections WHERE id = ANY(%s)",
+                        (source_correction_ids or [-1],))
+            verified_corrections = cur.fetchone()[0]
+            verified = {"runs": verified_runs, "model_results": verified_models,
+                        "reliability": verified_reliability, "corrections": verified_corrections}
+            if any(verified[name] < source_counts[name] for name in TABLES):
+                raise RuntimeError(f"Post-import verification failed: {verified} vs {source_counts}")
+
     print("\nMigration finished. Source SQLite was left unchanged.")
     print("Rows in source:", source_counts)
     print("Rows newly inserted (conflicts skipped):", inserted)
-    print("Rows now in Neon:", {"runs": target_runs, "model_results": target_models,
+    print("Source rows verified present in Neon:", verified)
+    print("Total rows now in Neon:", {"runs": target_runs, "model_results": target_models,
           "reliability": target_reliability, "corrections": target_corrections})
     print("Compare source and Neon totals before deploying. Keep the backup and original DB.")
     return 0
