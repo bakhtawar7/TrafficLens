@@ -65,11 +65,17 @@ For each item, fill one `LABELS.csv` row with `item_id`, the seven category coun
 `labeller_pass` value, and optional `notes`. Set `labeller_pass` to `1` for the first pass
 and `2` for the review pass described below.
 
-`LABELS.csv` is currently a header only scaffold. The counts that the curation scripts
-derived from the archive annotations are kept for reference in the untracked
-`results/draft_auto_labels.csv` and are not ground truth: they describe a different,
-earlier selection, so they must be re counted against the images on disk rather than
-copied over.
+At the current repository snapshot, `data/testset/LABELS.csv` contains 23 manually
+recorded Pass 1 rows: 10 for the development subset and 13 for the evaluation subset.
+It also contains 13 blind Pass 2 rows for those same evaluation items. The evaluation
+labelling pack contains the same 13 evaluation items and both passes; its
+`audited_labels.csv` is a metadata-package copy of those audited records. The 10
+development items have no Pass 2 rows in the current file.
+
+The counts that the curation scripts derived from the archive annotations are kept for
+reference in the untracked `results/draft_auto_labels.csv` and are not ground truth: they
+describe a different, earlier selection, so they must be re-counted against the images on
+disk rather than copied over.
 
 The evaluator refuses to score any row whose `notes` still contain `auto derived` or
 `requires labeller verification`, which is the wording those draft rows carry. A row is
