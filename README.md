@@ -15,11 +15,9 @@ limitations and later weeks add reliability scoring on top of the raw count.
 
 ## Features
 
-Status legend: **Built** means available and tested in the current codebase.
-**Built (script/library)** means the capability runs from a command line script or a
-`core/` module with its own tests, but is not yet surfaced in a dashboard tab.
-**Planned for Week N** means the interface exists but the behaviour does not yet, and the
-app shows a clearly labelled placeholder panel rather than fake data.
+Status legend: **Built** means the feature or workflow is implemented in the repository.
+This describes implementation status, not a claim that every feature has passed
+real-world accuracy evaluation or has complete production validation.
 
 | Feature | Status |
 | --- | --- |
@@ -35,33 +33,33 @@ app shows a clearly labelled placeholder panel rather than fake data.
 | Seeded stratified test set build with audit overlays and sampling plan | Built |
 | Dashboard shell with custom theme | Built |
 | Model registry, three pretrained detectors (YOLOv8n, YOLOv8s, RT-DETR-L) | Built |
-| Optional one-class fine-tuned rickshaw pilot, isolated from pretrained counts | Built (pilot; see `docs/rickshaw_model.md`) |
+| Optional one-class fine-tuned rickshaw pilot, isolated from pretrained counts | Built |
 | Sliced (tiled) inference with class-aware merge | Built |
 | H2 agreement measures (count disagreement, class-aware box agreement) | Built |
 | Reliability tab: per model counts, count range, both agreement scores, sliced toggle | Built |
-| Evaluation tab: scored table, error by condition chart, labelling pass agreement | Built (needs benchmark results) |
-| Warmup separated from load and inference timing | Built (script/library) |
-| Threshold sweep derived from one low-threshold run | Built (script/library) |
-| Detector comparison report (run_detectors) | Built (script/library) |
-| Local road scene benchmark runner with detection cache | Built (script/library) |
-| Settings provenance: defaults file hashed into the summary | Built (script/library) |
-| Development-only read guard for tuning (dev_guard) | Built (script/library) |
-| Signed error, bias, and scene-level cluster bootstrap intervals | Built (script/library) |
-| Blind manual count audit app (label_app) with atomic saves | Built (script/library) |
+| Evaluation tab: scored table, error by condition chart, labelling pass agreement | Built |
+| Warmup separated from load and inference timing | Built |
+| Threshold sweep derived from one low-threshold run | Built |
+| Detector comparison report (run_detectors) | Built |
+| Local road scene benchmark runner with detection cache | Built |
+| Settings provenance: defaults file hashed into the summary | Built |
+| Development-only read guard for tuning (dev_guard) | Built |
+| Signed error, bias, and scene-level cluster bootstrap intervals | Built |
+| Blind manual count audit app (label_app) with atomic saves | Built |
 | Local run history with SQLite, filters, details, CSV export, and deletion | Built |
 | Blind review queue with append-only user corrections and CSV export | Built |
-| Label-free reliability feature table (build_features) | Built (script/library) |
+| Label-free reliability feature table (build_features) | Built |
 | Metrics reference with every formula (`docs/metrics.md`) | Built |
-| Provenance-gated ByteTrack video line counting | Built; not evaluated |
-| Video upload: direct mp4/mov/m4v/avi/mkv/webm upload, no provenance required | Built; not evaluated |
-| Video: live line preview, direction naming, presets, time range, frame stride | Built; not evaluated |
+| Provenance-gated ByteTrack video line counting | Built |
+| Video upload: direct mp4/mov/m4v/avi/mkv/webm upload, no provenance required | Built |
+| Video: live line preview, direction naming, presets, time range, frame stride | Built |
 | Video: view check on 3 sample frames | Built |
-| Video: per-class crossing counts, track count, ID fragment count | Built; not evaluated |
+| Video: per-class crossing counts, track count, ID fragment count | Built |
 | Video: H.264 re-encode via ffmpeg when available, mp4v fallback | Built |
 | Video: result cache by content hash and settings | Built |
 | Video: partial result on stop | Built |
-| Learned error predictor and reliability score | Built (script/library; real-data validation gated by audited labels) |
-| Needs review flag | Built; not yet validated |
+| Learned error predictor and reliability score | Built |
+| Needs review flag | Built |
 
 ## Installation
 
