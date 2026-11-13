@@ -43,6 +43,9 @@ def _connect(path: Path) -> sqlite3.Connection:
 
 def migrate(path: Path | None = None) -> int:
     """Apply ordered schema migrations and return the current version."""
+    if path is None and config.DATABASE_URL:
+        from . import postgres_history
+        return postgres_history.migrate()
     path = _database_path(path)
     try:
         with _connect(path) as connection:
@@ -139,6 +142,9 @@ def record_run(
     path: Path | None = None,
 ) -> RunWriteResult:
     """Insert a run once for its distinct image/settings/control tuple."""
+    if path is None and config.DATABASE_URL:
+        from . import postgres_history
+        return postgres_history.record_run(run, model_results, reliability_record)
     path = _database_path(path)
     run_id = str(uuid.uuid4())
     try:
@@ -249,6 +255,9 @@ def list_runs(
     model_filter: str = "",
 ) -> list[dict[str, Any]]:
     """Return matching runs, newest first, with their result and reliability rows."""
+    if path is None and config.DATABASE_URL:
+        from . import postgres_history
+        return postgres_history.list_runs(input_filter=input_filter, model_filter=model_filter)
     path = _database_path(path)
     try:
         migrate(path)
@@ -276,6 +285,9 @@ def list_runs(
 
 def get_run(run_id: str, path: Path | None = None) -> dict[str, Any] | None:
     """Load a run and its models, signals, and correction history."""
+    if path is None and config.DATABASE_URL:
+        from . import postgres_history
+        return postgres_history.get_run(run_id)
     path = _database_path(path)
     rows = list_runs(path)
     run = next((row for row in rows if row["id"] == run_id), None)
@@ -304,6 +316,9 @@ def get_run(run_id: str, path: Path | None = None) -> dict[str, Any] | None:
 
 def delete_run(run_id: str, path: Path | None = None) -> None:
     """Delete one run; dependent rows are removed by foreign-key cascade."""
+    if path is None and config.DATABASE_URL:
+        from . import postgres_history
+        return postgres_history.delete_run(run_id)
     path = _database_path(path)
     try:
         migrate(path)
@@ -315,6 +330,9 @@ def delete_run(run_id: str, path: Path | None = None) -> None:
 
 def clear_history(path: Path | None = None) -> None:
     """Delete all runs and dependent rows while preserving the database schema."""
+    if path is None and config.DATABASE_URL:
+        from . import postgres_history
+        return postgres_history.clear_history()
     path = _database_path(path)
     try:
         migrate(path)
@@ -326,6 +344,9 @@ def clear_history(path: Path | None = None) -> None:
 
 def export_rows(path: Path | None = None) -> list[dict[str, Any]]:
     """Flatten the run/model history into CSV-ready rows."""
+    if path is None and config.DATABASE_URL:
+        from . import postgres_history
+        return postgres_history.export_rows()
     path = _database_path(path)
     try:
         migrate(path)
@@ -362,6 +383,9 @@ def review_queue(
     queue_filter: str = "All",
 ) -> list[dict[str, Any]]:
     """Return reviewable runs, flagged first, with model outputs kept out of the list."""
+    if path is None and config.DATABASE_URL:
+        from . import postgres_history
+        return postgres_history.review_queue(filename_filter=filename_filter, queue_filter=queue_filter)
     path = _database_path(path)
     try:
         migrate(path)
@@ -451,6 +475,9 @@ def save_correction(
     path: Path | None = None,
 ) -> int:
     """Append one complete user correction; never update an earlier correction."""
+    if path is None and config.DATABASE_URL:
+        from . import postgres_history
+        return postgres_history.save_correction(run_id, corrected_counts, reviewer, note)
     path = _database_path(path)
     expected = set(config.LABEL_CLASS_NAMES)
     if set(corrected_counts) != expected:
@@ -516,6 +543,9 @@ def correction_comparison(run: dict[str, Any], correction: dict[str, Any]) -> di
 
 def correction_aggregates(path: Path | None = None) -> dict[str, Any]:
     """Summarize absolute pre-review model-total errors against latest corrections."""
+    if path is None and config.DATABASE_URL:
+        from . import postgres_history
+        return postgres_history.correction_aggregates()
     queue = review_queue(path=path, queue_filter="Reviewed")
     groups: dict[str, dict[str, Any]] = {
         "flagged": {"runs": set(), "absolute_errors": []},
@@ -550,6 +580,9 @@ def correction_aggregates(path: Path | None = None) -> dict[str, Any]:
 
 def correction_export_rows(path: Path | None = None) -> list[dict[str, Any]]:
     """Export every appended human correction, one row per correction."""
+    if path is None and config.DATABASE_URL:
+        from . import postgres_history
+        return postgres_history.correction_export_rows()
     path = _database_path(path)
     try:
         migrate(path)

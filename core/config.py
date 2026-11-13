@@ -8,6 +8,16 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
+import os
+
+try:
+    from dotenv import load_dotenv
+    load_dotenv(Path(__file__).resolve().parent.parent / ".env")
+except ImportError:
+    pass
+
+DATABASE_URL: str | None = os.getenv("DATABASE_URL")
+DIRECT_DATABASE_URL: str | None = os.getenv("DIRECT_DATABASE_URL")
 
 # ---------------------------------------------------------------------------
 # Paths
