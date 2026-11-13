@@ -74,6 +74,10 @@ Open the local Streamlit URL shown in the terminal. Upload a supported image, se
 classes, and adjust the confidence threshold. The Image tab displays the original and
 annotated image, count metrics, detections, and downloads.
 
+For a lightweight public image-counting demo, see [`docs/deployment.md`](docs/deployment.md).
+The deployment guide documents Streamlit Community Cloud setup, unavailable hosted features,
+and the post-deployment checks that remain pending.
+
 The optional **Rickshaw aware mode (fine tuned)** toggle runs a separate one-class rickshaw
 detector. It does not detect the other vehicle categories and does not alter pretrained
 counts, ranges, reliability comparisons, or evaluation. Its source-data licence/citation
