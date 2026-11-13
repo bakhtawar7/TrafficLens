@@ -31,12 +31,14 @@ evaluation and contamination exclusions.
 
 ## Selection and split
 
-The selected test set is defined by `data/testset/SOURCES.csv` and the reproducible
-selection plan in `configs/testset_plan.json`; the source inventory includes original
-archive filenames, train/evaluation split, scene identifiers, condition tags, and notes.
-The actual seeded selection rule and seed are recorded in that plan and the project
-selection log. This package preserves those records rather than restating an inferred
-selection algorithm. Consult the plan and `docs/test_set_guide.md` before rebuilding.
+The selected set contains 75 images recorded in `data/testset/SOURCES.csv` and
+`image_manifest.csv`. The manifest's `split` column is the **original archive split**;
+all 75 selected rows currently carry `train` in that source-dataset field. It is not the
+project's evaluation/development partition. That separate partition is defined by
+`configs/testset_plan.json`: 10 item IDs are in `development_subset`, and the remaining
+65 selected items form the evaluation roster. Scene identifiers, condition tags, and
+source provenance are recorded separately. The plan and project selection log hold the
+seeded selection details. Consult the plan and `docs/test_set_guide.md` before rebuilding.
 
 ## Human labelling
 
