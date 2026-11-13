@@ -12,7 +12,7 @@ loop are available.
 ## Pipeline diagram
 
 The same diagram is available as `docs/architecture.mmd` for tools that render Mermaid from
-a file. Solid, amber nodes exist in the current codebase. Dashed, muted nodes are planned.
+a file. All solid nodes below are implemented. Implementation status does not imply that a feature has passed real-world evaluation.
 
 ```mermaid
 flowchart LR
@@ -29,8 +29,8 @@ flowchart LR
         DEC[Needs review<br/>top predicted-error quarter]
         HIST[Run history<br/>local SQLite]
     end
-    subgraph PLANNED[Planned]
-        VID[Video tracking ByteTrack<br/>Week 3]
+    subgraph IMPLEMENTED[Implemented]
+        VID[Video tracking ByteTrack<br/>implemented]
         REV[Blind correction queue<br/>append-only user counts]
     end
 
@@ -46,9 +46,9 @@ flowchart LR
     ING -. planned .-> VID
 
     classDef built fill:#16263c,stroke:#f5a623,stroke-width:2px,color:#e9eef5;
-    classDef planned fill:#0e1a2b,stroke:#5b6b7f,stroke-dasharray:4 3,color:#9fb0c0;
+    classDef implemented fill:#16263c,stroke:#f5a623,stroke-width:2px,color:#e9eef5;
     class ING,DET,SLC,SWEEP,AGREE,BM,EVAL,EXP,PRED,DEC,HIST built;
-    class VID,REV planned;
+    class VID,REV implemented;
 ```
 
 ## Stage by stage
@@ -63,8 +63,8 @@ flowchart LR
 | Benchmark | Built | Cache raw detections per image, model, and mode for offline reuse. | `scripts/run_benchmark.py` |
 | Evaluation | Built | Score cached counts against human ground truth, development subset excluded. | `core/evaluation.py`, `app/ui/evaluation_tab.py` |
 | History | Built | Deduplicated local SQLite image-run log with model results and reliability metadata. | `core/history.py`, `app/ui/history_tab.py` |
-| Learned error predictor | Built | Predict audited absolute count error from inference-only features with scene-grouped cross-validation. | `core/predictor.py`, `scripts/run_predictor.py` |
-| Video tracking | Planned Week 3 | Count distinct vehicles across a clip with ByteTrack. | future `core/video.py` |
+| Learned error predictor | Built; real-data validation gated | Predict audited absolute count error from inference-only features with scene-grouped cross-validation. | `core/predictor.py`, `scripts/run_predictor.py` |
+| Video tracking | Built; not evaluated | Count line crossings across an uploaded clip with ByteTrack. | `core/video_counting.py`, `app/ui/video_tab.py` |
 | Decide | Built | Flag the highest-predicted-error quarter for review and report scene-bootstrap metrics. | `core/predictor.py` |
 | Review | Built | Blind, append-only user corrections with reveal and descriptive comparison. | `core/history.py`, `app/ui/history_tab.py` |
 | Export | Built | Serialise a run to JSON and CSV for download. | `core/export.py` |
@@ -90,7 +90,7 @@ core/
 app/
   main.py         sidebar (upload, classes, threshold, sliced toggle), tabs, cached detectors
   ui/             one renderer per tab; Image, Reliability, Evaluation, and History are live,
-                  Video is a labelled placeholder
+                  Video is implemented
 scripts/
   clean_dataset.py     drop unreadable, unannotated, and near duplicate archive images
   tag_dataset.py       quartile condition cut offs, pinned before any sampling
