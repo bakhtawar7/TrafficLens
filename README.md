@@ -94,8 +94,9 @@ of the evaluation and carry no accuracy claim.
 - `configs/tag_cutoffs.json` and `configs/testset_plan.json`: condition cut-offs and
   seeded test-set selection metadata.
 - `data/testset/SOURCES.csv`: image provenance, split, scene, and condition tags.
-- `data/testset/LABELS.csv`: human ground truth. Do not replace it with annotation-derived
-  draft counts.
+- `data/testset/LABELS.csv`: manually recorded human counts (23 Pass 1 rows: 10
+  development and 13 evaluation; plus 13 Pass 2 rows for the same evaluation items).
+  Do not replace these with annotation-derived draft counts.
 - `data/history.db`: local SQLite run history, ignored by Git. Image bytes are not stored.
 - Model weights and generated result caches are not intended for version control.
 
