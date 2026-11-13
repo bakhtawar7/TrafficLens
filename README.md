@@ -35,6 +35,7 @@ app shows a clearly labelled placeholder panel rather than fake data.
 | Seeded stratified test set build with audit overlays and sampling plan | Built |
 | Dashboard shell with custom theme | Built |
 | Model registry, three pretrained detectors (YOLOv8n, YOLOv8s, RT-DETR-L) | Built |
+| Optional one-class fine-tuned rickshaw pilot, isolated from pretrained counts | Built (pilot; see `docs/rickshaw_model.md`) |
 | Sliced (tiled) inference with class-aware merge | Built |
 | H2 agreement measures (count disagreement, class-aware box agreement) | Built |
 | Reliability tab: per model counts, count range, both agreement scores, sliced toggle | Built |
@@ -47,17 +48,21 @@ app shows a clearly labelled placeholder panel rather than fake data.
 | Development-only read guard for tuning (dev_guard) | Built (script/library) |
 | Signed error, bias, and scene-level cluster bootstrap intervals | Built (script/library) |
 | Blind manual count audit app (label_app) with atomic saves | Built (script/library) |
+| Local run history with SQLite, filters, details, CSV export, and deletion | Built |
 | Label-free reliability feature table (build_features) | Built (script/library) |
 | Metrics reference with every formula (`docs/metrics.md`) | Built |
 | Provenance-gated ByteTrack video line counting | Built; not evaluated |
 | Learned error predictor and reliability score | Planned for Week 3 |
-| Needs review flag and SQLite history | Planned for Week 4 |
+| Blind review queue with append-only human corrections | Planned |
+| Needs review flag | Built; not yet validated |
 
 ## Installation
 
-TrafficLens targets Python 3.10 or newer and uses pretrained models only. No training
-or fine tuning is performed. Create a clean virtual environment and install the pinned
-requirements.
+TrafficLens targets Python 3.10 or newer. Its standard counting and reliability workflows
+use pretrained models; an optional, separate one-class rickshaw pilot is available in the
+Image tab. That experimental model does not replace pretrained counts or reliability
+signals. See `docs/rickshaw_model.md` for its provenance, contamination, and pilot limits.
+Create a clean virtual environment and install the pinned requirements.
 
 ```powershell
 python -m venv .venv
@@ -81,7 +86,14 @@ streamlit run app/main.py
 
 The browser opens the dashboard on `http://localhost:8501`. Upload an image, choose the
 classes to count, adjust the confidence slider, and the Image tab shows the annotated
-result, the counts, and the export downloads.
+result, the counts, and the export downloads. The off-by-default **Rickshaw aware mode
+(fine tuned)** toggle runs the separate one-class pilot; it uses a distinct rickshaw box
+colour and exports its model name and weights hash. It cannot detect the other vehicle
+classes and does not change pretrained counts, ranges, agreement scores, or flags.
+The History tab stores run metadata, filenames, hashes, counts, and comparison signals in
+the ignored local `data/history.db`; it never stores image bytes. See
+`docs/database_schema.md` for the schema. History is local to this checkout and is not
+ground truth.
 
 ## Project structure
 
@@ -251,8 +263,9 @@ statistic and only cached detections can be scored.
 * Occlusion and overlap between vehicles cause undercounting.
 * Night scenes and glare degrade detection quality.
 * Small and distant vehicles are frequently missed.
-* Rickshaws and other local vehicle types have no COCO class and may be missed or
-  mislabelled. TrafficLens never claims to detect rickshaws.
+* The pretrained COCO detectors have no rickshaw class and may miss or mislabel local
+  vehicle types. The optional one-class fine-tuned rickshaw pilot is separate, cannot
+  detect other categories, and is not a validated replacement.
 * Video tracking may assign duplicate or switched IDs. Occlusion can interrupt or merge
   tracks, so virtual-line inbound/outbound counts are not guaranteed to match unique vehicles.
   Video results are outside the evaluation and carry no accuracy claim.

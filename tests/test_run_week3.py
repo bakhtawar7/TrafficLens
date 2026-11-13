@@ -110,7 +110,7 @@ def test_synthetic_failure_gallery_reports_all_audited_and_model_counts(
     settings_path.write_text(json.dumps({
         "models": {
             key: {"confidence": 0.25, "input_size": 640, "uses_nms": True, "nms_iou": 0.7}
-            for key in config.MODEL_REGISTRY
+            for key in config.PRETRAINED_MODEL_KEYS
         },
     }), encoding="utf-8")
     monkeypatch.setattr(config, "TESTSET_SELECTION_CSV", tmp_path / "absent_selection.csv")
@@ -156,7 +156,7 @@ def test_synthetic_failure_gallery_reports_all_audited_and_model_counts(
             image_path = images / filename
             assert cv2.imwrite(str(image_path), image)
             digest = run_week3._sha256(image_path)
-            for model in config.MODEL_REGISTRY:
+            for model in config.PRETRAINED_MODEL_KEYS:
                 modes = ("standard", "sliced") if model == config.DEFAULT_MODEL_NAME else ("standard",)
                 for mode in modes:
                     handle.write(json.dumps({
@@ -231,14 +231,14 @@ def _write_pilot_fixture(tmp_path, evaluation_count=10):
     settings_path.write_text(json.dumps({
         "models": {
             model: {"confidence": 0.25}
-            for model in config.MODEL_REGISTRY
+            for model in config.PRETRAINED_MODEL_KEYS
         },
         "sliced_tiles": {},
     }), encoding="utf-8")
     settings_hash = settings.settings_sha256(settings_path)
     with cache_path.open("w", encoding="utf-8") as handle:
         for item in range(1, dev_id + 1):
-            for model in config.MODEL_REGISTRY:
+            for model in config.PRETRAINED_MODEL_KEYS:
                 modes = ["standard"]
                 if model == config.DEFAULT_MODEL_NAME:
                     modes.append("sliced")

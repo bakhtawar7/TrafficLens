@@ -50,6 +50,9 @@ data/samples/*
 data/testset/inventory.csv
 data/testset/review/
 data/testset/LABELS.pass1.bak
+data/history.db
+data/history.db-shm
+data/history.db-wal
 
 # OS and editor
 .DS_Store

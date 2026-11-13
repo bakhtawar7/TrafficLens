@@ -158,7 +158,7 @@ def test_format_report_lists_every_model_and_threshold() -> None:
     os.environ.get("TRAFFICLENS_RUN_WEIGHTS") != "1",
     reason="requires cached model weights; set TRAFFICLENS_RUN_WEIGHTS=1 to run",
 )
-@pytest.mark.parametrize("model_key", sorted(config.MODEL_REGISTRY))
+@pytest.mark.parametrize("model_key", sorted(config.PRETRAINED_MODEL_KEYS))
 def test_real_sweep_matches_direct_runs(model_key: str) -> None:
     images = sorted(
         path

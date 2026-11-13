@@ -77,7 +77,7 @@ def _cache_validation_error(path: Path, settings_hash: str) -> str | None:
     if not path.is_file():
         return f"cached detections file missing: {path}"
 
-    required_models = set(config.MODEL_REGISTRY)
+    required_models = set(config.PRETRAINED_MODEL_KEYS)
     models_by_item: dict[int, set[str]] = {}
     found_matching_entries = False
     with path.open("r", encoding="utf-8") as handle:

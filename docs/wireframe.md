@@ -122,7 +122,22 @@ A single panel headed "Planned for Week 3". It lists the future ByteTrack capabi
 clip upload, per frame detection, tracking each vehicle once, unique totals, and playback.
 No data is shown.
 
-## History tab (placeholder)
+## History tab (live)
 
-A single panel headed "Planned for Week 4". It describes the future SQLite store, run
-browsing, filtering, and range export. No data is shown.
+The local history tab discloses that uploaded filenames are stored and that image bytes
+are not. It provides filename and model filters, a run table, a model-results detail view,
+CSV export, per-run deletion, and clear-history confirmation. SQLite database errors are
+shown without disabling image counting. Human correction review remains planned.
+
+```text
++--------------------------------------------------------------------------+
+| Pilot, Dhaka imagery; human pass consistency; fine-tuned pilot and overlap|
+| Filter by filename [             ]   Filter by model [                 ] |
+| Timestamp | Filename | Mode | Rickshaw mode | Flag | Run ID              |
+| View run details                                                       |
+| Model | Total | Counts by class | Inference | Weights SHA-256          |
+| [Export history as CSV]                                                 |
+| [Select run] [Confirm deletion] [Delete selected run]                  |
+| [Confirm clear history] [Clear history]                                |
++--------------------------------------------------------------------------+
+```

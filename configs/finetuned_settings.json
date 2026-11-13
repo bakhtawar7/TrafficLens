@@ -1,0 +1,12 @@
+{
+  "base_settings_file": "final_settings.json",
+  "base_settings_sha256": "0c73720e5ee97e9a83ef6a654440226f367f3ebcc47e17bcce12ce4a37ea670e",
+  "model_key": "yolov8n-rickshaw-finetuned",
+  "model_weights_sha256": "44a6a3e383f074c79a56d9160acbf3f627b056a94a54f843f9ee7f0cef942c24",
+  "mode": "standard",
+  "confidence": 0.25,
+  "input_size": 640,
+  "uses_nms": true,
+  "nms_iou": 0.7,
+  "training_data_note": "User-supplied archive.zip; 10% fraction of the prepared train split; licence and citation not provided."
+}

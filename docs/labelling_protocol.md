@@ -2,9 +2,14 @@
 
 Ground truth labels let Week 4 measure how far a TrafficLens count can be trusted. This
 protocol makes every counting decision concrete so two labellers reach the same number.
-Labels go in `data/testset/LABELS.csv`. TrafficLens never claims to detect rickshaws
-because they have no COCO class, but a labeller still records them as ground truth so the
-gap can be measured honestly.
+Labels go in `data/testset/LABELS.csv`. The pretrained COCO detectors have no rickshaw
+class, so labellers record rickshaws as ground truth. The optional one-class fine-tuned
+pilot is evaluated separately and cannot distinguish loader rickshaws.
+
+Results are a pilot on Dhaka imagery. Across the currently available 13 paired images
+in 7 scenes, the mean absolute difference in total human count between passes is 1.62
+vehicles per image (95% scene-bootstrap interval 0.67 to 2.46). The fine-tuned mode is
+separate and has its own evaluation and contamination exclusions.
 
 ## Vehicle categories
 

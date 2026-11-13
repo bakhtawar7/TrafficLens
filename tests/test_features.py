@@ -148,7 +148,7 @@ def test_geometry_features_small_threshold_is_strict():
 # Whole-image features and agreement
 # ---------------------------------------------------------------------------
 def _all_models(detections: list[Detection]) -> dict[str, list[Detection]]:
-    return {key: list(detections) for key in config.MODEL_REGISTRY}
+    return {key: list(detections) for key in config.PRETRAINED_MODEL_KEYS}
 
 
 def test_image_features_identical_models_agree_perfectly():
@@ -223,7 +223,7 @@ def table_workspace(tmp_path: Path) -> dict:
     _write_image(images / "tl0001_dhaka_ai.png", _flat_image(100))
     cache = {
         (item, key, "standard"): [_det()]
-        for item in (1, 2) for key in config.MODEL_REGISTRY
+        for item in (1, 2) for key in config.PRETRAINED_MODEL_KEYS
     }
     return {"cache": cache, "image_paths": {1: images / "tl0001_dhaka_ai.png"},
             "output": tmp_path / "features.csv"}
@@ -297,7 +297,7 @@ def runner_workspace(tmp_path: Path) -> dict:
          "threshold": min(config.THRESHOLD_SWEEP), "settings_sha256": settings_hash,
          "detections": [{"class_id": 2, "class_name": "car", "confidence": 0.9,
                          "xyxy": [0.0, 0.0, 10.0, 10.0]}]}
-        for key in config.MODEL_REGISTRY
+        for key in config.PRETRAINED_MODEL_KEYS
     ]
     cache_path.write_text("\n".join(json.dumps(entry) for entry in entries) + "\n",
                           encoding="utf-8")
@@ -350,7 +350,7 @@ def test_runner_recomputes_when_hash_changes(runner_workspace, monkeypatch):
          "threshold": min(config.THRESHOLD_SWEEP), "settings_sha256": settings_hash,
          "detections": [{"class_id": 2, "class_name": "car", "confidence": 0.9,
                          "xyxy": [0.0, 0.0, 10.0, 10.0]}]}
-        for key in config.MODEL_REGISTRY
+        for key in config.PRETRAINED_MODEL_KEYS
     ]
     ws["cache"].write_text("\n".join(json.dumps(entry) for entry in entries) + "\n",
                            encoding="utf-8")

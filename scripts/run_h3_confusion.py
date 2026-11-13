@@ -42,7 +42,7 @@ def _infer_selected_sources(
     settings_by_model = settings_record["models"]
     missing_weights = [
         config.PROJECT_ROOT / spec.weights_file
-        for spec in config.MODEL_REGISTRY.values()
+        for spec in (config.MODEL_REGISTRY[key] for key in config.PRETRAINED_MODEL_KEYS)
         if not (config.PROJECT_ROOT / spec.weights_file).is_file()
     ]
     if missing_weights:
@@ -58,7 +58,8 @@ def _infer_selected_sources(
             image_by_item[number] = box.image_path
 
     cache: dict[tuple[int, str], list[confusion.DetectionBox]] = {}
-    for model_key, spec in config.MODEL_REGISTRY.items():
+    for model_key in config.PRETRAINED_MODEL_KEYS:
+        spec = config.MODEL_REGISTRY[model_key]
         weight_path = config.PROJECT_ROOT / spec.weights_file
         if spec.family == "yolo":
             detector = YoloDetector(str(weight_path), spec.display_name)
@@ -97,7 +98,7 @@ def _infer_selected_sources(
         "inference_threshold": confusion.LOW_CONFIDENCE_FLOOR,
         "reported_default_threshold": confusion.DEFAULT_CONFIDENCE,
         "images": len(image_by_item),
-        "models": list(config.MODEL_REGISTRY),
+        "models": list(config.PRETRAINED_MODEL_KEYS),
         "weights": "all required local model files checked before loading; no download attempted",
     }
 

@@ -152,6 +152,35 @@ built. Counts the pipeline derived from the archive annotation therefore contrib
 statistic at all. How many rows were refused, which items, and why are recorded in
 `summary.json` under `refusals`, and the same statement is printed when the evaluation runs.
 
+## Fine-tuned rickshaw pilot (`scripts/run_finetuned_evaluation.py`)
+
+All reference counts are human-labelled. Across 13 images labelled in both passes and
+7 scenes, the mean absolute difference in total count between human passes is 1.62
+vehicles per image (95% scene-bootstrap interval 0.67 to 2.46). Results are a pilot on
+Dhaka imagery. The optional fine-tuned model has a separate evaluation; known training
+overlaps are excluded.
+
+The optional one-class detector is evaluated in a separate result table. It predicts only
+`rickshaw`; `rickshaw_any` is the sum of `rickshaw` and `loader_rickshaw` in the reference,
+because the detector cannot separate those labels. Its prediction for every other class is
+zero. The frozen base confidence, input size, and NMS settings are recorded in
+`configs/finetuned_settings.json`, alongside the frozen base-settings hash.
+
+Training-set overlap is checked with the same project perceptual hash and the strict
+Hamming-distance cutoff `< 8`; known overlaps and the development subset are excluded
+from fine-tuned evaluation. Development results remain separate and are explicitly
+optimistic because settings were tuned there. Evaluation results are pilot summaries with
+scene-cluster bootstrap intervals, never pooled with development results. The pairing
+comparison is fine-tuned absolute error minus pretrained YOLOv8n absolute error, by image,
+with bootstrap resampling by scene. A regression flag is set only when the interval's lower
+bound is strictly above zero.
+
+`scripts/analyze_finetuned_boxes.py` separately matches archive-annotated rickshaw boxes to
+detections class-agnostically at IoU `>= 0.5`, one-to-one, greedily in descending IoU order.
+The source image is linked by the project's perceptual hash and accepted only when the
+source match is unique and image/XML dimensions agree. These box outcomes are labelled
+annotation-referenced and unverified; they are not human-audited labels.
+
 ## Mean absolute error (`core/evaluation.py`)
 
 Over a set of items `I` (per model, per target, or per condition):

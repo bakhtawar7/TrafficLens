@@ -14,6 +14,7 @@ from pathlib import Path
 # ---------------------------------------------------------------------------
 PROJECT_ROOT: Path = Path(__file__).resolve().parent.parent
 DATA_DIR: Path = PROJECT_ROOT / "data"
+HISTORY_DB: Path = DATA_DIR / "history.db"
 TESTSET_DIR: Path = DATA_DIR / "testset"
 TESTSET_IMAGES_DIR: Path = TESTSET_DIR / "images"
 TESTSET_CLIPS_DIR: Path = TESTSET_DIR / "clips"
@@ -37,6 +38,18 @@ TAG_CUTOFFS_JSON: Path = CONFIGS_DIR / "tag_cutoffs.json"
 #: evaluator hash this file into results/summary.json so runs stay auditable.
 DEFAULT_SETTINGS_JSON: Path = CONFIGS_DIR / "default_settings.json"
 FINAL_SETTINGS_JSON: Path = CONFIGS_DIR / "final_settings.json"
+FINETUNED_SETTINGS_JSON: Path = CONFIGS_DIR / "finetuned_settings.json"
+FINETUNED_CLASS_MAPPING_JSON: Path = CONFIGS_DIR / "finetuned_class_mapping.json"
+FINETUNED_MODEL_WEIGHTS: Path = (
+    PROJECT_ROOT
+    / "runs"
+    / "rickshaw_finetune"
+    / "yolov8n_rickshaw_plus10"
+    / "weights"
+    / "best.pt"
+)
+FINETUNED_MODEL_KEY: str = "yolov8n-rickshaw-finetuned"
+FINETUNED_MODEL_DISPLAY_NAME: str = "YOLOv8n Rickshaw Fine-tuned"
 PCU_WEIGHTS_JSON: Path = CONFIGS_DIR / "pcu_weights.json"
 CONGESTION_THRESHOLDS_JSON: Path = CONFIGS_DIR / "congestion_thresholds.json"
 
@@ -125,8 +138,8 @@ THRESHOLD_SWEEP: tuple[float, ...] = (0.15, 0.25, 0.35, 0.50)
 BOX_IOU_THRESHOLD: float = 0.5
 
 # ---------------------------------------------------------------------------
-# Model registry. Every entry names a pretrained ultralytics weights file that
-# ultralytics downloads on first use. TrafficLens never trains or fine tunes.
+# Model registry. Pretrained entries use Ultralytics weights; explicitly marked
+# fine-tuned entries remain isolated from pretrained-only benchmark workflows.
 # The stable key identifies the model; display_name is for reports and the UI;
 # family selects the wrapper class (yolo: YOLO, detr: RTDETR).
 # ---------------------------------------------------------------------------
@@ -135,18 +148,32 @@ MODEL_FAMILIES: tuple[str, ...] = ("yolo", "detr")
 
 @dataclass(frozen=True)
 class ModelSpec:
-    """One registered pretrained model."""
+    """One registered detector and its optional fine-tuning provenance."""
 
     display_name: str
     family: str
     weights_file: str
+    finetuned: bool = False
+    weights_sha256: str | None = None
+    training_data_note: str | None = None
 
 
 MODEL_REGISTRY: dict[str, ModelSpec] = {
     "yolov8n": ModelSpec("YOLOv8n", "yolo", "yolov8n.pt"),
     "yolov8s": ModelSpec("YOLOv8s", "yolo", "yolov8s.pt"),
     "rtdetr-l": ModelSpec("RT-DETR-L", "detr", "rtdetr-l.pt"),
+    FINETUNED_MODEL_KEY: ModelSpec(
+        FINETUNED_MODEL_DISPLAY_NAME,
+        "yolo",
+        str(FINETUNED_MODEL_WEIGHTS),
+        finetuned=True,
+        weights_sha256="44a6a3e383f074c79a56d9160acbf3f627b056a94a54f843f9ee7f0cef942c24",
+        training_data_note="User-supplied archive.zip; one-class rickshaw training dataset.",
+    ),
 }
+PRETRAINED_MODEL_KEYS: tuple[str, ...] = tuple(
+    key for key, spec in MODEL_REGISTRY.items() if not spec.finetuned
+)
 
 # ---------------------------------------------------------------------------
 # Sliced (tiled) inference defaults. SlicedDetector cuts an image into
@@ -175,5 +202,6 @@ CLASS_COLORS_RGB: dict[str, tuple[int, int, int]] = {
     "motorcycle": (241, 196, 15),
     "bus": (52, 152, 219),
     "truck": (231, 76, 60),
+    "rickshaw": (255, 105, 180),
 }
 DEFAULT_COLOR_RGB: tuple[int, int, int] = (149, 165, 166)

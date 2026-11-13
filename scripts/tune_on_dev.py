@@ -311,13 +311,13 @@ def main(argv: list[str] | None = None) -> int:
         for item_id, counts in labels.items()
     }
     default_settings = settings.load_settings(config.DEFAULT_SETTINGS_JSON)["models"]
-    if set(default_settings) != set(config.MODEL_REGISTRY):
+    if set(default_settings) != set(config.PRETRAINED_MODEL_KEYS):
         print("ERROR: default_settings.json does not cover every registered model.")
         return 1
     digests = {item_id: image_hash(paths_by_id[item_id]) for item_id in dev_ids}
     cache = load_dev_cache(args.cache, dev_ids)
     expected_cache_keys = 0
-    for model_key in config.MODEL_REGISTRY:
+    for model_key in config.PRETRAINED_MODEL_KEYS:
         expected_cache_keys += len(settings_grid(model_key)) * len(dev_ids)
     print(
         f"Development images: {len(dev_ids)}; cached setting/image runs: "
@@ -328,7 +328,7 @@ def main(argv: list[str] | None = None) -> int:
 
     args.cache.parent.mkdir(parents=True, exist_ok=True)
     result_rows: list[dict[str, Any]] = []
-    for model_key in config.MODEL_REGISTRY:
+    for model_key in config.PRETRAINED_MODEL_KEYS:
         grid = settings_grid(model_key)
         model_rows: list[dict[str, Any]] = []
         pending = [
@@ -432,7 +432,7 @@ def main(argv: list[str] | None = None) -> int:
     _print_table(result_rows)
 
     final_models: dict[str, dict[str, Any]] = {}
-    for model_key in config.MODEL_REGISTRY:
+    for model_key in config.PRETRAINED_MODEL_KEYS:
         rows = [row for row in result_rows if row["model"] == model_key]
         defaults = default_settings[model_key]
         chosen = select_setting(rows, defaults)[0]

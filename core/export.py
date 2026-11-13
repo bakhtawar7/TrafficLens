@@ -20,6 +20,7 @@ SCALAR_FIELDS: tuple[str, ...] = (
     "input_filename",
     "timestamp_utc",
     "model",
+    "weights_sha256",
     "confidence_threshold",
     "image_width",
     "image_height",
@@ -38,7 +39,12 @@ def _compact_timestamp(iso_timestamp: str) -> str:
     return iso_timestamp.replace("-", "").replace(":", "").replace("T", "").rstrip("Z") + "Z"
 
 
-def build_payload(result: CountResult, input_filename: str, timestamp_utc: str | None = None) -> dict[str, Any]:
+def build_payload(
+    result: CountResult,
+    input_filename: str,
+    timestamp_utc: str | None = None,
+    weights_sha256: str | None = None,
+) -> dict[str, Any]:
     """Assemble the full export payload from a :class:`CountResult`.
 
     Args:
@@ -54,6 +60,7 @@ def build_payload(result: CountResult, input_filename: str, timestamp_utc: str |
         "input_filename": input_filename,
         "timestamp_utc": stamp,
         "model": result.model_name,
+        "weights_sha256": weights_sha256,
         "confidence_threshold": round(result.confidence_threshold, 4),
         "selected_classes": list(result.selected_classes),
         "image_width": result.image_width,

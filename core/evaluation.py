@@ -82,7 +82,10 @@ TABLE_COLUMNS: tuple[str, ...] = (
 #: exploratory: the sample is too small for the figure to carry inferential weight.
 EXPLORATORY_MIN_IMAGES: int = 15
 
-_MODEL_DISPLAY: dict[str, str] = {key: spec.display_name for key, spec in config.MODEL_REGISTRY.items()}
+_MODEL_DISPLAY: dict[str, str] = {
+    key: config.MODEL_REGISTRY[key].display_name
+    for key in config.PRETRAINED_MODEL_KEYS
+}
 
 
 def normalise_item_id(value: str) -> int | None:
@@ -547,7 +550,7 @@ def build_rows(
     rows exist.
     """
     scenes = scenes or {}
-    model_keys = list(config.MODEL_REGISTRY)
+    model_keys = list(config.PRETRAINED_MODEL_KEYS)
     rows: list[dict[str, Any]] = []
     missing: list[int] = []
     for item in sorted(labels):
@@ -636,7 +639,8 @@ def summarise(
         return scene_by_item.get(number) or scenes.get(number) or f"#{canonical}"
 
     model_mae: dict[str, Any] = {}
-    for key, spec in config.MODEL_REGISTRY.items():
+    for key in config.PRETRAINED_MODEL_KEYS:
+        spec = config.MODEL_REGISTRY[key]
         display = _MODEL_DISPLAY[key]
         covered_pairs, all_pairs, clusters = [], [], []
         for row in rows:
@@ -661,7 +665,8 @@ def summarise(
     condition_detail: dict[str, Any] = {}
     for tag, trows in sorted(tag_rows.items()):
         per_model: dict[str, Any] = {}
-        for key, spec in config.MODEL_REGISTRY.items():
+        for key in config.PRETRAINED_MODEL_KEYS:
+            spec = config.MODEL_REGISTRY[key]
             display = _MODEL_DISPLAY[key]
             pairs, clusters = [], []
             for row in trows:
@@ -770,7 +775,7 @@ def evaluate(
     ``configs/default_settings.json``); its SHA-256, input sizes, and NMS fields are
     recorded in the summary so the statistics stay traceable to their configuration.
     """
-    if sliced_model_key not in config.MODEL_REGISTRY:
+    if sliced_model_key not in config.PRETRAINED_MODEL_KEYS:
         raise ValueError(f"unknown sliced model key: {sliced_model_key}")
     labels_path = Path(labels_csv)
     refused = unverified_label_rows(labels_path)

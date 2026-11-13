@@ -47,7 +47,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--image", default=None, help="Image file; defaults to the first test set image.")
     parser.add_argument("--confidence", type=float, default=config.DEFAULT_CONFIDENCE,
                         help="Confidence threshold applied to every model.")
-    parser.add_argument("--models", default=",".join(config.MODEL_REGISTRY),
+    parser.add_argument("--models", default=",".join(config.PRETRAINED_MODEL_KEYS),
                         help="Comma separated registry keys (default: all).")
     args = parser.parse_args(argv)
 
@@ -70,7 +70,7 @@ def main(argv: list[str] | None = None) -> int:
     unknown = [key for key in keys if key not in config.MODEL_REGISTRY]
     if unknown:
         print(f"ERROR: models not in registry: {', '.join(unknown)}")
-        print(f"Known keys: {', '.join(config.MODEL_REGISTRY)}")
+        print(f"Known keys: {', '.join(config.PRETRAINED_MODEL_KEYS)}")
         return 1
 
     print(f"Image: {image_path}  ({image.shape[1]}x{image.shape[0]})")

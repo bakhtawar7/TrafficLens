@@ -121,8 +121,8 @@ def main(argv: list[str] | None = None) -> int:
                         help="exclude the seeded development subset")
     parser.add_argument("--images-dir", default=str(config.TESTSET_IMAGES_DIR),
                         help="folder of test set images")
-    parser.add_argument("--models", default=",".join(config.MODEL_REGISTRY),
-                        help="comma separated registry keys (default: all)")
+    parser.add_argument("--models", default=",".join(config.PRETRAINED_MODEL_KEYS),
+                        help="comma separated pretrained registry keys (default: all pretrained)")
     parser.add_argument("--output", default=str(DEFAULT_OUTPUT),
                         help="JSONL cache file (appended, never rewritten)")
     parser.add_argument("--settings", default=str(config.DEFAULT_SETTINGS_JSON),
@@ -138,7 +138,7 @@ def main(argv: list[str] | None = None) -> int:
     unknown = [key for key in keys if key not in config.MODEL_REGISTRY]
     if unknown:
         print(f"ERROR: models not in registry: {', '.join(unknown)}")
-        print(f"Known keys: {', '.join(config.MODEL_REGISTRY)}")
+        print(f"Known keys: {', '.join(config.PRETRAINED_MODEL_KEYS)}")
         return 1
 
     try:

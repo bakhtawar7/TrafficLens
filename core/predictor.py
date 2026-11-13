@@ -28,7 +28,7 @@ H1_FLAG_FRACTION = 0.20
 
 MODEL_NAMES = ("ridge", "gradient_boosted", "mean_confidence", "training_mean")
 CONFIDENCE_COLUMNS = tuple(
-    f"{key}_mean_confidence" for key in config.MODEL_REGISTRY
+    f"{key}_mean_confidence" for key in config.PRETRAINED_MODEL_KEYS
 )
 
 

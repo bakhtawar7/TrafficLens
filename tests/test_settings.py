@@ -18,7 +18,7 @@ from core import config, settings
 
 def test_default_settings_cover_every_registry_model():
     data = settings.load_settings()
-    assert set(data["models"]) == set(config.MODEL_REGISTRY)
+    assert set(data["models"]) == set(config.PRETRAINED_MODEL_KEYS)
 
 
 def test_default_settings_match_the_documented_defaults():

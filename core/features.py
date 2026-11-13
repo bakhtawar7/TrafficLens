@@ -49,9 +49,14 @@ MID_CONFIDENCE_BAND: tuple[float, float] = (0.25, 0.50)
 #: vehicles, which detectors miss most often.
 SMALL_BOX_AREA_FRACTION: float = 0.001
 
-_MODEL_KEYS: tuple[str, ...] = tuple(config.MODEL_REGISTRY)
-_DISPLAY_BY_KEY: dict[str, str] = {key: spec.display_name for key, spec in config.MODEL_REGISTRY.items()}
-_FAMILY_BY_DISPLAY: dict[str, str] = {spec.display_name: spec.family for spec in config.MODEL_REGISTRY.values()}
+_MODEL_KEYS: tuple[str, ...] = config.PRETRAINED_MODEL_KEYS
+_DISPLAY_BY_KEY: dict[str, str] = {
+    key: config.MODEL_REGISTRY[key].display_name for key in _MODEL_KEYS
+}
+_FAMILY_BY_DISPLAY: dict[str, str] = {
+    config.MODEL_REGISTRY[key].display_name: config.MODEL_REGISTRY[key].family
+    for key in _MODEL_KEYS
+}
 _PAIRS: tuple[tuple[str, str], ...] = tuple(
     itertools.combinations([_DISPLAY_BY_KEY[key] for key in _MODEL_KEYS], 2)
 )

@@ -93,7 +93,7 @@ def create_adjudication_list(
         confidence,
         settings_record["settings_sha256"],
     )
-    model_keys = list(config.MODEL_REGISTRY)
+    model_keys = list(config.PRETRAINED_MODEL_KEYS)
     missing_cache = [
         (item, model)
         for item in eval_ids

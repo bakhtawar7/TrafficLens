@@ -16,7 +16,7 @@ import pytest
 
 ROOT = Path(__file__).resolve().parent.parent
 
-from core import config  # noqa: E402
+from core import config, history  # noqa: E402
 from core.detector import Detection  # noqa: E402
 
 APP_ENTRY = str(ROOT / "app" / "main.py")
@@ -79,6 +79,12 @@ class FakeModel:
 def fake_build_detector(model_key: str) -> FakeModel:
     """Build a ``FakeModel`` mirroring what ``core.detector.build_detector`` returns."""
     spec = config.MODEL_REGISTRY[model_key]
+    if model_key == config.FINETUNED_MODEL_KEY:
+        return FakeModel(
+            spec.display_name,
+            spec.family,
+            [Detection(0, "rickshaw", 0.91, (15.0, 20.0, 70.0, 90.0))],
+        )
     return FakeModel(spec.display_name, spec.family, RELIABILITY_DETECTIONS[spec.display_name])
 
 
@@ -104,6 +110,7 @@ def app(monkeypatch, tmp_path):
     # override them explicitly.
     monkeypatch.setattr("core.config.EVALUATION_TABLE_CSV", tmp_path / "missing_table.csv")
     monkeypatch.setattr("core.config.EVALUATION_SUMMARY_JSON", tmp_path / "missing_summary.json")
+    monkeypatch.setattr("core.config.HISTORY_DB", tmp_path / "history.db")
     monkeypatch.setattr(
         "app.ui.reliability_tab.PREDICTOR_REPORT_PATH",
         tmp_path / "missing_predictor_report.json",
@@ -180,7 +187,7 @@ def test_video_tab_disclaims_accuracy_and_is_no_longer_a_placeholder(app) -> Non
     app.run()
     messages = [warning.value for warning in app.warning]
     assert not any("Planned for Week 3" in message for message in messages)
-    assert sum("Planned for Week 4" in message for message in messages) == 2
+    assert sum("Planned for Week 4" in message for message in messages) == 1
     assert not app.metric
     assert not app.download_button
     # Reliability is no longer a placeholder: it prompts for an upload instead.
@@ -205,9 +212,47 @@ def test_image_tab_counts_an_uploaded_image(app) -> None:
     counts = metrics_of(app)
     assert counts["Total vehicles"] == "5"
     assert (counts["Car"], counts["Motorcycle"], counts["Bus"], counts["Truck"]) == ("2", "1", "1", "1")
-
     assert len(app.image) == 2, "original and annotated image should both render"
-    assert sorted(button.label for button in app.download_button) == ["Download CSV", "Download JSON"]
+    assert sorted(
+        button.label for button in app.download_button
+        if button.label.startswith("Download ")
+    ) == ["Download CSV", "Download JSON"]
+
+
+def test_history_tab_discloses_local_filename_storage_and_exports(app) -> None:
+    uploaded(app)
+    assert not app.exception
+    assert any("uploaded filenames" in item.value for item in app.caption)
+    assert any(button.label == "Export history as CSV" for button in app.download_button)
+    runs = history.list_runs(config.HISTORY_DB)
+    assert len(runs) == 1
+    assert runs[0]["input_filename"] == "street.png"
+
+
+def test_finetuned_toggle_is_off_by_default_and_does_not_change_base_counts(app) -> None:
+    uploaded(app)
+    baseline = {
+        key: value for key, value in metrics_of(app).items()
+        if key != "Inference (ms)"
+    }
+    toggle = next(
+        widget for widget in app.toggle
+        if widget.label == "Rickshaw aware mode (fine tuned)"
+    )
+    assert toggle.value is False
+
+    toggle.set_value(True).run()
+
+    after_toggle = {
+        key: value for key, value in metrics_of(app).items()
+        if key not in {"Inference (ms)", "Rickshaw count (fine tuned)"}
+    }
+    assert after_toggle == baseline
+    after_toggle = metrics_of(app)
+    assert after_toggle["Rickshaw count (fine tuned)"] == "1"
+    assert after_toggle["Total vehicles"] == "5"
+    assert len(app.image) == 3, "the fine-tuned visualization is separate from the base image"
+    assert sum(button.label.startswith("Download ") for button in app.download_button) == 4
 
 
 def test_image_tab_optional_zone_reports_standard_model_counts_and_occupancy(app) -> None:

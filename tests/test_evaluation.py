@@ -112,7 +112,7 @@ def workspace(tmp_path: Path) -> dict:
     same = _car_boxes(4)
     entries = []
     # item 2: every standard model reports the identical four cars.
-    for model in config.MODEL_REGISTRY:
+    for model in config.PRETRAINED_MODEL_KEYS:
         entries.append(_entry("tl0002_dhaka_ai.jpg", model, "standard", same))
     entries.append(_entry("tl0002_dhaka_ai.jpg", "yolov8n", "sliced", same))
     # item 3: every standard model reports two cars, at disjoint offsets.
@@ -509,7 +509,7 @@ def _scene_workspace(tmp_path: Path) -> dict:
     entries = []
     for image, count in counts_by_item.items():
         boxes = _car_boxes(count)
-        for model in config.MODEL_REGISTRY:
+        for model in config.PRETRAINED_MODEL_KEYS:
             entries.append(_entry(f"{image}_dhaka_ai.jpg", model, "standard", boxes))
         entries.append(_entry(f"{image}_dhaka_ai.jpg", "yolov8n", "sliced", boxes))
     _write_detections(dets, entries)
@@ -621,7 +621,7 @@ def test_development_images_never_appear_in_reported_statistics(workspace):
                                                      "labeller_pass", "notes"])
         writer.writerow(_row("tl001", {"car": 4}, labeller_pass=2))
     dev_entries = [_entry("tl0001_dhaka_ai.jpg", model, "standard", _car_boxes(4))
-                   for model in config.MODEL_REGISTRY]
+                   for model in config.PRETRAINED_MODEL_KEYS]
     dev_entries.append(_entry("tl0001_dhaka_ai.jpg", "yolov8n", "sliced", _car_boxes(4)))
     with workspace["dets"].open("a", encoding="utf-8") as handle:
         for entry in dev_entries:
@@ -664,7 +664,7 @@ def test_summary_records_the_settings_file_fingerprint(workspace, tmp_path):
                   "uses_nms": key != "rtdetr-l",
                   "nms_iou": None if key == "rtdetr-l" else 0.6,
                   "sliced": False}
-            for key in config.MODEL_REGISTRY
+            for key in config.PRETRAINED_MODEL_KEYS
         },
         "sliced_tiles": {"tile_size": 640, "overlap_ratio": 0.2, "iou_threshold": 0.5},
     }

@@ -128,7 +128,7 @@ def test_adjudication_list_writes_only_qualifying_ids(tmp_path):
         writer.writerows({"item_id": item} for item in ("tl0002", "tl0003"))
     plan.write_text(json.dumps({"development_subset": ["tl0001"]}), encoding="utf-8")
     settings_path.write_text(json.dumps({
-        "models": {key: {"confidence": 0.25} for key in config.MODEL_REGISTRY},
+        "models": {key: {"confidence": 0.25} for key in config.PRETRAINED_MODEL_KEYS},
     }), encoding="utf-8")
     settings_hash = settings.settings_sha256(settings_path)
 

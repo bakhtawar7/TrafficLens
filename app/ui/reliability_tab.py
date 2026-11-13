@@ -12,10 +12,12 @@ which lives on the Evaluation tab.
 """
 from __future__ import annotations
 
+import time
+
 import pandas as pd
 import streamlit as st
 
-from core import config, counting, detector, features, reliability, reliability_prediction, settings, validation
+from core import config, counting, detector, features, history, reliability, reliability_prediction, settings, validation
 from core.reliability import ReliabilityReport
 
 PREDICTOR_REPORT_PATH = config.RESULTS_DIR / "predictor_report.json"
@@ -33,12 +35,14 @@ def _run_models(image_bgr, detectors, selected_classes, threshold, sliced):
     detections_by_model: dict[str, list] = {}
     families_by_model: dict[str, str] = {}
     raw_by_model: dict[str, list] = {}
+    inference_ms_by_model: dict[str, float] = {}
     frozen = settings.load_settings(config.FINAL_SETTINGS_JSON)
     model_settings = frozen.get("models", {})
     tile_settings = frozen.get("sliced_tiles", {})
     for model in detectors:
         model_key = next(
-            (key for key, spec in config.MODEL_REGISTRY.items() if spec.display_name == model.name),
+            (key for key in config.PRETRAINED_MODEL_KEYS
+             if config.MODEL_REGISTRY[key].display_name == model.name),
             None,
         )
         if model_key is None:
@@ -46,6 +50,7 @@ def _run_models(image_bgr, detectors, selected_classes, threshold, sliced):
         model_config = model_settings.get(model_key, {})
         input_size = model_config.get("input_size")
         nms_iou = model_config.get("nms_iou") if model_config.get("uses_nms") else None
+        started = time.perf_counter()
         raw_standard = model.detect(
             image_bgr,
             min(config.THRESHOLD_SWEEP),
@@ -68,6 +73,7 @@ def _run_models(image_bgr, detectors, selected_classes, threshold, sliced):
                 detection for detection in raw_standard
                 if detection.confidence >= threshold
             ]
+        inference_ms_by_model[model.name] = (time.perf_counter() - started) * 1000.0
         filtered = counting.filter_by_classes(displayed, selected_classes)
         counts = counting.count_by_class(filtered, selected_classes)
         detections_by_model[model.name] = filtered
@@ -75,21 +81,29 @@ def _run_models(image_bgr, detectors, selected_classes, threshold, sliced):
         row = {"Model": model.name, "Total": len(filtered)}
         row.update({name: counts[name] for name in selected_classes})
         rows.append(row)
-    return rows, detections_by_model, families_by_model, raw_by_model
+    return rows, detections_by_model, families_by_model, raw_by_model, inference_ms_by_model
 
 
-def _render_needs_review(feature_row: dict) -> None:
+def _render_needs_review(feature_row: dict) -> dict:
     """Render a stored validated flag, or the exact unvalidated message."""
     configuration = reliability_prediction.load_flag_configuration(
         PREDICTOR_REPORT_PATH, WEEK3_SUMMARY_PATH
     )
     if configuration is None:
         st.info(reliability_prediction.UNVALIDATED_MESSAGE)
-        return
+        return {
+            "flag_status": "not validated",
+            "flag_source": "not validated",
+            "predicted_error": None,
+        }
     prediction = reliability_prediction.score_features(feature_row, configuration)
     if prediction is None:
         st.info(reliability_prediction.UNVALIDATED_MESSAGE)
-        return
+        return {
+            "flag_status": "not validated",
+            "flag_source": "not validated",
+            "predicted_error": None,
+        }
 
     st.markdown("**Needs review**")
     st.metric("Predicted counting error", f"{prediction['predicted_error']:.2f} vehicles")
@@ -127,6 +141,83 @@ def _render_needs_review(feature_row: dict) -> None:
     st.markdown("Top contributing features")
     for item in prediction["top_features"]:
         st.write(f"- {item['feature']}: {item['contribution']:+.3f}")
+    return {
+        "flag_status": "flagged" if prediction["flagged"] else "not flagged",
+        "flag_source": str(configuration["source"]),
+        "predicted_error": float(prediction["predicted_error"]),
+    }
+
+
+def _record_reliability_history(
+    uploaded_file,
+    image_bytes: bytes,
+    image_bgr,
+    selected_classes: list[str],
+    threshold: float,
+    sliced: bool,
+    rows: list[dict],
+    inference_ms_by_model: dict[str, float],
+    report: ReliabilityReport,
+    flag_record: dict,
+) -> None:
+    """Save displayed model results and signals once; history failures are non-fatal."""
+    import hashlib
+    import statistics
+
+    totals = [int(row["Total"]) for row in rows]
+    pair_values = [pair.agreement for pair in report.pairs]
+    setting_hash = hashlib.sha256(config.FINAL_SETTINGS_JSON.read_bytes()).hexdigest()
+    try:
+        history.record_run(
+            {
+                "input_filename": uploaded_file.name,
+                "image_sha256": hashlib.sha256(image_bytes).hexdigest(),
+                "width": int(image_bgr.shape[1]),
+                "height": int(image_bgr.shape[0]),
+                "settings_sha256": setting_hash,
+                "mode": "sliced" if sliced else "standard",
+                "selected_classes": selected_classes,
+                "threshold": threshold,
+                "rickshaw_mode": False,
+            },
+            [
+                {
+                    "model": row["Model"],
+                    "weights_sha256": next(
+                        (
+                            spec.weights_sha256
+                            for spec in config.MODEL_REGISTRY.values()
+                            if spec.display_name == row["Model"]
+                        ),
+                        None,
+                    ),
+                    "total_count": int(row["Total"]),
+                    "counts_by_class": {
+                        name: int(row[name]) for name in selected_classes
+                    },
+                    "inference_ms": float(inference_ms_by_model[row["Model"]]),
+                }
+                for row in rows
+            ],
+            {
+                "count_range_min": min(totals),
+                "count_range_max": max(totals),
+                "agreement_count": (
+                    statistics.fmean(item.count_disagreement for item in pair_values)
+                    if pair_values else None
+                ),
+                "agreement_box": (
+                    statistics.fmean(item.box_agreement for item in pair_values)
+                    if pair_values else None
+                ),
+                **flag_record,
+            },
+        )
+    except history.HistoryStoreError as error:
+        st.warning(
+            f"History could not be saved ({error}). Model comparison still works; "
+            "check data/history.db permissions and close other database users."
+        )
 
 
 def _render_counts(rows: list[dict], selected_classes: list[str]) -> None:
@@ -221,7 +312,7 @@ def render(uploaded_file, selected_classes, confidence_threshold, sliced, get_de
 
     try:
         detectors = list(get_detectors())
-        rows, detections_by_model, families_by_model, raw_by_model = _run_models(
+        rows, detections_by_model, families_by_model, raw_by_model, inference_ms_by_model = _run_models(
             image_bgr, detectors, selected_classes, float(confidence_threshold), sliced
         )
     except Exception:
@@ -246,4 +337,16 @@ def render(uploaded_file, selected_classes, confidence_threshold, sliced, get_de
     feature_row = features.image_features(
         raw_by_model, image_bgr, confidence=config.DEFAULT_CONFIDENCE
     )
-    _render_needs_review(feature_row)
+    flag_record = _render_needs_review(feature_row)
+    _record_reliability_history(
+        uploaded_file,
+        data,
+        image_bgr,
+        list(selected_classes),
+        float(confidence_threshold),
+        bool(sliced),
+        rows,
+        inference_ms_by_model,
+        built,
+        flag_record,
+    )

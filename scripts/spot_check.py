@@ -92,7 +92,7 @@ def model_counts(
     """Covered-class detection count per registry model for one item in standard mode."""
     return {
         key: len(cache.get((item, key, "standard"), []))
-        for key in config.MODEL_REGISTRY
+        for key in config.PRETRAINED_MODEL_KEYS
     }
 
 
@@ -107,7 +107,7 @@ def all_gaps(draft: dict[int, int],
     for item in sorted(set(draft) | {key[0] for key in cache}):
         counts = model_counts(cache, item)
         if item not in draft or not counts or all(
-            (item, key, "standard") not in cache for key in config.MODEL_REGISTRY
+            (item, key, "standard") not in cache for key in config.PRETRAINED_MODEL_KEYS
         ):
             continue
         median = round(statistics.median(counts.values()))
@@ -332,15 +332,15 @@ def main(argv: list[str] | None = None) -> int:
         counts: dict[str, int] = entry["counts"]  # type: ignore[assignment]
         per_model = [
             (key, [detection.xyxy for detection in cache.get((item, key, "standard"), [])])
-            for key in config.MODEL_REGISTRY
+            for key in config.PRETRAINED_MODEL_KEYS
         ]
         legend = "  ".join(
             f"{config.MODEL_REGISTRY[key].display_name}={counts[key]}"
-            for key in config.MODEL_REGISTRY if key in counts
+            for key in config.PRETRAINED_MODEL_KEYS if key in counts
         )
         colour_key = "  ".join(
             f"{config.MODEL_REGISTRY[key].display_name}={MODEL_COLOR_NAMES.get(key, 'grey')}"
-            for key in config.MODEL_REGISTRY
+            for key in config.PRETRAINED_MODEL_KEYS
         )
         lines = [
             f"{item_id}  draft={entry['draft']}  median={entry['median']}  gap={entry['gap']}",

@@ -1,0 +1,11 @@
+{
+  "model": "yolov8n_rickshaw_plus10",
+  "weights_sha256": "44a6a3e383f074c79a56d9160acbf3f627b056a94a54f843f9ee7f0cef942c24",
+  "class_mapping": {
+    "rickshaw": "rickshaw"
+  },
+  "rickshaw_any": [
+    "rickshaw",
+    "loader_rickshaw"
+  ]
+}

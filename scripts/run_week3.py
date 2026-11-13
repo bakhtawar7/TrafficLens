@@ -191,7 +191,7 @@ def _pilot_model_rows(
 ) -> dict[str, dict[str, Any]]:
     """Summarize each model on its own available cached, labelled images."""
     reports: dict[str, dict[str, Any]] = {}
-    for model in config.MODEL_REGISTRY:
+    for model in config.PRETRAINED_MODEL_KEYS:
         pairs: list[tuple[int, int]] = []
         clusters: list[str] = []
         for item in sorted(item_ids):
@@ -286,7 +286,7 @@ def _build_pilot_summary(
 
     model_names = {
         model: config.MODEL_REGISTRY[model].display_name
-        for model in config.MODEL_REGISTRY
+        for model in config.PRETRAINED_MODEL_KEYS
     }
     standard_tables = []
     for model, report in main_rows.items():
@@ -331,7 +331,7 @@ def _build_pilot_summary(
             item for item in sorted(labelled_eval)
             if predicate(labels[item]["pass1"]["rickshaw"])
         ]
-        for model in config.MODEL_REGISTRY:
+        for model in config.PRETRAINED_MODEL_KEYS:
             errors = []
             for item in items:
                 detections = cache.get((item, model, "standard"))
@@ -398,18 +398,18 @@ def _build_pilot_summary(
 
     common_items = [
         item for item in sorted(labelled_eval)
-        if all((item, model, "standard") in cache for model in config.MODEL_REGISTRY)
+        if all((item, model, "standard") in cache for model in config.PRETRAINED_MODEL_KEYS)
     ]
     disagreement: dict[int, float] = {}
     true_errors: dict[int, float] = {}
     for item in common_items:
         by_model = {
             model_names[model]: cache[(item, model, "standard")]
-            for model in config.MODEL_REGISTRY
+            for model in config.PRETRAINED_MODEL_KEYS
         }
         family_by_name = {
             model_names[model]: config.MODEL_REGISTRY[model].family
-            for model in config.MODEL_REGISTRY
+            for model in config.PRETRAINED_MODEL_KEYS
         }
         agreement = reliability.build_reliability_report(
             by_model, family_by_name, config.DEFAULT_CONFIDENCE
@@ -422,7 +422,7 @@ def _build_pilot_summary(
             evaluation.covered_total(counting.count_by_class(
                 cache[(item, model, "standard")], list(config.TARGET_CLASS_NAMES)
             ))
-            for model in config.MODEL_REGISTRY
+            for model in config.PRETRAINED_MODEL_KEYS
         ]
         truth = evaluation.covered_total(labels[item]["pass1"])
         true_errors[item] = abs(statistics.median(totals) - truth)
@@ -689,7 +689,7 @@ def _load_matching_cache(path: Path, settings_hash: str) -> dict[tuple[str, str,
             item = dataset.normalise_item_id(str(record.get("image", "")).split("_")[0])
             model = str(record.get("model", ""))
             mode = str(record.get("mode", ""))
-            if item and model in config.MODEL_REGISTRY and mode in {"standard", "sliced"}:
+            if item and model in config.PRETRAINED_MODEL_KEYS and mode in {"standard", "sliced"}:
                 cache[(item, model, mode)] = record
     return cache
 
@@ -758,7 +758,7 @@ def create_failure_gallery(
     arms = [("Dataset boxes (source annotations)", None, DATASET_COLOR)]
     arms.extend(
         (config.MODEL_REGISTRY[key].display_name, (key, "standard"), STANDARD_COLORS[key])
-        for key in config.MODEL_REGISTRY
+        for key in config.PRETRAINED_MODEL_KEYS
     )
     arms.append((f"{config.MODEL_REGISTRY[config.DEFAULT_MODEL_NAME].display_name} sliced",
                  (config.DEFAULT_MODEL_NAME, "sliced"), SLICED_COLOR))
@@ -958,7 +958,7 @@ def create_pilot_failure_cases(
     model_counts: dict[str, dict[int, dict[str, int]]] = {}
     model_mae: dict[str, float] = {}
     model_sample_size: dict[str, int] = {}
-    for model in config.MODEL_REGISTRY:
+    for model in config.PRETRAINED_MODEL_KEYS:
         item_counts: dict[int, dict[str, int]] = {}
         for item in labelled_ids:
             path = image_paths.get(dataset.format_item_id(item))
@@ -1025,7 +1025,7 @@ def create_pilot_failure_cases(
     for item in labelled_ids:
         totals = [
             sum(model_counts[model][item].values())
-            for model in config.MODEL_REGISTRY
+            for model in config.PRETRAINED_MODEL_KEYS
             if item in model_counts[model]
         ]
         if len(totals) >= 2:
@@ -1134,7 +1134,7 @@ def create_pilot_failure_cases(
                 palette["dataset"] if item_id in dataset_boxes else (90, 90, 90),
             ),
         ]
-        for model in config.MODEL_REGISTRY:
+        for model in config.PRETRAINED_MODEL_KEYS:
             detections = valid_entries.get((item, model))
             if detections is None:
                 footer.append((
@@ -1178,7 +1178,7 @@ def create_pilot_failure_cases(
             "labels": labels_for_item,
             "models": counts_for_item,
             "missing_models": [
-                model for model in config.MODEL_REGISTRY
+                model for model in config.PRETRAINED_MODEL_KEYS
                 if model not in counts_for_item
             ],
             "error_selected": item_id in error_ids,
@@ -1209,7 +1209,7 @@ def create_pilot_failure_cases(
             selection_reasons.append("model disagreement")
         model_text = "<br>".join(
             model_vector(model, record["models"].get(model))
-            for model in config.MODEL_REGISTRY
+            for model in config.PRETRAINED_MODEL_KEYS
         )
         table_rows.append(
             f"| {record['item_id']} | {', '.join(record['tags']) or 'none'} | "

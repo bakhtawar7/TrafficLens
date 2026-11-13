@@ -29,6 +29,11 @@ treats the reliability estimate as a first class output, not an afterthought.
 
 ## Scope
 
+Evaluation is a pilot on Dhaka imagery. Human reference counts have a mean absolute
+total-count difference of 1.62 vehicles between passes across 13 paired images and 7
+scenes (95% scene-bootstrap interval 0.67 to 2.46). The optional fine-tuned model is
+separate, has its own pilot evaluation, and excludes known training-overlap images.
+
 Week 1 delivers a working single image vehicle counter with class filtering, a confidence
 threshold, annotated output, JSON and CSV export, input validation, a clean multi tab
 dashboard shell, documentation, and a scaffold for a local road scene test set. Later weeks
@@ -38,9 +43,11 @@ target classes are the COCO vehicle categories car, motorcycle, bus, and truck.
 
 ## Exclusions
 
-* No training or fine tuning of any detector. Only pretrained models are used.
-* No rickshaw detection is claimed. Rickshaws have no COCO class and are handled only as a
-  documented gap and as ground truth labels, never as a detector output class.
+* Standard counting and reliability workflows use pretrained detectors. A separate,
+  optional one-class fine-tuned rickshaw pilot is experimental and does not replace them.
+* The pretrained COCO detector has no rickshaw class. An optional, separate one-class
+  fine-tuned rickshaw pilot exists, but it is experimental, does not distinguish loader
+  rickshaws, and does not detect the other vehicle categories.
 * No number plate reading and no identification of individuals.
 * No live camera features. Inputs are uploaded images and, later, uploaded video clips.
 * No cloud service or account. The app runs locally.

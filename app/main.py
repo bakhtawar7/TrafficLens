@@ -8,6 +8,8 @@ Run from the project root with: ``streamlit run app/main.py``.
 """
 from __future__ import annotations
 
+import csv
+import json
 import sys
 from pathlib import Path
 
@@ -18,6 +20,7 @@ if str(ROOT) not in sys.path:
 
 import streamlit as st
 
+from core import dataset, evaluation
 from app.ui import evaluation_tab, history_tab, image_tab, reliability_tab, video_tab
 from core import config, detector
 from core.detector import YoloDetector
@@ -31,10 +34,16 @@ def get_detector() -> YoloDetector:
     return YoloDetector()
 
 
+@st.cache_resource(show_spinner="Loading the fine-tuned rickshaw model on first use")
+def get_finetuned_detector():
+    """Return the separately cached fine-tuned detector."""
+    return detector.build_detector(config.FINETUNED_MODEL_KEY)
+
+
 @st.cache_resource(show_spinner="Loading the comparison models on first use")
 def get_reliability_detectors() -> list:
     """Return one cached detector per registered model for the Reliability tab."""
-    return [detector.build_detector(key) for key in config.MODEL_REGISTRY]
+    return [detector.build_detector(key) for key in config.PRETRAINED_MODEL_KEYS]
 
 
 def _render_sidebar():
@@ -61,7 +70,7 @@ def _render_sidebar():
         step=0.05,
         help="Detections below this score are discarded. Range 0.05 to 0.95.",
     )
-    st.sidebar.markdown("**Model:** YOLOv8n (pretrained)")
+    st.sidebar.markdown("**Base model:** YOLOv8n (pretrained)")
     sliced = st.sidebar.toggle(
         "Sliced inference (Reliability tab)",
         value=False,
@@ -85,6 +94,11 @@ def _render_limitations() -> None:
                     "* Small and distant vehicles may be missed.",
                     "* Rickshaws and other local vehicle types have no COCO class and may "
                     "be missed or mislabelled.",
+                    "* The optional fine-tuned rickshaw detector is a one-class pilot, "
+                    "not a replacement for pretrained vehicle counts; its training-data "
+                    "licence and citation were not provided.",
+                    "* The fine-tuned detector overlaps with part of the test set; "
+                    "overlapping images are excluded from its evaluation.",
                     "* Video tracking may assign duplicate or switched IDs, especially during "
                     "occlusion; video crossing totals can therefore be wrong.",
                     "* Video results are not part of the evaluation and carry no accuracy claim.",
@@ -99,10 +113,77 @@ def _render_limitations() -> None:
         )
 
 
+def _render_pilot_context() -> None:
+    """Keep provenance, human-pass consistency, and fine-tuned status visible."""
+    try:
+        labels = evaluation.load_labels(config.LABELS_CSV)
+        paired = [
+            (item, data)
+            for item, data in labels.items()
+            if data.get("pass1") is not None and data.get("pass2") is not None
+        ]
+        sources = {
+            dataset.parse_item_number(row.get("item_id", "")): row
+            for row in csv.DictReader(
+                config.SOURCES_CSV.open(encoding="utf-8-sig", newline="")
+            )
+        }
+        differences = [
+            (
+                abs(
+                    sum(int(data["pass1"].get(name, 0)) for name in config.LABEL_CLASS_NAMES)
+                    - sum(int(data["pass2"].get(name, 0)) for name in config.LABEL_CLASS_NAMES)
+                ),
+                str(sources.get(item, {}).get("scene") or item),
+            )
+            for item, data in paired
+        ]
+        if differences:
+            values = [value for value, _ in differences]
+            scenes = [scene for _, scene in differences]
+            consistency_ci = evaluation.cluster_bootstrap_ci(
+                values, scenes, samples=2000, seed=config.SEED
+            )
+            consistency = (
+                f"Human pass consistency: mean absolute total-count difference "
+                f"{sum(values) / len(values):.2f} vehicles across {len(values)} paired "
+                f"images ({len(set(scenes))} scenes); 95% scene-bootstrap interval "
+                f"[{consistency_ci[0]:.2f}, {consistency_ci[1]:.2f}]."
+            )
+        else:
+            consistency = "Human pass consistency is not available from the current labels."
+        fine_summary_path = config.RESULTS_DIR / "finetuned_summary.json"
+        if fine_summary_path.is_file():
+            fine_summary = json.loads(fine_summary_path.read_text(encoding="utf-8"))
+            contamination = fine_summary.get("contamination", {})
+            evaluation_status = (
+                f"The optional fine-tuned model has a separate pilot evaluation "
+                f"(n={fine_summary.get('evaluation_first_pass_n', 'unknown')} labelled "
+                f"evaluation images); {contamination.get('overlap_count', 'unknown')} of "
+                f"{contamination.get('test_image_count', 'unknown')} test images overlap "
+                "training data and are excluded."
+            )
+        else:
+            evaluation_status = (
+                "The optional fine-tuned model is separate; its pilot evaluation and "
+                "contamination status are unavailable until results are generated."
+            )
+    except (OSError, ValueError, KeyError) as error:
+        consistency = f"Human pass consistency could not be loaded ({error})."
+        evaluation_status = "Fine-tuned pilot evaluation and contamination status unavailable."
+    st.caption(
+        "Results are a pilot on Dhaka imagery. "
+        + consistency
+        + " "
+        + evaluation_status
+    )
+
+
 def main() -> None:
     """Assemble the full dashboard."""
     st.title("TrafficLens")
     st.caption("Image counts and experimental video crossings, with honest limits.")
+    _render_pilot_context()
 
     uploaded_file, selected_classes, confidence_threshold, sliced = _render_sidebar()
     _render_limitations()
@@ -113,7 +194,7 @@ def main() -> None:
     with tab_image:
         image_tab.render(
             uploaded_file, selected_classes, confidence_threshold,
-            get_detector, get_reliability_detectors,
+            get_detector, get_reliability_detectors, get_finetuned_detector,
         )
     with tab_video:
         video_tab.render()

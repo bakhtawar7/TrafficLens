@@ -57,8 +57,11 @@ def test_yolo_detector_real_inference():
 # Model registry and factory, offline
 # ---------------------------------------------------------------------------
 
-def test_model_registry_lists_three_pretrained_models() -> None:
-    assert set(config.MODEL_REGISTRY) == {"yolov8n", "yolov8s", "rtdetr-l"}
+def test_model_registry_keeps_pretrained_models_and_adds_finetuned_model() -> None:
+    assert set(config.PRETRAINED_MODEL_KEYS) == {"yolov8n", "yolov8s", "rtdetr-l"}
+    assert "yolov8n-rickshaw-finetuned" in config.MODEL_REGISTRY
+    assert config.MODEL_REGISTRY["yolov8n-rickshaw-finetuned"].finetuned
+    assert config.MODEL_REGISTRY["yolov8n-rickshaw-finetuned"].weights_sha256
     for spec in config.MODEL_REGISTRY.values():
         assert spec.display_name
         assert spec.family in config.MODEL_FAMILIES
@@ -139,6 +142,12 @@ def test_warmup_records_load_once_and_reuses_the_model(monkeypatch: pytest.Monke
     detections = detector.detect(np.zeros((32, 32, 3), dtype=np.uint8), 0.25)
     assert detections == []
     assert FakeYOLO.calls == 1  # inference did not trigger a second load
+
+    finetuned = build_detector(config.FINETUNED_MODEL_KEY)
+    assert finetuned.name == config.FINETUNED_MODEL_DISPLAY_NAME
+    assert finetuned.weights == str(config.FINETUNED_MODEL_WEIGHTS)
+    finetuned.warmup()
+    assert finetuned.load_seconds is not None
 
 
 def test_rtdetr_warmup_uses_the_detr_wrapper(monkeypatch: pytest.MonkeyPatch) -> None:
