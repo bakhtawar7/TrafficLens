@@ -1,212 +1,149 @@
-# Week 3 report: evaluation readiness and provisional findings
+# Week 3 Report: Pilot Evaluation and Remaining Work
 
 ## Executive summary
 
-Week 3 set out to evaluate standard and sliced vehicle counting against audited
-labels, test whether reliability features predict counting error, examine confusion
-on local vehicle types, and prepare failure cases for human review. The repository
-contains the evaluation and predictor implementations, a readiness-gated runner,
-the benchmark cache, and a provisional source-annotation H3 analysis. It does **not**
-contain a completed final-settings evaluation or a stored predictor report.
+Week 3 aimed to compare pretrained vehicle detectors against audited counts, test whether reliability signals can identify cases for human review, examine local vehicle types, and prepare failure cases. The full evaluation was not run. Instead, a separate pilot was run because only 13 evaluation images had complete audited first-pass counts, below the 30-image minimum for the planned H1/H2 analysis. The pilot also found incomplete frozen-settings cache coverage for RT-DETR-L. It used existing cache entries only: it did not run inference, tune settings, or run the predictor.
 
-The current label file has first-pass counts for the development subset only. The
-evaluation table has no data rows, and its stored summary reports no scored items.
-Consequently, there is no defensible evaluation MAE, signed bias, H1/H2 verdict,
-H4 paired comparison, or needs-review performance to report. The source-annotation
-H3 analysis is available, but its annotations are explicitly unverified and it is
-not confirmatory evidence. No failure-case report or screenshots are present.
+The pilot provides preliminary error summaries for the models and descriptive analyses for H3, H4, and a needs-review flag. It does not establish a validated predictor, a complete three-model comparison, or a final evaluation. The persistent `results/summary.json` still records zero evaluated rows and null metrics; it is a stale final-evaluation artifact, not the source of the pilot results below. The pilot results are in `results/week3_summary.md`.
 
-This report describes artifacts as they currently exist; it does not rerun
-inference, evaluation, or tests.
+## Purpose and what changed
 
-## What Week 3 set out to do and what was achieved
+The planned Week 3 workflow was a frozen-settings evaluation on audited labels, with scene-level uncertainty intervals; reliability-predictor analyses; a local-vehicle analysis; and reviewable failure cases. The repository has an end-to-end runner, but its full analysis requires substantially more audited evaluation labels than were available.
 
-The plan was to use the frozen final settings to compare standard and sliced
-inference, estimate uncertainty by resampling whole scenes, evaluate a scene-grouped
-error predictor, inspect local vehicle confusions, and prepare a reviewable failure
-gallery. A runner exists at `scripts/run_week3.py`; it checks label coverage and the
-test-set checker before running its stages. The completed code also includes
-evaluation, prediction, H3 analysis, and synthetic test infrastructure.
+The decision changed to a pilot rather than a full evaluation. The audited sample contained 13 evaluation first passes, while H1 and H2 require at least 30 evaluation images. In addition, the existing frozen-settings cache had complete standard results from RT-DETR-L for only two of those 13 images; YOLOv8n and YOLOv8s each had results for all 13. The pilot runner therefore summarized available cache entries, displayed the per-model sample sizes, and did not pool development images with evaluation images. No predictor was run and no settings were selected or adjusted from the pilot.
 
-The planned end-to-end result was not achieved: the evaluation has no scored
-evaluation images, and the predictor and Week 3 summary artifacts do not exist.
-The benchmark cache is not complete for all three registered models at the frozen
-settings, so it cannot substitute for the requested full evaluation. Implementation
-availability is not evidence that the planned analysis ran successfully.
+The pilot report lists 10 development images separately because settings were tuned on that subset. Its development results are explicitly optimistic and are not combined with the evaluation results. The separate failure-case review selected nine unique evaluation images from the pilot data; it did not use them to tune anything.
 
-## Evaluation and label consistency
+## Labelling and reference-count reliability
 
-The source list and frozen plan describe an image set split into development and
-evaluation subsets. The current label file has first-pass rows for development
-images, but none for the evaluation subset. The stored `results/summary.json`
-reports zero evaluated rows and null MAE/bias values; `results/evaluation_table.csv`
-contains only its header. Thus standard/sliced results by model or condition,
-including scene-level intervals and exploratory-condition flags, are unavailable.
-No condition can be responsibly labelled exploratory from observed evaluation
-counts because there are no scored condition rows.
+There are 23 labelled images with first-pass counts: 10 development images and 13 evaluation images. The 13 evaluation images also have second-pass counts. The mean absolute difference between the two passes on the covered total (car, bus, truck, and motorcycle) was **1.6923 vehicles**, with a scene-level bootstrap 95% interval of **0.67 to 2.64** across the 13 double-labelled evaluation images. This is the observed labeller-consistency figure for this pilot. Model errors below this level cannot be distinguished from labelling noise.
 
-The current labels contain no second-pass rows. Inter-pass category differences,
-covered-total differences, exact-match share, and a scene-bootstrap interval are
-therefore not estimable. Labeller consistency cannot be used as an empirical
-measurement floor yet; until it is measured, model errors smaller than that
-unmeasured disagreement cannot be distinguished from label noise.
+These are reference counts, not perfect ground truth. The interval quantifies variation in the observed pass differences under scene resampling; it does not eliminate systematic labelling error.
+
+## Pilot error results
+
+The pre-registered reference for the main pilot results is first-pass counts. Mean absolute error is the average size of the difference between a model's covered total and the reference. Mean signed error is model total minus reference: a negative value indicates undercounting on average and a positive value indicates overcounting. Bracketed ranges are scene-level bootstrap 95% intervals. The small RT-DETR-L sample makes its point estimates especially uncertain and not directly comparable to the other models.
+
+| Model, frozen standard mode | Evaluation images | Scenes | Mean absolute error (95% interval) | Mean signed error (95% interval) |
+|---|---:|---:|---:|---:|
+| YOLOv8n | 13 | 7 | 4.00 (2.70 to 5.31) | -3.6923 (-5.31 to -1.70) |
+| YOLOv8s | 13 | 7 | 3.00 (1.40 to 4.50) | -2.5385 (-4.31 to -0.50) |
+| RT-DETR-L | 2 | 1 | 9.50 (9.50 to 9.50) | 2.50 (2.50 to 2.50) |
+
+The RT-DETR-L intervals are based on only two images in one scene. Its cache is absent for the other labelled evaluation images, so the estimate is not a full-sample result. For the other two models, the pilot found more undercounted than overcounted or exact images; this remains a small, pilot-only sample.
+
+Second-pass sensitivity analysis reused the 13 double-labelled evaluation images where the relevant cached model result existed:
+
+| Model | Images | Mean absolute error (95% interval) | Mean signed error (95% interval) |
+|---|---:|---:|---:|
+| YOLOv8n | 13 | 3.3846 (2.11 to 5.00) | -2.9231 (-4.89 to -1.07) |
+| YOLOv8s | 13 | 3.00 (1.67 to 4.67) | -1.7692 (-3.70 to 0.55) |
+| RT-DETR-L | 2 | 6.00 (6.00 to 6.00) | 6.00 (6.00 to 6.00) |
+
+Development results are shown separately and are optimistic because settings were tuned on those images:
+
+| Model, development set | Images | Scenes | Mean absolute error (95% interval) | Mean signed error (95% interval) |
+|---|---:|---:|---:|---:|
+| YOLOv8n | 10 | 8 | 5.20 (1.50 to 9.55) | -5.00 (-9.46 to -1.00) |
+| YOLOv8s | 10 | 8 | 3.50 (1.38 to 5.77) | -2.70 (-5.36 to 0.12) |
+| RT-DETR-L | 4 | 3 | 4.00 (1.00 to 9.00) | 3.00 (1.00 to 9.00) |
+
+These are pilot summaries, not final rankings. Cache coverage differs by model; the estimates should not be read as if all models were measured on the same set of evaluation images.
 
 ## Hypotheses
 
-Verdicts below use only stored evidence. “Inconclusive” means the required
-evaluation evidence is absent; it is not a negative result.
+| Hypothesis | Status | Pilot evidence and reason |
+|---|---|---|
+| H1: learned error predictor versus mean-confidence baseline | **Not tested** | There are 13 audited evaluation images, below the 30-image minimum. The predictor was not run. |
+| H2: cross-family disagreement versus within-family disagreement | **Not tested** | There are 13 audited evaluation images, below the 30-image minimum. The predictor and registered H2 analysis were not run. |
+| H3: local vehicle types and counting error | **Descriptive only** | Pilot signed covered error was grouped by the first-pass rickshaw count. These groups do not measure category-level confusion or prove that a rickshaw was missed. |
+| H4: sliced inference on distant scenes | **Descriptive only** | Seven labelled evaluation images were tagged distant, and all seven had cached standard and sliced results for the configured sliced model, YOLOv8n. This is a small pilot comparison, not a full confirmatory test. |
 
-| Hypothesis | Pre-registered decision rule | Available evidence | Verdict |
-|---|---|---|---|
-| H1: learned error ranking | Support only when ridge Spearman exceeds mean-confidence Spearman by at least 0.1, the scene-bootstrap interval for the difference excludes zero, and ridge captures more worst-error cases at the same fixed review budget. | No predictor report and no scored evaluation rows. The comparison and interval are unavailable. | **Inconclusive** |
-| H2: cross-family disagreement | Support only when cross-family disagreement has a higher held-out Spearman correlation with error than within-family disagreement and the scene-bootstrap interval for the difference excludes zero. | No predictor report and no scored evaluation rows. Neither correlation nor their difference can be verified. | **Inconclusive** |
-| H3: local vehicle confusion | The claim concerns systematic misses or absorption of local vehicle types; the documented rejection rule asks whether recall is comparable with covered classes and the miss-rate gap is small and inconsistent across scenes. | A provisional box-level analysis exists, but it compares detections to unverified source annotations. The available sample and rates are listed below. No human audit-sheet classes were entered, and the documented rejection rule does not set a numerical gap threshold. | **Inconclusive** |
-| H4: distant-scene slicing | Support requires lower absolute counting error on distant images for sliced inference at the same threshold; the preregistered description also calls out small-object recall and double counting. | No audited evaluation rows or final evaluation summary. The paired distant-scene error difference and interval are unavailable. | **Inconclusive** |
+No H1 or H2 verdict is available. No hypothesis is described as established by this pilot.
 
-No difference is described as an improvement: there is no evaluation interval that
-excludes zero.
+### Local vehicles and H3
 
-## Local vehicle confusion: provisional, annotation-referenced
+For images where the labeller counted three or more rickshaws, the mean signed covered error was -3.25 for YOLOv8n (4 images), -1.00 for YOLOv8s (4 images), and +12.00 for RT-DETR-L (1 image with a matching cache entry). For the zero-rickshaw group, the corresponding means were -5.67 (3 images), -6.00 (3 images), and -7.00 (1 image). For the one-or-two-rickshaw group, they were -3.00 (6 images), -1.83 (6 images), and unavailable for RT-DETR-L (no matching cached images). These are descriptive covered-total errors grouped by human-counted rickshaw count. They are **not a confusion analysis**: the models have no rickshaw class, and the groups cannot show whether a particular rickshaw was missed or assigned another class.
 
-The existing H3 output records fresh local inference on the source archive, not the
-test-set benchmark cache. Its metadata labels the analysis “annotation referenced,
-unverified” and “exploratory.” It records 49 analyzed source images, 217 annotated
-boxes, and 651 model-box outcomes. The rickshaw category has 128 boxes across 15
-scenes; loader-rickshaw has 6 boxes across 5 scenes and is explicitly exploratory
-because its category sample is small. The 30 selected audit crops have a
-verification sheet, but the `verified_class` cells are blank. Therefore **none of
-these annotations has been verified through that sample**.
+A separate exploratory H3 box analysis exists in `results/h3_confusion.csv` and `results/h3_confusion_metadata.json`. It is annotation-referenced and explicitly marked unverified. Its metadata reports 49 source images, 217 annotated boxes, and 651 model-box outcomes; the audit sheet has 30 sampled boxes and no verified-class entries. Therefore, **there are no verified H3 box results** to report as confirmed evidence. That source-annotation analysis must not be used to select settings or treated as a verified confusion result.
 
-| Source category | Model | Boxes / scenes | Misses at default threshold | Miss rate (95% scene bootstrap interval) |
-|---|---|---:|---:|---:|
-| Rickshaw | YOLOv8n | 128 / 15 | 103 | 80.5% (72.0%–87.3%) |
-| Rickshaw | YOLOv8s | 128 / 15 | 93 | 72.7% (63.5%–82.0%) |
-| Rickshaw | RT-DETR-L | 128 / 15 | 51 | 39.8% (30.3%–48.9%) |
-| Loader-rickshaw | YOLOv8n | 6 / 5 | 3 | 50.0% (16.7%–83.3%), exploratory |
-| Loader-rickshaw | YOLOv8s | 6 / 5 | 4 | 66.7% (37.5%–100.0%), exploratory |
-| Loader-rickshaw | RT-DETR-L | 6 / 5 | 1 | 16.7% (0.0%–60.0%), exploratory |
+### Distant-image comparison
 
-These are descriptive comparisons with source boxes, not error rates against
-verified ground truth. They must not be used to select a setting or establish
-confirmatory H3 support.
+For YOLOv8n on the seven labelled distant images, standard-mode mean absolute error was 5.57 and sliced-mode mean absolute error was 2.43. The paired standard-minus-sliced error difference was 3.14, with a scene-level interval from 2.00 to 5.00, across seven cached pairs. The interval is above zero, but this remains a descriptive pilot comparison on a small sample; it does not replace the planned full evaluation.
 
 ## Needs-review flag
 
-The predictor implementation and its pre-registered review rules are documented in
-the repository. However, `results/predictor_report.json` is absent, and no stored
-H1/H2 verdict, validation precision/recall, or interval is available. The flag has
-not been demonstrated to predict error in the current evaluation artifacts.
-Accordingly, no flag performance or validated status is claimed here.
+The pilot's simple flag selects the quarter of images with the greatest cross-family disagreement, using only images with cached standard results for all three models. Only two images met that common-cache requirement, so the flag selected one and left one unflagged. Their mean absolute median-model errors were 1.00 for the flagged image and 13.00 for the unflagged image (one image in each group).
+
+This is **unvalidated** and is only a descriptive association on two images; it is not evidence that disagreement predicts error and is not a guarantee of reliability. The learned predictor was not run. Validation requires a sufficiently large audited evaluation sample, complete matching frozen-settings detections, a held-out scene-based evaluation of the pre-registered flag rule, and reported flag precision and recall with intervals. Results from development images must not be used as held-out validation because settings were tuned there.
 
 ## Failure cases
 
-`docs/failure_cases.md` and a failure gallery are absent. There are no verified
-ranked cases from which to name main causes or provide examples. In particular,
-occlusion, distance, night/glare, local vehicle types, dense overlap, and possible
-annotation or labelling errors must not be assigned as causes without reviewing
-the corresponding images. No case is claimed to show that the user miscounted.
+The failure-case review selected eight images because the best eligible model's absolute covered error exceeded the labeller-consistency figure, up to a maximum of 12, and five images for the largest available-model disagreement, up to a maximum of five. Four appeared in both groups, leaving nine unique figures. The best eligible model was YOLOv8s, selected as the lowest-MAE model among those with at least 10 image-hash-matched evaluation results.
 
-## Unfinished and provisional work
+The most frequent visual judgments were **distant or small** (five selected images), **dense overlap** (three), and **night or glare** (one). These causes are unconfirmed judgments from viewing images, not verified explanations. For example, `tl0038` was described as a wide-road scene with small distant vehicles; `tl0007` as busy traffic with partly occluded foreground vehicles; and `tl0046` as a dim scene where contrast may be reduced. Each remains unconfirmed and should be checked by the labeller.
 
-* Evaluation and predictor reports are absent; final standard/sliced performance
-  and hypothesis decisions remain unfinished.
-* Evaluation first-pass labels and the requested second-pass labels are not present
-  for the evaluation images. The checker and Week 3 runner must pass after labels
-  are completed before analysis is run.
-* H3 remains provisional until source boxes are checked; its verification sheet
-  currently records no verified classes.
-* Failure-case ranking, image review, cause assignments, and user confirmation are
-  unfinished.
-* Video counting is implemented with a provenance gate and synthetic tests, but it
-  is not part of the image evaluation. No licensed clip run or video accuracy claim
-  is verified here.
-* The persisted pytest log is evidence only of the run it records; it does not
-  establish the status of every later repository change.
+The report flags every selected case for a possible blind recount; this is a request to review, not a claim that the labeller miscounted. No source dataset boxes could be aligned byte-for-byte to the selected image copies, so no dataset boxes were drawn. Cached RT-DETR-L detections were unavailable for seven of the nine selected images; the figures mark these missing results rather than generating detections. See `docs/failure_cases.md` and `results/failures/`.
 
-## Limitations
+## Limitations, unfinished work, and Week 4 plan
 
-The test set is small and comes from Dhaka road imagery; results cannot be assumed
-to transfer to other places, camera positions, weather, or traffic patterns.
-Reference counts depend on human labelling and are not perfect truth. The H3 source
-annotations are separately unverified. All detectors are pretrained models rather
-than models trained or validated for every local vehicle category. Rickshaws and
-other local vehicle types may not map to a COCO detector class. Occlusion, overlap,
-small or distant vehicles, night conditions, and glare can affect counts. No
-accuracy percentage is supported by the current evaluation artifacts.
+The pilot covers 13 audited evaluation images from Dhaka imagery. The labelled condition counts are descriptive and overlap because an image may have multiple tags: day 8, dense 6, distant 7, glare 5, night 4, and sparse 5. Results may not transfer to other places, viewpoints, lighting, or traffic patterns. Human counts are reference labels, not perfect truth. The models are pretrained general-purpose detectors, not models trained and validated for every local vehicle category. Incomplete cache coverage limits direct comparisons, especially for RT-DETR-L.
 
-## Week 4 plan and mentor questions
+The persistent `results/summary.json` and `results/evaluation_table.csv` do not contain the pilot results: the JSON currently records zero evaluated items and null error metrics, and the table is header-only. The pilot findings come from `results/week3_summary.md` and are intentionally provisional. A full evaluation, H1/H2 predictor validation, verified source-box H3 analysis, and independent confirmation of failure causes remain unfinished. The persisted test log records an earlier run; the current full-suite result is 368 passed and 5 skipped.
 
-1. Complete audited first-pass counts for the evaluation images and the planned
-   second-pass recounts; preserve the blind review process and run the test-set
-   checker.
-2. Verify a sample of the source boxes and record true classes in the audit sheet;
-   rerun H3 only with those explicit overrides and keep any unverified results
-   clearly provisional.
-3. Run the final-settings standard and sliced benchmark and evaluation only after
-   readiness passes; then run the predictor, inspect the failure gallery blind,
-   and confirm or reject each proposed cause before publication.
-4. Report scene-level intervals, small-condition exploratory status, labeller
-   disagreement, and the measured flag metrics without converting uncertainty into
-   an accuracy claim.
+For Week 4:
 
-**Questions for the mentor**
+1. Increase audited evaluation first-pass coverage to at least 30 images and complete the planned second-pass review, while keeping development data separate.
+2. Ensure frozen-settings cache coverage is complete for all models and required modes before comparing them on a common sample.
+3. Run the full evaluation and registered H1/H2 predictor only after readiness checks pass; report scene-level uncertainty and validation precision/recall intervals for any flag.
+4. Verify source annotations through the H3 audit process before interpreting box-level local-vehicle outcomes.
+5. Recheck failure cases blind, confirm or revise each cause, and keep the labels unchanged unless the labeller records a correction through the established process.
 
-1. Is the planned evaluation-labeling and second-pass workload sufficient for the
-   intended claims, or should the sample design be expanded before drawing
-   conclusions?
-2. What level of independent verification is required before source-annotation H3
-   results for rickshaws and loader-rickshaws can be treated as evidence?
-3. Should Week 4 prioritize completing the audited evaluation and H1/H2/H4
-   decisions, or first broaden the sampled scenes to improve coverage of rare
-   conditions and local vehicle types?
+## Questions for the mentor
+
+1. Is a minimum of 30 audited evaluation images adequate for the planned H1/H2 claims, or should the sample be expanded before those analyses?
+2. What independent verification protocol should be required before source-annotation H3 results for rickshaws and loader-rickshaws are interpreted?
+3. Should Week 4 prioritize complete common-cache coverage across models, or expand the evaluation sample across scenes and rare conditions first?
 
 ## Number inventory and sources
 
-This inventory identifies the source for every quantitative result stated above.
-Percentages and intervals in the H3 table are the rounded values stored in the H3
-aggregate CSV. Missing results are described as unavailable rather than replaced
-with estimates.
+All quantitative values in this report are traceable to the sources below. Item identifiers in the failure-case examples and the per-case cause totals are from `docs/failure_cases.md`. “95% interval” means a scene-level bootstrap interval where the pilot report labels it as such.
 
-| Number(s) used | Meaning | Source file |
+| Numbers used | Meaning | Source |
 |---|---|---|
-| 75; 10; 65 | Total source images; development subset; remaining evaluation images | `data/testset/SOURCES.csv`; `configs/testset_plan.json` |
-| 0 evaluation rows; 0 labelled outside development; null MAE/bias | Stored final evaluation summary values | `results/summary.json` |
-| 0 evaluation-table data rows | Evaluation table has a header only | `results/evaluation_table.csv` |
-| 0 second-pass rows; 10 first-pass label rows | Current label-file pass counts | `data/testset/LABELS.csv` |
-| 49; 217; 651 | H3 source images, annotation boxes, and model-box outcomes | `results/h3_confusion_metadata.json` |
-| 30 selected audit boxes; 0 verified classes | Audit sample and blank verification sheet | `results/h3_confusion_metadata.json`; `results/h3_box_audit/verification_sheet.csv` |
-| H3 category counts, scene counts, miss counts, rates, and intervals in the table above | Provisional per-category/model outcomes | `results/h3_confusion.csv` |
-| 161 passed; 4 skipped | Persisted test-log result; not independently rerun for this report | `results/pytest_audit.log` |
-| 0 predictor reports; 0 failure-case reports | Those artifacts are not present in the inspected `results/` and `docs/` directories | Repository artifact inventory |
-| 15 images | Documented minimum condition sample size below which a condition is exploratory | `core/evaluation.py` (`EXPLORATORY_MIN_IMAGES`); `results/summary.json` |
-| 0.1; 20% | H1 minimum Spearman margin and fixed worst-case review budget | `docs/hypotheses.md`; `core/predictor.py` |
-| 0.5 IoU; 0.15; 0.25 | H3 box-match threshold; low-confidence sweep floor; default reporting threshold | `core/confusion.py`; `docs/metrics.md`; `results/h3_confusion_metadata.json` |
+| 13 evaluation first passes; 10 development first passes; 23 first-pass-labelled images; 13 second-pass images | Label coverage by split and pass | `results/week3_summary.md`; `data/testset/LABELS.csv`; `configs/testset_plan.json` |
+| 30 | Minimum audited evaluation sample required by H1/H2 readiness | `results/week3_summary.md`; `scripts/run_week3.py` |
+| 1.6923; 0.67–2.64; n=13 | Mean absolute covered difference between labelling passes, interval, and paired sample size | `results/week3_summary.md` |
+| Evaluation table: model n, scenes, MAE, signed error, and intervals; all values in the evaluation results table above | Pilot standard-mode evaluation | `results/week3_summary.md` |
+| Second-pass table: model n, MAE, signed error, and intervals; all values in the sensitivity table above | Pilot sensitivity analysis | `results/week3_summary.md` |
+| Development table: model n, scenes, MAE, signed error, and intervals; all values in the development table above | Separate, optimistic development results | `results/week3_summary.md` |
+| 0 evaluated; 0 labelled outside development; null MAE/bias; zero table data rows | Stale stored final-evaluation artifact, distinguished from the pilot | `results/summary.json`; `results/evaluation_table.csv` |
+| Condition counts 8, 6, 7, 5, 4, 5 | Day, dense, distant, glare, night, sparse counts respectively | `results/week3_summary.md` |
+| H3 rickshaw-group sample sizes and signed errors | Descriptive pilot grouping by human-counted rickshaw count | `results/week3_summary.md` |
+| 7 distant images; 5.57 standard MAE; 2.43 sliced MAE; 3.14 difference; 2.00–5.00 interval; 7 pairs | H4 descriptive paired comparison | `results/week3_summary.md` |
+| 2 common-cache images; 1 flagged and 1 unflagged; mean errors 1.00 and 13.00; group n=1 each | Unvalidated descriptive needs-review flag | `results/week3_summary.md` |
+| Selection limits 12 and 5; 8 error-selected; 5 disagreement-selected; 4 overlaps; 9 unique; cause frequencies 5, 3, 1; best-model eligibility minimum 10 | Failure-case selection and cause counts | `docs/failure_cases.md` |
+| 49 source images; 217 boxes; 651 model-box outcomes; 30 sampled audit boxes; 0 verified classes | Exploratory, unverified H3 box analysis | `results/h3_confusion_metadata.json`; `results/h3_box_audit/verification_sheet.csv` |
+| 368 passed; 5 skipped | Current full test-suite result after the failure-case implementation | Full test-suite run recorded in the task execution |
+| Screenshot filenames below | Proposed filenames, not measured results | Recommendations in this report |
 
-## Suggested screenshots to capture
+## Screenshots to capture
 
-No screenshots of completed evaluation or review screens were found. Existing H3
-charts and audit crops are analysis artifacts, not screenshots of those screens.
-The following are capture recommendations, not screenshots already produced.
+No screenshots of completed UI validation or a verified H3 audit were produced for this report. These are capture recommendations:
 
 | Suggested filename | What it should show |
 |---|---|
-| `week3_evaluation_tab.png` | Evaluation tab after a readiness-passing final evaluation, including sample size and condition results |
-| `week3_predictor_validation.png` | Stored H1/H2 verdicts, scene-grouped validation, and needs-review precision/recall with intervals |
-| `week3_h3_verification_sheet.png` | The H3 audit sheet with the verified-class entries visible and the annotation caveat |
-| `week3_failure_gallery.png` | Human-reviewed failure gallery with dataset and model boxes clearly distinguished |
-| `week3_testset_readiness.png` | Successful test-set checker output after required audited labels are complete |
+| `week3_pilot_summary.png` | The pilot model table, its per-model sample sizes, and the separate optimistic development table |
+| `week3_labeller_consistency.png` | The covered-total pass-difference estimate, its interval, and the labelling-noise caveat |
+| `week3_needs_review_pilot.png` | The descriptive flag explanation, its two-image limitation, and the unvalidated caveat |
+| `week3_failure_cases.png` | A failure figure with its audited count panel, available model overlays, and explicit missing-data notes |
+| `week3_h3_verification.png` | The source-box verification sheet after verified classes have been entered; until then it should show the unverified state |
 
 ## Could not verify
 
-* A completed final evaluation on audited evaluation labels, including model-by-
-  condition MAE and signed bias with scene-level intervals.
-* Any paired-pass consistency estimate or its labelling-noise floor.
-* Predictor validation, H1/H2 verdicts, needs-review precision/recall, and their
-  intervals.
-* A confirmatory H3 decision; all 30 selected box-audit entries remain unverified.
-* A paired distant-condition H4 effect and interval.
-* Ranked failure cases, image-viewed causes, possible user miscounts, or human
-  confirmation of those judgments.
-* Screenshots of completed evaluation or review screens.
-* Whether the persisted test log covers the current repository revision; the log
-  reports a test result but is not a fresh run for this report.
+- A complete final evaluation from `results/summary.json` or `results/evaluation_table.csv`; both remain empty for evaluation.
+- RT-DETR-L error on the full labelled evaluation set, because matching cached results exist for only two images in the pilot.
+- Any H1/H2 predictor verdict or validated needs-review precision/recall.
+- Verified H3 source-box outcomes; the audit sheet has no verified-class entries.
+- Whether any failure-case cause is correct or whether any audited count needs correction; the causes remain unconfirmed pending blind review.
+- Transfer of these results beyond the Dhaka imagery and the small pilot sample.
